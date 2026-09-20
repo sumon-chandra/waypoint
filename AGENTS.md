@@ -125,3 +125,105 @@ Courier location and shipment status updates are core to the product and are **n
 - **TypeScript Strict Mode:** `any` is forbidden.
 - **Component Anatomy:** Small, modular, single-responsibility components.
 - **Commits:** Conventional commits (`feat:`, `fix:`, `chore:`, `refactor:`). Code must lint and format successfully before pushing.
+
+# Waypoint Frontend Implementation Plan
+
+This plan details the implementation strategy for the Waypoint logistics platform frontend.
+
+## Approved Architecture Decisions
+
+> [!NOTE]
+> Based on user feedback, the following key decisions have been made:
+>
+> 1. **Token Storage:** HTTP-only cookies will be used for security.
+> 2. **Real-time Updates:** Manual shipment status updates (no WebSockets/SSE for now).
+> 3. **File Uploads:** UploadThing integration.
+> 4. **Map Rendering:** Deferred to future iterations.
+> 5. **Repository Strategy:** The frontend will be housed in a completely separate repository.
+
+## Proposed Architecture & Structure
+
+### Tech Stack
+
+- **Framework**: Next.js (App Router)
+- **Data Fetching**: TanStack Query (React Query)
+- **Forms & Validation**: TanStack Form + Zod
+- **UI Components**: shadcn/ui + Tailwind CSS
+
+### Directory Structure
+
+```text
+src/
+├── app/
+│   ├── (auth)/           # /login, /register
+│   ├── (dashboard)/
+│   │   ├── admin/        # Admin routes
+│   │   ├── courier/      # Courier routes
+│   │   └── customer/     # Customer routes
+│   ├── profile/          # Profile management
+│   └── layout.tsx        # Root layout with providers
+├── components/
+│   ├── ui/               # shadcn/ui primitives
+│   └── common/           # Shared components (Sidebar, Navbar)
+├── features/
+│   ├── auth/             # Login, Register, Google OAuth hooks
+│   ├── shipments/        # Booking, Listing, Tracking, Courier assignment
+│   ├── hubs/             # Hub CRUD
+│   ├── analytics/        # Charts and Metric cards
+│   └── users/            # Profile and user management
+├── lib/
+│   ├── api.ts            # Axios instance with interceptors
+│   ├── utils.ts          # Tailwind cn() utility
+│   └── query-client.ts   # TanStack Query configuration
+└── types/
+```
+
+## Features & Pages
+
+### 1. Authentication & Onboarding
+
+- **Pages**: `/login`, `/register`
+- **Features**:
+  - Email/Password login and registration (Customer/Courier roles).
+  - Google OAuth integration.
+  - Auth context to handle role-based redirection (e.g., redirecting an Admin away from the Customer dashboard).
+
+### 2. Customer Portal (`/customer`)
+
+- **`/customer/overview`**: Dashboard showing total spend, shipment counts, and a breakdown of delivered statuses.
+- **`/customer/book`**: Form to book a new parcel (Receiver Name, Phone, Weight). Uses TanStack Form + Zod.
+- **`/customer/shipments`**: List of booked shipments. Includes a "Pay Now" button linking to Stripe Checkout if `paymentStatus` is `UNPAID`.
+- **`/customer/shipments/[id]`**: Detailed view of a shipment's progress.
+
+### 3. Courier Portal (`/courier`)
+
+- **`/courier/overview`**: Dashboard displaying assigned deliveries, completed count, and completion rate.
+- **`/courier/shipments`**: List of shipments assigned to them.
+- **`/courier/shipments/[id]`**: Detailed view allowing status updates (`IN_TRANSIT` ➔ `DELIVERED`).
+
+### 4. Admin Portal (`/admin`)
+
+- **`/admin/overview`**: Platform-wide metrics (volume, revenue, success rate, charts for trends).
+- **`/admin/hubs`**: Table view to list hubs, with a modal to Create/Edit/Delete hubs.
+- **`/admin/shipments`**: Global list of shipments. Includes an action to assign a Courier and Hub to a `PENDING` shipment.
+- **`/admin/users`**: List of all users. Ability to update user status (`BANNED`, `INACTIVE`, `ACTIVE`).
+- **Export Reports**: Buttons to download CSV reports for shipments and payments.
+
+### 5. Profile Management (`/profile`)
+
+- Unified page for all roles to update their name, display username, avatar, and password.
+
+## Verification Plan
+
+### Automated Checks
+
+- Run `bun run lint` and `bun run build` to ensure no TypeScript or Next.js build errors.
+- Ensure Zod schemas match the backend validation requirements perfectly.
+
+### Manual Verification
+
+- **Auth Flow**: Register, login, and verify correct role redirection.
+- **Customer Flow**: Book a shipment, proceed to Stripe checkout mock, verify shipment appears in list.
+- **Admin Flow**: Create a hub, assign a courier to a shipment, view analytics.
+- **Courier Flow**: View assigned shipment, update status to `IN_TRANSIT` and `DELIVERED`.
+- **UI/UX**: Check responsiveness and dark mode compatibility across the shadcn/ui components.
