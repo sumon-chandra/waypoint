@@ -1,11 +1,11 @@
 import * as React from "react";
 import { User, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Role } from "../schemas/auth.schemas";
+import { RegisterRole } from "../schemas/auth.schemas";
 
 interface RoleRadioGroupProps {
-  value: Role;
-  onChange: (value: Role) => void;
+  value: RegisterRole;
+  onChange: (value: RegisterRole) => void;
   className?: string;
   name?: string;
 }
@@ -17,7 +17,7 @@ export function RoleRadioGroup({
   name = "auth-role",
 }: RoleRadioGroupProps) {
   const roles: {
-    id: Role;
+    id: RegisterRole;
     label: string;
     description: string;
     icon: React.ComponentType<{ className?: string }>;

@@ -12,6 +12,8 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { GoogleButton } from "@/features/auth/components/google-button";
 import { loginSchema } from "@/features/auth/schemas/auth.schemas";
+import { useLoginMutation } from "@/features/auth/api/auth.api";
 
 function LoginFormContent() {
   const router = useRouter();
@@ -28,6 +31,8 @@ function LoginFormContent() {
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [authError, setAuthError] = React.useState<string | null>(null);
+
+  const loginMutation = useLoginMutation();
 
   const form = useForm({
     defaultValues: {
@@ -44,9 +49,32 @@ function LoginFormContent() {
         return;
       }
 
-      // TODO: Integrate with backend for user authentication
+      try {
+        const response = await loginMutation.mutateAsync({
+          email: value.email.trim().toLowerCase(),
+          password: value.password,
+        });
+
+        // Role-based redirection per AGENTS.md guidelines
+        const userRole = response.data?.user?.role;
+        if (userRole === "ADMIN") {
+          router.push("/admin");
+        } else if (userRole === "COURIER") {
+          router.push("/courier");
+        } else {
+          router.push("/customer");
+        }
+      } catch (err: any) {
+        const message =
+          err?.message ||
+          err?.response?.data?.message ||
+          "Invalid email or password. Please try again.";
+        setAuthError(message);
+      }
     },
   });
+
+  const isSubmitting = loginMutation.isPending;
 
   return (
     <div className="w-full max-w-md space-y-6">
@@ -76,16 +104,17 @@ function LoginFormContent() {
             </div>
           )}
 
-          {/* Server / General error banner if any */}
+          {/* Server / General error banner */}
           {authError && (
-            <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive font-medium">
-              {authError}
+            <div className="flex items-start gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive font-medium animate-in fade-in duration-200">
+              <AlertCircle className="size-4 shrink-0 mt-0.5" />
+              <span>{authError}</span>
             </div>
           )}
 
           {/* Google Sign In Option */}
           <div>
-            <GoogleButton label="Sign in with Google" />
+            <GoogleButton label="Sign in with Google" disabled={isSubmitting} />
           </div>
 
           {/* Visual Divider */}
@@ -129,6 +158,7 @@ function LoginFormContent() {
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
+                      disabled={isSubmitting}
                       className="pl-10"
                       autoComplete="email"
                     />
@@ -175,6 +205,7 @@ function LoginFormContent() {
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
+                      disabled={isSubmitting}
                       className="pl-10 pr-10"
                       autoComplete="current-password"
                     />
@@ -212,7 +243,8 @@ function LoginFormContent() {
                     id="rememberMe"
                     checked={field.state.value}
                     onChange={(e) => field.handleChange(e.target.checked)}
-                    className="size-4 rounded border-border text-primary focus:ring-primary/30"
+                    disabled={isSubmitting}
+                    className="size-4 rounded border-border text-primary focus:ring-primary/30 cursor-pointer"
                   />
                   <label
                     htmlFor="rememberMe"
@@ -225,22 +257,23 @@ function LoginFormContent() {
             </form.Field>
 
             {/* Submit Button */}
-            <form.Subscribe
-              selector={(state) => [state.canSubmit, state.isSubmitting]}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-11 font-semibold rounded-xl gap-2 shadow-md transition-all mt-2 cursor-pointer"
             >
-              {([canSubmit, isSubmitting]) => (
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-11 font-semibold rounded-xl gap-2 shadow-md transition-all mt-2"
-                >
-                  <span>
-                    {isSubmitting ? "Signing in..." : "Sign In to Waypoint"}
-                  </span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In to Waypoint</span>
                   <ArrowRight className="size-4" />
-                </Button>
+                </>
               )}
-            </form.Subscribe>
+            </Button>
           </form>
         </CardContent>
 

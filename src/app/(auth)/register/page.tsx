@@ -32,7 +32,7 @@ import { RoleRadioGroup } from "@/features/auth/components/role-radio-group";
 import { GoogleButton } from "@/features/auth/components/google-button";
 import {
   registerSchema,
-  type Role,
+  type RegisterRole,
 } from "@/features/auth/schemas/auth.schemas";
 import { useRegisterMutation } from "@/features/auth/api/auth.api";
 
@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   const form = useForm({
     defaultValues: {
-      role: "CUSTOMER" as Role,
+      role: "CUSTOMER" as RegisterRole,
       fullName: "",
       email: "",
       phone: "",
