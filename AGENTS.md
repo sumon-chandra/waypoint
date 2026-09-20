@@ -2,6 +2,18 @@
 
 This document is read by AI coding agents (and human contributors) working on the Waypoint logistics platform frontend. It defines what to build with, what to decide vs. what's already decided, and what requires explicit confirmation before acting.
 
+# Important Note
+
+## Base URL
+
+`https://waypointapi.vercel.app/api/v1`
+
+## Example routes
+
+`https://waypointapi.vercel.app/api/v1/users`
+
+### After everthing you will be working with make sure you give me well described commit message for github.
+
 ---
 
 ## 1. Tech Stack & Core Libraries

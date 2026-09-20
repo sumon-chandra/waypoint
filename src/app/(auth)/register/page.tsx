@@ -13,6 +13,8 @@ import {
   EyeOff,
   ArrowRight,
   ShieldCheck,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
@@ -32,12 +34,15 @@ import {
   registerSchema,
   type Role,
 } from "@/features/auth/schemas/auth.schemas";
+import { useRegisterMutation } from "@/features/auth/api/auth.api";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [authError, setAuthError] = React.useState<string | null>(null);
+
+  const registerMutation = useRegisterMutation();
 
   const form = useForm({
     defaultValues: {
@@ -60,17 +65,28 @@ export default function RegisterPage() {
         return;
       }
 
-      console.log("Registration form submitted:", value);
-      // TODO: Integrate with backend for user registration
+      try {
+        await registerMutation.mutateAsync({
+          name: value.fullName.trim(),
+          email: value.email.trim().toLowerCase(),
+          password: value.password,
+          role: value.role,
+          phone: value.phone.trim(),
+        });
 
-      // TODO: Route to respective portal after mock registration
-      // if (value.role === "COURIER") {
-      //   router.push("/courier");
-      // } else {
-      //   router.push("/customer");
-      // }
+        // Redirect to login with success indicator
+        router.push("/login?registered=true");
+      } catch (err: any) {
+        const message =
+          err?.message ||
+          err?.response?.data?.message ||
+          "Registration failed. Please check your information.";
+        setAuthError(message);
+      }
     },
   });
+
+  const isSubmitting = registerMutation.isPending;
 
   return (
     <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-primary/5 via-background to-background relative overflow-hidden">
@@ -102,10 +118,11 @@ export default function RegisterPage() {
           </CardHeader>
 
           <CardContent className="space-y-5">
-            {/* General validation / auth error */}
+            {/* General validation / backend error banner */}
             {authError && (
-              <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive font-medium">
-                {authError}
+              <div className="flex items-start gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive font-medium animate-in fade-in duration-200">
+                <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                <span>{authError}</span>
               </div>
             )}
 
@@ -133,7 +150,10 @@ export default function RegisterPage() {
 
               {/* Google Sign Up Option */}
               <div className="pt-1">
-                <GoogleButton label="Sign up with Google" />
+                <GoogleButton
+                  label="Sign up with Google"
+                  disabled={isSubmitting}
+                />
               </div>
 
               {/* Visual Divider */}
@@ -166,6 +186,7 @@ export default function RegisterPage() {
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
+                        disabled={isSubmitting}
                         className="pl-10"
                         autoComplete="name"
                       />
@@ -206,6 +227,7 @@ export default function RegisterPage() {
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
+                          disabled={isSubmitting}
                           className="pl-10"
                           autoComplete="email"
                         />
@@ -244,6 +266,7 @@ export default function RegisterPage() {
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
+                          disabled={isSubmitting}
                           className="pl-10 font-mono text-xs sm:text-sm"
                           autoComplete="tel"
                         />
@@ -284,6 +307,7 @@ export default function RegisterPage() {
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
+                          disabled={isSubmitting}
                           className="pl-10 pr-9"
                           autoComplete="new-password"
                         />
@@ -339,6 +363,7 @@ export default function RegisterPage() {
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
+                          disabled={isSubmitting}
                           className="pl-10 pr-9"
                           autoComplete="new-password"
                         />
@@ -391,6 +416,7 @@ export default function RegisterPage() {
                         id="register-terms"
                         checked={field.state.value}
                         onChange={(e) => field.handleChange(e.target.checked)}
+                        disabled={isSubmitting}
                         className="mt-0.5 size-4 rounded border-border text-primary focus:ring-primary/30 cursor-pointer"
                       />
                       <label
@@ -424,24 +450,23 @@ export default function RegisterPage() {
               </form.Field>
 
               {/* Submit Button */}
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full h-11 font-semibold rounded-xl gap-2 shadow-md transition-all mt-2 cursor-pointer"
               >
-                {([canSubmit, isSubmitting]) => (
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full h-11 font-semibold rounded-xl gap-2 shadow-md transition-all mt-2"
-                  >
-                    <span>
-                      {isSubmitting
-                        ? "Creating account..."
-                        : "Create Waypoint Account"}
-                    </span>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>Creating account...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Create Waypoint Account</span>
                     <ArrowRight className="size-4" />
-                  </Button>
+                  </>
                 )}
-              </form.Subscribe>
+              </Button>
             </form>
           </CardContent>
 

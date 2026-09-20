@@ -49,3 +49,34 @@ export const registerSchema = z
   });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
+
+/**
+ * Backend API Payload and Response contracts
+ */
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+  phone?: string;
+}
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    user: AuthUser;
+    accessToken: string;
+  };
+}
