@@ -67,6 +67,9 @@ export interface AuthUser {
   email: string;
   role: Role;
   status: string;
+  avatarUrl?: string;
+  avatar?: string;
+  phone?: string;
   createdAt: string;
   updatedAt: string;
 }

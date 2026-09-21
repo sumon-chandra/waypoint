@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { getCookie } from "./cookies";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://waypointapi.vercel.app/api/v1";
@@ -23,11 +24,11 @@ export interface ApiErrorResponse {
   error?: string;
 }
 
-// Request Interceptor: Attach bearer token if stored in memory/localStorage (fallback)
+// Request Interceptor: Attach bearer token from cookie if available
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("accessToken");
+      const token = getCookie("accessToken");
       if (token && !config.headers.Authorization) {
         config.headers.Authorization = `Bearer ${token}`;
       }

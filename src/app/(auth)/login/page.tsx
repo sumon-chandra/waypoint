@@ -23,6 +23,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { GoogleButton } from "@/features/auth/components/google-button";
 import { loginSchema } from "@/features/auth/schemas/auth.schemas";
 import { useLoginMutation } from "@/features/auth/api/auth.api";
+import { useAuth } from "@/hooks/use-auth";
 
 function LoginFormContent() {
   const router = useRouter();
@@ -33,6 +34,7 @@ function LoginFormContent() {
   const [authError, setAuthError] = React.useState<string | null>(null);
 
   const loginMutation = useLoginMutation();
+  const { login } = useAuth();
 
   const form = useForm({
     defaultValues: {
@@ -54,6 +56,14 @@ function LoginFormContent() {
           email: value.email.trim().toLowerCase(),
           password: value.password,
         });
+
+        // Sync with global auth state and cookies
+        if (response.data?.user) {
+          login({
+            user: response.data.user,
+            accessToken: response.data.accessToken,
+          });
+        }
 
         // Role-based redirection per AGENTS.md guidelines
         const userRole = response.data?.user?.role;

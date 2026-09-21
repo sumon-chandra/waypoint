@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { setCookie } from "@/lib/cookies";
 import {
   RegisterPayload,
   LoginPayload,
@@ -22,11 +23,20 @@ export function useRegisterMutation() {
   return useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      // Store accessToken in localStorage as fallback
-      if (data?.data?.accessToken && typeof window !== "undefined") {
-        localStorage.setItem("accessToken", data.data.accessToken);
-        localStorage.setItem("waypoint_user", JSON.stringify(data.data.user));
+      // Store accessToken and user in browser cookies (safe, no localStorage fallback)
+      if (data?.data?.accessToken) {
+        setCookie("accessToken", data.data.accessToken, { days: 7 });
       }
+      if (data?.data?.user) {
+        setCookie("waypoint_user", JSON.stringify(data.data.user), { days: 7 });
+      }
+
+      // Clean up any legacy localStorage tokens for security
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("waypoint_user");
+      }
+
       toast.success("Account created successfully!", {
         description: `Welcome to Waypoint, ${data.data.user.name}. Please sign in to continue.`,
       });
@@ -59,11 +69,20 @@ export function useLoginMutation() {
   return useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      // Store accessToken in localStorage as fallback
-      if (data?.data?.accessToken && typeof window !== "undefined") {
-        localStorage.setItem("accessToken", data.data.accessToken);
-        localStorage.setItem("waypoint_user", JSON.stringify(data.data.user));
+      // Store accessToken and user in browser cookies
+      if (data?.data?.accessToken) {
+        setCookie("accessToken", data.data.accessToken, { days: 7 });
       }
+      if (data?.data?.user) {
+        setCookie("waypoint_user", JSON.stringify(data.data.user), { days: 7 });
+      }
+
+      // Clean up any legacy localStorage tokens
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("waypoint_user");
+      }
+
       toast.success("Welcome back!", {
         description: `Signed in as ${data.data.user.name} (${data.data.user.role}).`,
       });

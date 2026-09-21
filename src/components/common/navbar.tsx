@@ -14,9 +14,15 @@ import {
   ShieldCheck,
   Phone,
   Package,
+  LayoutDashboard,
+  User as UserIcon,
+  LogOut,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { UserProfileMenu } from "@/components/common/user-profile-menu";
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -34,6 +40,7 @@ const navItems: NavItem[] = [
 ];
 
 export function Navbar() {
+  const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [quickTrackQuery, setQuickTrackQuery] = React.useState("");
   const [mounted, setMounted] = React.useState(false);
@@ -140,36 +147,46 @@ export function Navbar() {
 
           {/* Auth Actions */}
           <div className="flex items-center gap-2">
-            <Link
-              href="/login"
-              className={buttonVariants({ variant: "ghost", size: "sm" })}
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/register"
-              className={cn(
-                buttonVariants({ variant: "default", size: "sm" }),
-                "gap-1.5 shadow-sm"
-              )}
-            >
-              <span>Get Started</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
+            {mounted && isAuthenticated && user ? (
+              <UserProfileMenu align="end" />
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className={cn(
+                    buttonVariants({ variant: "default", size: "sm" }),
+                    "gap-1.5 shadow-sm"
+                  )}
+                >
+                  <span>Get Started</span>
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
         {/* Mobile Header Actions (Right) */}
         <div className="flex md:hidden items-center gap-2">
-          <Link
-            href="/login"
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "xs" }),
-              "text-xs px-2.5"
-            )}
-          >
-            Sign In
-          </Link>
+          {mounted && isAuthenticated && user ? (
+            <UserProfileMenu align="end" />
+          ) : (
+            <Link
+              href="/login"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "xs" }),
+                "text-xs px-2.5"
+              )}
+            >
+              Sign In
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -321,27 +338,99 @@ export function Navbar() {
 
               {/* Mobile Auth CTAs */}
               <div className="mt-auto space-y-3 pt-6 border-t border-border/40">
-                <Link
-                  href="/register"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={cn(
-                    buttonVariants({ variant: "default", size: "lg" }),
-                    "w-full h-11 font-medium justify-center shadow-md gap-2"
-                  )}
-                >
-                  <span>Create Free Account</span>
-                  <ArrowRight className="size-4" />
-                </Link>
-                <Link
-                  href="/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "w-full h-11 font-medium justify-center"
-                  )}
-                >
-                  Log In to Waypoint
-                </Link>
+                {mounted && isAuthenticated && user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/60 border border-border/60">
+                      <Avatar size="md">
+                        {(user.avatarUrl || user.avatar) && (
+                          <AvatarImage
+                            src={user.avatarUrl || user.avatar}
+                            alt={user.name}
+                          />
+                        )}
+                        <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                          {user.name ? user.name.trim().charAt(0).toUpperCase() : "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link
+                        href={
+                          user.role === "ADMIN"
+                            ? "/admin"
+                            : user.role === "COURIER"
+                            ? "/courier"
+                            : "/customer"
+                        }
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          buttonVariants({ variant: "default", size: "sm" }),
+                          "w-full text-xs gap-1.5"
+                        )}
+                      >
+                        <LayoutDashboard className="size-3.5" />
+                        <span>Dashboard</span>
+                      </Link>
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          buttonVariants({ variant: "outline", size: "sm" }),
+                          "w-full text-xs gap-1.5"
+                        )}
+                      >
+                        <UserIcon className="size-3.5" />
+                        <span>Profile</span>
+                      </Link>
+                    </div>
+
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={async () => {
+                        setIsMobileMenuOpen(false);
+                        await logout();
+                      }}
+                      className="w-full gap-2 text-xs cursor-pointer"
+                    >
+                      <LogOut className="size-3.5" />
+                      <span>Sign Out</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Link
+                      href="/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "default", size: "lg" }),
+                        "w-full h-11 font-medium justify-center shadow-md gap-2"
+                      )}
+                    >
+                      <span>Create Free Account</span>
+                      <ArrowRight className="size-4" />
+                    </Link>
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "lg" }),
+                        "w-full h-11 font-medium justify-center"
+                      )}
+                    >
+                      Log In to Waypoint
+                    </Link>
+                  </>
+                )}
 
                 {/* Status & Support Badge */}
                 <div className="flex items-center justify-between px-2 pt-3 text-xs text-muted-foreground">
