@@ -23,22 +23,13 @@ export function useRegisterMutation() {
   return useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      // Store accessToken and user in browser cookies (safe, no localStorage fallback)
+      // Store accessToken in browser cookies
       if (data?.data?.accessToken) {
         setCookie("accessToken", data.data.accessToken, { days: 7 });
       }
-      if (data?.data?.user) {
-        setCookie("waypoint_user", JSON.stringify(data.data.user), { days: 7 });
-      }
-
-      // Clean up any legacy localStorage tokens for security
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("waypoint_user");
-      }
 
       toast.success("Account created successfully!", {
-        description: `Welcome to Waypoint, ${data.data.user.name}. Please sign in to continue.`,
+        description: `Welcome to Waypoint, ${data?.data?.user?.name || "Member"}.`,
       });
     },
     onError: (error: any) => {
@@ -69,22 +60,13 @@ export function useLoginMutation() {
   return useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      // Store accessToken and user in browser cookies
+      // Store accessToken in browser cookies
       if (data?.data?.accessToken) {
         setCookie("accessToken", data.data.accessToken, { days: 7 });
       }
-      if (data?.data?.user) {
-        setCookie("waypoint_user", JSON.stringify(data.data.user), { days: 7 });
-      }
-
-      // Clean up any legacy localStorage tokens
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("waypoint_user");
-      }
 
       toast.success("Welcome back!", {
-        description: `Signed in as ${data.data.user.name} (${data.data.user.role}).`,
+        description: `Signed in as ${data?.data?.user?.name || "User"}.`,
       });
     },
     onError: (error: any) => {

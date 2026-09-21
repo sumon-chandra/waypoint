@@ -6,13 +6,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { getCookie, setCookie, removeCookie } from "@/lib/cookies";
+import { getUserFromToken } from "@/lib/jwt";
 import { AuthUser } from "../schemas/auth.schemas";
 
 export interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (authData: { user: AuthUser; accessToken?: string }) => void;
+  login: (authData: { accessToken: string; user?: AuthUser }) => void;
   logout: () => Promise<void>;
   updateUser: (updatedFields: Partial<AuthUser>) => void;
 }
@@ -25,29 +26,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Hydrate session from cookies on initial client load
+  // Hydrate user session purely from the accessToken JWT cookie
   React.useEffect(() => {
     try {
-      // Remove any dangerous legacy token in localStorage
-      if (typeof window !== "undefined") {
-        if (localStorage.getItem("accessToken")) {
-          localStorage.removeItem("accessToken");
+      const token = getCookie("accessToken");
+      if (token) {
+        const decodedUser = getUserFromToken(token);
+        if (decodedUser) {
+          setUser(decodedUser);
+        } else {
+          // Token is expired or invalid
+          removeCookie("accessToken");
+          setUser(null);
         }
-        if (localStorage.getItem("waypoint_user")) {
-          localStorage.removeItem("waypoint_user");
-        }
-      }
-
-      const storedUserCookie = getCookie("waypoint_user");
-      if (storedUserCookie) {
-        const parsedUser = JSON.parse(storedUserCookie) as AuthUser;
-        if (parsedUser && parsedUser.id) {
-          setUser(parsedUser);
-        }
+      } else {
+        setUser(null);
       }
     } catch {
-      // If parsing fails, clear corrupted cookie
-      removeCookie("waypoint_user");
+      removeCookie("accessToken");
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -55,41 +51,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = React.useCallback(
-    (authData: { user: AuthUser; accessToken?: string }) => {
-      setUser(authData.user);
-      setCookie("waypoint_user", JSON.stringify(authData.user), { days: 7 });
+    (authData: { accessToken: string; user?: AuthUser }) => {
+      // Set the JWT accessToken in browser cookie
+      setCookie("accessToken", authData.accessToken, { days: 7 });
 
-      if (authData.accessToken) {
-        setCookie("accessToken", authData.accessToken, { days: 7 });
-      }
-
-      // Ensure no localStorage residue
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("waypoint_user");
-      }
+      // Derive user data from the JWT payload, with fallback to provided user
+      const decodedUser = getUserFromToken(authData.accessToken) || authData.user || null;
+      setUser(decodedUser);
     },
     []
   );
 
   const logout = React.useCallback(async () => {
     try {
-      // Best-effort backend session termination
-      await api.post("/auth/logout").catch(() => {
-        // Backend endpoint might not exist or network error; continue with client cleanup
-      });
+      // Optional best-effort backend session termination
+      await api.post("/auth/logout").catch(() => {});
     } catch {
       // Ignore network/server errors during logout
     } finally {
-      // Clear all auth cookies
+      // Clear accessToken cookie
       removeCookie("accessToken");
-      removeCookie("waypoint_user");
-
-      // Clean legacy storage
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("waypoint_user");
-      }
 
       // Reset client state and cache
       setUser(null);
@@ -99,18 +80,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "You have been logged out of your session.",
       });
 
+      // Only navigate to /login when user is signed out
       router.push("/login");
     }
   }, [queryClient, router]);
 
   const updateUser = React.useCallback(
     (updatedFields: Partial<AuthUser>) => {
-      setUser((prevUser) => {
-        if (!prevUser) return null;
-        const updated = { ...prevUser, ...updatedFields };
-        setCookie("waypoint_user", JSON.stringify(updated), { days: 7 });
-        return updated;
-      });
+      setUser((prevUser) => (prevUser ? { ...prevUser, ...updatedFields } : null));
     },
     []
   );

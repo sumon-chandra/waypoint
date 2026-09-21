@@ -58,14 +58,21 @@ function LoginFormContent() {
         });
 
         // Sync with global auth state and cookies
-        if (response.data?.user) {
+        if (response.data?.accessToken) {
           login({
-            user: response.data.user,
             accessToken: response.data.accessToken,
+            user: response.data.user,
           });
         }
 
-        // Role-based redirection per AGENTS.md guidelines
+        // Honor redirect URL if provided by middleware
+        const redirectParam = searchParams.get("redirect");
+        if (redirectParam && redirectParam.startsWith("/")) {
+          router.push(redirectParam);
+          return;
+        }
+
+        // Otherwise redirect to role-based dashboard
         const userRole = response.data?.user?.role;
         if (userRole === "ADMIN") {
           router.push("/admin");

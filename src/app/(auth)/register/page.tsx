@@ -35,9 +35,11 @@ import {
   type RegisterRole,
 } from "@/features/auth/schemas/auth.schemas";
 import { useRegisterMutation } from "@/features/auth/api/auth.api";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [authError, setAuthError] = React.useState<string | null>(null);
@@ -66,7 +68,7 @@ export default function RegisterPage() {
       }
 
       try {
-        await registerMutation.mutateAsync({
+        const response = await registerMutation.mutateAsync({
           name: value.fullName.trim(),
           email: value.email.trim().toLowerCase(),
           password: value.password,
@@ -74,8 +76,23 @@ export default function RegisterPage() {
           phone: value.phone.trim(),
         });
 
-        // Redirect to login with success indicator
-        router.push("/login?registered=true");
+        // Initialize user session with the JWT accessToken
+        if (response?.data?.accessToken) {
+          login({
+            accessToken: response.data.accessToken,
+            user: response.data.user,
+          });
+        }
+
+        // Direct navigation to role-based dashboard (no /login redirect)
+        const userRole = response?.data?.user?.role || value.role;
+        if (userRole === "ADMIN") {
+          router.push("/admin");
+        } else if (userRole === "COURIER") {
+          router.push("/courier");
+        } else {
+          router.push("/customer");
+        }
       } catch (err: any) {
         const message =
           err?.message ||
