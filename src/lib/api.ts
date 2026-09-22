@@ -43,11 +43,17 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiErrorResponse>) => {
     const errorData = error.response?.data;
-    const message =
-      errorData?.message ||
-      errorData?.errors?.[0]?.message ||
-      error.message ||
-      "An unexpected server error occurred";
+    const detailedErrors =
+      errorData?.errors?.map((e) => (e.field ? `${e.field}: ${e.message}` : e.message)).join("; ") ||
+      (errorData as { errorMessages?: Array<{ path?: string; message: string }> })?.errorMessages
+        ?.map((e) => (e.path ? `${e.path}: ${e.message}` : e.message))
+        .join("; ");
+
+    const message = detailedErrors
+      ? `${errorData?.message || "Input validation failed"} (${detailedErrors})`
+      : errorData?.message ||
+        error.message ||
+        "An unexpected server error occurred";
 
     // Attach custom message for consumer components
     const customError = new Error(message) as Error & {

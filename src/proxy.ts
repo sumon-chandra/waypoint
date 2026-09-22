@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decodeJwt, isTokenExpired } from "@/lib/jwt";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("accessToken")?.value;
 
@@ -91,3 +91,6 @@ export const config = {
     "/profile/:path*",
   ],
 };
+
+export default proxy;
+
