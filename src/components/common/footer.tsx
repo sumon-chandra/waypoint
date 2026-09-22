@@ -41,6 +41,7 @@ const footerSections: FooterSection[] = [
       { label: "Courier App", href: "/courier" },
       { label: "Admin Operations", href: "/admin" },
       { label: "Shipping Rate Calculator", href: "/pricing" },
+      { label: "Platform Settings", href: "/settings" },
     ],
   },
   {

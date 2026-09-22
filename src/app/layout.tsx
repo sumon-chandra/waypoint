@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/common/navbar";
 import { Footer } from "@/components/common/footer";
 import { Providers } from "@/app/providers";
+import { ThemeScript } from "@/features/theme/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -35,6 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
@@ -44,7 +46,10 @@ export default function RootLayout({
         inter.variable
       )}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <head>
+        <ThemeScript />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-150">
         <Providers>
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>

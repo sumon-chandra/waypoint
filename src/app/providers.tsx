@@ -6,22 +6,25 @@ import { Toaster } from "sonner";
 import { getQueryClient } from "@/lib/query-client";
 
 import { AuthProvider } from "@/features/auth/context/auth-context";
+import { ThemeProvider } from "@/features/theme/theme-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {children}
-        <Toaster
-          position="top-right"
-          richColors
-          closeButton
-          duration={4000}
-          theme="system"
-        />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          {children}
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            duration={4000}
+            theme="system"
+          />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
