@@ -24,14 +24,15 @@ export default function FAQPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Frequently Asked{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Questions
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Clear, transparent answers on parcel tracking, automated COD settlements, merchant
-              integrations, and shipping policies across Bangladesh.
+              Clear, transparent answers on parcel tracking, automated COD
+              settlements, merchant integrations, and shipping policies across
+              Bangladesh.
             </p>
           </div>
         </div>

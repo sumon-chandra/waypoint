@@ -29,7 +29,7 @@ export default function Home() {
             {/* Headline */}
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Intelligent Logistics.{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Every Waypoint
               </span>{" "}
               Accounted For.
@@ -38,8 +38,8 @@ export default function Home() {
             {/* Subheading */}
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
               End-to-end consignment tracking, automated hub routing, and rapid
-              courier dispatch built specifically for the high-velocity demands of
-              Bangladesh&apos;s digital economy.
+              courier dispatch built specifically for the high-velocity demands
+              of Bangladesh&apos;s digital economy.
             </p>
 
             {/* Quick Consignment Tracking Bar */}
@@ -58,7 +58,11 @@ export default function Home() {
                   placeholder="Enter Tracking ID (e.g. WP-DAC-98214)"
                   className="w-full bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                 />
-                <Button type="submit" size="default" className="gap-1.5 shrink-0 rounded-xl px-5">
+                <Button
+                  type="submit"
+                  size="default"
+                  className="gap-1.5 shrink-0 rounded-xl px-5"
+                >
                   <span>Track Parcel</span>
                   <ArrowRight className="size-4" />
                 </Button>
@@ -87,7 +91,7 @@ export default function Home() {
                 href="/customer"
                 className={cn(
                   buttonVariants({ variant: "default", size: "lg" }),
-                  "rounded-xl font-semibold shadow-md gap-1.5"
+                  "rounded-xl font-semibold shadow-md gap-1.5",
                 )}
               >
                 <span>Open Customer Portal</span>
@@ -97,7 +101,7 @@ export default function Home() {
                 href="/courier"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
-                  "rounded-xl font-medium"
+                  "rounded-xl font-medium",
                 )}
               >
                 Courier Partner Portal
@@ -152,7 +156,8 @@ export default function Home() {
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Waypoint provides merchants and couriers with tools to automate
-              fulfillment, eliminate transit blind spots, and guarantee reliability.
+              fulfillment, eliminate transit blind spots, and guarantee
+              reliability.
             </p>
           </div>
 
@@ -165,8 +170,8 @@ export default function Home() {
                 Waypoint Node Tracking
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Detailed scan-point updates at every dispatch hub, transit sorting
-                facility, and rider delivery checkpoint.
+                Detailed scan-point updates at every dispatch hub, transit
+                sorting facility, and rider delivery checkpoint.
               </p>
             </div>
 
@@ -178,8 +183,8 @@ export default function Home() {
                 Smart Fleet Routing
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Dynamic route allocation ensuring couriers receive optimized parcel
-                batches for fast city and interstate drop-offs.
+                Dynamic route allocation ensuring couriers receive optimized
+                parcel batches for fast city and interstate drop-offs.
               </p>
             </div>
 
@@ -191,8 +196,8 @@ export default function Home() {
                 Guaranteed COD & Invoicing
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Secure Cash on Delivery collection, instant settlement notifications,
-                and transparent payment reconciliation.
+                Secure Cash on Delivery collection, instant settlement
+                notifications, and transparent payment reconciliation.
               </p>
             </div>
           </div>

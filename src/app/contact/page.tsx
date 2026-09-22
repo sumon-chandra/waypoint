@@ -92,14 +92,15 @@ export default function ContactPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Always Connected.{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Always at Your Service.
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Whether you need real-time consignment updates, customized enterprise freight rates,
-              or technical API assistance, our logistics specialists are ready.
+              Whether you need real-time consignment updates, customized
+              enterprise freight rates, or technical API assistance, our
+              logistics specialists are ready.
             </p>
           </div>
         </div>
@@ -126,7 +127,9 @@ export default function ContactPage() {
                       </Badge>
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-foreground">{channel.title}</h3>
+                      <h3 className="text-base font-bold text-foreground">
+                        {channel.title}
+                      </h3>
                       <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                         {channel.desc}
                       </p>
@@ -163,7 +166,10 @@ export default function ContactPage() {
 
                 <div className="space-y-6">
                   {offices.map((off, idx) => (
-                    <div key={idx} className="space-y-1.5 text-xs pb-4 border-b border-border/60 last:border-0 last:pb-0">
+                    <div
+                      key={idx}
+                      className="space-y-1.5 text-xs pb-4 border-b border-border/60 last:border-0 last:pb-0"
+                    >
                       <h4 className="font-bold text-foreground">{off.city}</h4>
                       <p className="text-muted-foreground flex items-start gap-1.5">
                         <MapPin className="size-3.5 text-primary shrink-0 mt-0.5" />
@@ -191,8 +197,9 @@ export default function ContactPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  All 180+ sorting hubs, overnight highway linehaul vehicles, and mobile courier apps
-                  are operating on schedule across all 64 districts.
+                  All 180+ sorting hubs, overnight highway linehaul vehicles,
+                  and mobile courier apps are operating on schedule across all
+                  64 districts.
                 </p>
               </div>
             </div>

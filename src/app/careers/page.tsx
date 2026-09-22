@@ -67,14 +67,15 @@ export default function CareersPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Build the Supply Chain Backbone of{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Bangladesh
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              We are tackling the hardest challenges in physical distribution, telemetry, and automated
-              fintech. Join our team of operators, engineers, and builders.
+              We are tackling the hardest challenges in physical distribution,
+              telemetry, and automated fintech. Join our team of operators,
+              engineers, and builders.
             </p>
           </div>
         </div>
@@ -91,7 +92,8 @@ export default function CareersPage() {
               Life, Culture & Benefits
             </h2>
             <p className="text-sm text-muted-foreground">
-              We invest deeply in our people, giving you the autonomy and support to do your life&apos;s best work.
+              We invest deeply in our people, giving you the autonomy and
+              support to do your life&apos;s best work.
             </p>
           </div>
 
@@ -106,8 +108,12 @@ export default function CareersPage() {
                   <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <Icon className="size-5" />
                   </div>
-                  <h3 className="text-base font-bold text-foreground">{p.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{p.desc}</p>
+                  <h3 className="text-base font-bold text-foreground">
+                    {p.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {p.desc}
+                  </p>
                 </div>
               );
             })}
@@ -126,7 +132,8 @@ export default function CareersPage() {
               Explore Available Positions
             </h2>
             <p className="text-sm text-muted-foreground">
-              Find a role where you can create lasting impact on national commerce.
+              Find a role where you can create lasting impact on national
+              commerce.
             </p>
           </div>
 

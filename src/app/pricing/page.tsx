@@ -32,7 +32,8 @@ const tiers = [
     badge: "Pay As You Go",
     price: "৳60",
     unit: "/ intra-city parcel",
-    description: "Ideal for social commerce, boutique creators, and occasional parcel shippers.",
+    description:
+      "Ideal for social commerce, boutique creators, and occasional parcel shippers.",
     features: [
       "৳60 intra-city (up to 1kg)",
       "৳110 inter-district (up to 1kg)",
@@ -50,7 +51,8 @@ const tiers = [
     badge: "Most Popular",
     price: "৳50",
     unit: "/ intra-city parcel",
-    description: "Engineered for active e-commerce merchants shipping 100+ parcels every month.",
+    description:
+      "Engineered for active e-commerce merchants shipping 100+ parcels every month.",
     features: [
       "Discounted ৳50 intra-city base rate",
       "৳95 inter-district base rate",
@@ -69,7 +71,8 @@ const tiers = [
     badge: "High Volume",
     price: "Custom",
     unit: "contracted SLA",
-    description: "Tailored logistics infrastructure for national retail brands and distributors.",
+    description:
+      "Tailored logistics infrastructure for national retail brands and distributors.",
     features: [
       "Contracted bulk volume linehaul rates",
       "Dedicated sorting lanes at regional hubs",
@@ -85,17 +88,42 @@ const tiers = [
 ];
 
 const surcharges = [
-  { service: "Additional Weight (Intra-city)", cost: "৳15 per additional kg", note: "Above initial 1kg base tier" },
-  { service: "Additional Weight (Inter-district)", cost: "৳25 per additional kg", note: "Above initial 1kg base tier" },
-  { service: "Cash on Delivery (COD) Fee", cost: "1% of collected amount", note: "Minimum ৳10 per consignment" },
-  { service: "Doorstep Size/Item Exchange", cost: "৳50 flat (Intra-city)", note: "Simultaneous return and new delivery" },
-  { service: "Fragile Glassware / Liquid Packing", cost: "৳30 per parcel", note: "Double-bubble thermal wrap + label" },
-  { service: "Insurance for High-Value Consignment", cost: "0.5% of declared value", note: "Covers items valued ৳10,000 to ৳100,000" },
+  {
+    service: "Additional Weight (Intra-city)",
+    cost: "৳15 per additional kg",
+    note: "Above initial 1kg base tier",
+  },
+  {
+    service: "Additional Weight (Inter-district)",
+    cost: "৳25 per additional kg",
+    note: "Above initial 1kg base tier",
+  },
+  {
+    service: "Cash on Delivery (COD) Fee",
+    cost: "1% of collected amount",
+    note: "Minimum ৳10 per consignment",
+  },
+  {
+    service: "Doorstep Size/Item Exchange",
+    cost: "৳50 flat (Intra-city)",
+    note: "Simultaneous return and new delivery",
+  },
+  {
+    service: "Fragile Glassware / Liquid Packing",
+    cost: "৳30 per parcel",
+    note: "Double-bubble thermal wrap + label",
+  },
+  {
+    service: "Insurance for High-Value Consignment",
+    cost: "0.5% of declared value",
+    note: "Covers items valued ৳10,000 to ৳100,000",
+  },
 ];
 
 const faqs = [
   {
-    question: "When are Cash on Delivery (COD) earnings disbursed to merchants?",
+    question:
+      "When are Cash on Delivery (COD) earnings disbursed to merchants?",
     answer:
       "For Starter accounts, disbursements are executed weekly every Monday. For Growth Merchant and Enterprise partners, settlements are remitted automatically the next business day directly via BEFTN bank transfer or MFS (bKash/Nagad) accounts.",
   },
@@ -105,7 +133,8 @@ const faqs = [
       "None. Waypoint prices are 100% transparent. What you see on the rate calculator is what you pay. Fuel adjustments, highway tolls, and sorting hub handling are already included in the base fare.",
   },
   {
-    question: "What happens if a recipient refuses or is unavailable for delivery?",
+    question:
+      "What happens if a recipient refuses or is unavailable for delivery?",
     answer:
       "Our couriers make up to 3 verified delivery attempts with SMS alerts and recipient phone confirmations. If the parcel cannot be delivered, it is routed safely back to your registered merchant address.",
   },
@@ -132,14 +161,14 @@ export default function PricingPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Fair Pricing for{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Every Parcel & Business
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              No hidden linehaul fees, no surprise sorting charges. Calculate precise fares across
-              all 64 districts in real time.
+              No hidden linehaul fees, no surprise sorting charges. Calculate
+              precise fares across all 64 districts in real time.
             </p>
           </div>
         </div>
@@ -163,7 +192,8 @@ export default function PricingPage() {
               Choose the Plan That Fits Your Volume
             </h2>
             <p className="text-sm text-muted-foreground">
-              From solo boutique creators to high-velocity nationwide brands, Waypoint scales with your business.
+              From solo boutique creators to high-velocity nationwide brands,
+              Waypoint scales with your business.
             </p>
           </div>
 
@@ -175,7 +205,7 @@ export default function PricingPage() {
                   "relative flex flex-col justify-between rounded-3xl border p-8 shadow-xs transition-all backdrop-blur-xs",
                   tier.featured
                     ? "border-primary bg-card/90 shadow-xl ring-2 ring-primary/30"
-                    : "border-border/80 bg-card/60 hover:border-primary/40"
+                    : "border-border/80 bg-card/60 hover:border-primary/40",
                 )}
               >
                 {tier.featured && (
@@ -186,15 +216,21 @@ export default function PricingPage() {
 
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">{tier.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{tier.description}</p>
+                    <h3 className="text-lg font-bold text-foreground">
+                      {tier.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {tier.description}
+                    </p>
                   </div>
 
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl sm:text-4xl font-extrabold text-foreground font-mono">
                       {tier.price}
                     </span>
-                    <span className="text-xs text-muted-foreground">{tier.unit}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {tier.unit}
+                    </span>
                   </div>
 
                   <ul className="space-y-3 pt-4 border-t border-border/60 text-xs text-muted-foreground">
@@ -215,7 +251,7 @@ export default function PricingPage() {
                         variant: tier.featured ? "default" : "outline",
                         size: "default",
                       }),
-                      "w-full rounded-xl font-semibold shadow-xs gap-1.5"
+                      "w-full rounded-xl font-semibold shadow-xs gap-1.5",
                     )}
                   >
                     <span>{tier.ctaText}</span>
@@ -236,7 +272,8 @@ export default function PricingPage() {
               Value-Add Services & Surcharges
             </h2>
             <p className="text-sm text-muted-foreground">
-              Clear breakdown of optional packaging, exchange, and special handling fees.
+              Clear breakdown of optional packaging, exchange, and special
+              handling fees.
             </p>
           </div>
 
@@ -252,8 +289,12 @@ export default function PricingPage() {
               <tbody className="divide-y divide-border/60 text-muted-foreground">
                 {surcharges.map((s, idx) => (
                   <tr key={idx} className="hover:bg-muted/20 transition-colors">
-                    <td className="p-4 sm:p-5 font-semibold text-foreground">{s.service}</td>
-                    <td className="p-4 sm:p-5 font-mono text-primary font-medium">{s.cost}</td>
+                    <td className="p-4 sm:p-5 font-semibold text-foreground">
+                      {s.service}
+                    </td>
+                    <td className="p-4 sm:p-5 font-mono text-primary font-medium">
+                      {s.cost}
+                    </td>
                     <td className="p-4 sm:p-5">{s.note}</td>
                   </tr>
                 ))}
@@ -274,7 +315,8 @@ export default function PricingPage() {
               Questions About Billing & Rates
             </h2>
             <p className="text-sm text-muted-foreground">
-              Everything you need to know about settlements, charges, and payment cycles.
+              Everything you need to know about settlements, charges, and
+              payment cycles.
             </p>
           </div>
 

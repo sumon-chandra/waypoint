@@ -66,7 +66,8 @@ const servicesList: ServiceItem[] = [
     description:
       "On-demand intra-city rush delivery dispatched within 60 minutes of booking. Designed for urgent documents, perishable goods, and flash retail orders.",
     sla: "4 - 8 Hours",
-    idealFor: "Corporate documents, boutique fashion, pharmaceuticals, urgent gifts",
+    idealFor:
+      "Corporate documents, boutique fashion, pharmaceuticals, urgent gifts",
     icon: Clock,
     features: [
       "Priority rider dispatch directly from merchant location",
@@ -84,7 +85,8 @@ const servicesList: ServiceItem[] = [
     description:
       "Heavy freight logistics moving bulk consignments across Waypoint's inter-district highway fleet. Containerized and weather-sealed transit connecting all 8 divisions.",
     sla: "24 - 48 Hours",
-    idealFor: "Wholesalers, manufacturing suppliers, raw materials, pallet shipments",
+    idealFor:
+      "Wholesalers, manufacturing suppliers, raw materials, pallet shipments",
     icon: Truck,
     features: [
       "Dedicated truckload (FTL) and less-than-truckload (LTL) options",
@@ -120,7 +122,8 @@ const servicesList: ServiceItem[] = [
     description:
       "Offload fulfillment hassles. Store your high-demand SKUs across our strategically located micro-hubs in Dhaka, Chittagong, and Sylhet for lightning-fast dispatch.",
     sla: "Instant Fulfillment",
-    idealFor: "Rapidly growing D2C brands, seasonal promotions, multichannel sellers",
+    idealFor:
+      "Rapidly growing D2C brands, seasonal promotions, multichannel sellers",
     icon: Boxes,
     features: [
       "Shared or dedicated climate-controlled micro-storage",
@@ -194,15 +197,16 @@ export default function ServicesPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Built to Power Commerce{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Across All 64 Districts
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              From individual retail consignments to full-truckload inter-district freight,
-              Waypoint offers precision-timed delivery services powered by live waypoint node
-              tracking and next-day automated settlement.
+              From individual retail consignments to full-truckload
+              inter-district freight, Waypoint offers precision-timed delivery
+              services powered by live waypoint node tracking and next-day
+              automated settlement.
             </p>
 
             {/* Anchor jump links */}
@@ -229,7 +233,8 @@ export default function ServicesPage() {
               Comprehensive Delivery Architecture
             </h2>
             <p className="text-sm text-muted-foreground">
-              Modular logistics solutions designed for e-commerce brands, corporate enterprises, and courier partners.
+              Modular logistics solutions designed for e-commerce brands,
+              corporate enterprises, and courier partners.
             </p>
           </div>
 
@@ -247,7 +252,10 @@ export default function ServicesPage() {
                       <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                         <Icon className="size-6" />
                       </div>
-                      <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary text-[11px]">
+                      <Badge
+                        variant="outline"
+                        className="border-primary/20 bg-primary/5 text-primary text-[11px]"
+                      >
                         {service.badge}
                       </Badge>
                     </div>
@@ -267,11 +275,17 @@ export default function ServicesPage() {
 
                     <div className="space-y-2 pt-2 border-t border-border/50 text-xs">
                       <div className="flex items-center justify-between text-muted-foreground">
-                        <span className="font-medium text-foreground">Delivery SLA:</span>
-                        <span className="font-semibold text-primary">{service.sla}</span>
+                        <span className="font-medium text-foreground">
+                          Delivery SLA:
+                        </span>
+                        <span className="font-semibold text-primary">
+                          {service.sla}
+                        </span>
                       </div>
                       <div className="text-muted-foreground">
-                        <span className="font-medium text-foreground">Best For: </span>
+                        <span className="font-medium text-foreground">
+                          Best For:{" "}
+                        </span>
                         <span>{service.idealFor}</span>
                       </div>
                     </div>
@@ -316,7 +330,8 @@ export default function ServicesPage() {
               Performance Standards & Guarantees
             </h2>
             <p className="text-sm text-muted-foreground">
-              Every shipment is backed by our strict transit service level agreements across all zones.
+              Every shipment is backed by our strict transit service level
+              agreements across all zones.
             </p>
           </div>
 
@@ -333,32 +348,52 @@ export default function ServicesPage() {
               </thead>
               <tbody className="divide-y divide-border/60 text-muted-foreground">
                 <tr className="hover:bg-muted/20 transition-colors">
-                  <td className="p-4 sm:p-5 font-semibold text-foreground">Express Parcel</td>
+                  <td className="p-4 sm:p-5 font-semibold text-foreground">
+                    Express Parcel
+                  </td>
                   <td className="p-4 sm:p-5">Inter-District Hubs</td>
-                  <td className="p-4 sm:p-5 text-primary font-medium">12 - 24 Hours</td>
+                  <td className="p-4 sm:p-5 text-primary font-medium">
+                    12 - 24 Hours
+                  </td>
                   <td className="p-4 sm:p-5">Every Hub + Courier Transit</td>
                   <td className="p-4 sm:p-5">Up to ৳5,000</td>
                 </tr>
                 <tr className="hover:bg-muted/20 transition-colors">
-                  <td className="p-4 sm:p-5 font-semibold text-foreground">Same-Day City</td>
+                  <td className="p-4 sm:p-5 font-semibold text-foreground">
+                    Same-Day City
+                  </td>
                   <td className="p-4 sm:p-5">Intra-Metro (Dhaka/Ctg)</td>
-                  <td className="p-4 sm:p-5 text-primary font-medium">4 - 8 Hours</td>
+                  <td className="p-4 sm:p-5 text-primary font-medium">
+                    4 - 8 Hours
+                  </td>
                   <td className="p-4 sm:p-5">Live GPS Rider Coordinates</td>
                   <td className="p-4 sm:p-5">Up to ৳10,000</td>
                 </tr>
                 <tr className="hover:bg-muted/20 transition-colors">
-                  <td className="p-4 sm:p-5 font-semibold text-foreground">Linehaul Freight</td>
+                  <td className="p-4 sm:p-5 font-semibold text-foreground">
+                    Linehaul Freight
+                  </td>
                   <td className="p-4 sm:p-5">Division-to-Division</td>
-                  <td className="p-4 sm:p-5 text-primary font-medium">24 - 48 Hours</td>
+                  <td className="p-4 sm:p-5 text-primary font-medium">
+                    24 - 48 Hours
+                  </td>
                   <td className="p-4 sm:p-5">Containerized Fleet Geofencing</td>
-                  <td className="p-4 sm:p-5">Full Consignment Declared Value</td>
+                  <td className="p-4 sm:p-5">
+                    Full Consignment Declared Value
+                  </td>
                 </tr>
                 <tr className="hover:bg-muted/20 transition-colors">
-                  <td className="p-4 sm:p-5 font-semibold text-foreground">E-Commerce Warehousing</td>
+                  <td className="p-4 sm:p-5 font-semibold text-foreground">
+                    E-Commerce Warehousing
+                  </td>
                   <td className="p-4 sm:p-5">Micro-Hub Storage</td>
-                  <td className="p-4 sm:p-5 text-primary font-medium">Same-Day Pick/Pack</td>
+                  <td className="p-4 sm:p-5 text-primary font-medium">
+                    Same-Day Pick/Pack
+                  </td>
                   <td className="p-4 sm:p-5">Item-Level SKU Barcodes</td>
-                  <td className="p-4 sm:p-5">Warehouse Fire & Theft Protection</td>
+                  <td className="p-4 sm:p-5">
+                    Warehouse Fire & Theft Protection
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -374,7 +409,8 @@ export default function ServicesPage() {
               The 5-Stage Waypoint Journey
             </h2>
             <p className="text-sm text-muted-foreground">
-              How our automated logistics pipeline moves consignments from booking to front door.
+              How our automated logistics pipeline moves consignments from
+              booking to front door.
             </p>
           </div>
 
@@ -391,8 +427,12 @@ export default function ServicesPage() {
                     </span>
                     <BadgeCheck className="size-4 text-emerald-500" />
                   </div>
-                  <h3 className="text-sm font-bold text-foreground">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="text-sm font-bold text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -401,7 +441,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Final Call to Action Banner */}
-      <section className="py-16 sm:py-20 bg-gradient-to-r from-primary/10 via-primary/5 to-cyan-500/10 border-t border-border/60">
+      <section className="py-16 sm:py-20 bg-linear-to-r from-primary/10 via-primary/5 to-cyan-500/10 border-t border-border/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 rounded-3xl border border-primary/20 bg-card/80 p-8 sm:p-12 shadow-lg backdrop-blur-md">
             <div className="space-y-3 text-center md:text-left max-w-2xl">
@@ -409,8 +449,9 @@ export default function ServicesPage() {
                 Ready to Upgrade Your Logistics Infrastructure?
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Connect your online store in minutes or speak directly with our corporate team
-                for customized linehaul fleet contracts across Bangladesh.
+                Connect your online store in minutes or speak directly with our
+                corporate team for customized linehaul fleet contracts across
+                Bangladesh.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
@@ -418,7 +459,7 @@ export default function ServicesPage() {
                 href="/register"
                 className={cn(
                   buttonVariants({ variant: "default", size: "lg" }),
-                  "rounded-xl shadow-md font-semibold gap-2"
+                  "rounded-xl shadow-md font-semibold gap-2",
                 )}
               >
                 <span>Open Merchant Account</span>
@@ -428,7 +469,7 @@ export default function ServicesPage() {
                 href="/contact"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
-                  "rounded-xl font-medium"
+                  "rounded-xl font-medium",
                 )}
               >
                 Talk to Sales

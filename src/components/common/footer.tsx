@@ -70,7 +70,7 @@ export function Footer() {
   return (
     <footer className="w-full border-t border-border/60 bg-muted/20 text-foreground">
       {/* Top Banner / Mission CTA */}
-      <div className="border-b border-border/40 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
+      <div className="border-b border-border/40 bg-linear-to-r from-primary/5 via-primary/10 to-primary/5">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 text-center sm:text-left">
             <div className="hidden sm:flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -81,7 +81,8 @@ export function Footer() {
                 Reliable Logistics Nationwide Across Bangladesh
               </p>
               <p className="text-xs text-muted-foreground">
-                From urban express to deep district hubs with live waypoint tracking.
+                From urban express to deep district hubs with live waypoint
+                tracking.
               </p>
             </div>
           </div>
@@ -104,8 +105,9 @@ export function Footer() {
           <div className="space-y-4 sm:col-span-2">
             <Logo variant="full" size="md" showBadge />
             <p className="text-sm leading-relaxed text-muted-foreground max-w-sm">
-              Next-generation parcel delivery & logistics infrastructure connecting
-              merchants, couriers, and enterprise supply chains with end-to-end waypoint tracking.
+              Next-generation parcel delivery & logistics infrastructure
+              connecting merchants, couriers, and enterprise supply chains with
+              end-to-end waypoint tracking.
             </p>
 
             {/* Live Operational Status */}
@@ -159,7 +161,9 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-8 sm:flex-row text-xs text-muted-foreground">
           <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
-            <span>&copy; {new Date().getFullYear()} Waypoint Technologies Ltd.</span>
+            <span>
+              &copy; {new Date().getFullYear()} Waypoint Technologies Ltd.
+            </span>
             <span className="hidden sm:inline">&bull;</span>
             <span>All rights reserved.</span>
           </div>

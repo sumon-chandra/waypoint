@@ -25,14 +25,15 @@ export default function TrackingPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl text-foreground">
               Consignment Waypoint{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Tracking
               </span>
             </h1>
 
             <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
-              Follow your package&apos;s journey through every sorting hub, linehaul highway vehicle,
-              and last-mile delivery rider across Bangladesh.
+              Follow your package&apos;s journey through every sorting hub,
+              linehaul highway vehicle, and last-mile delivery rider across
+              Bangladesh.
             </p>
           </div>
         </div>

@@ -110,7 +110,7 @@ export function ProfileHeader({
   return (
     <Card className="overflow-hidden border-border/70 shadow-md">
       {/* Decorative Gradient Banner */}
-      <div className="relative h-36 sm:h-44 w-full bg-gradient-to-r from-primary/90 via-primary to-accent/90 overflow-hidden">
+      <div className="relative h-36 sm:h-44 w-full bg-linear-to-r from-primary/90 via-primary to-accent/90 overflow-hidden">
         {/* Subtle patterned overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/15 via-transparent to-black/20" />
         <div className="absolute -right-12 -top-12 size-56 rounded-full bg-white/10 blur-2xl" />

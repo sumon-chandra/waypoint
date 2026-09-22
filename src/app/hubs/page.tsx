@@ -12,14 +12,54 @@ export const metadata: Metadata = {
 };
 
 const divisionStats = [
-  { division: "Dhaka", count: "13 Districts", hubs: "42 Facilities", lead: "Central Sorting Gateway (Tejgaon)" },
-  { division: "Chittagong", count: "11 Districts", hubs: "34 Facilities", lead: "Port Terminal Hub (Agrabad)" },
-  { division: "Sylhet", count: "4 Districts", hubs: "16 Facilities", lead: "Zindabazar Express Terminal" },
-  { division: "Rajshahi", count: "8 Districts", hubs: "24 Facilities", lead: "Bogra Crossdock & Shaheb Bazar" },
-  { division: "Khulna", count: "10 Districts", hubs: "26 Facilities", lead: "Shibbari Divisional Gateway" },
-  { division: "Barishal", count: "6 Districts", hubs: "14 Facilities", lead: "Sadhanar Mor River Terminal" },
-  { division: "Rangpur", count: "8 Districts", hubs: "18 Facilities", lead: "Jahangirabad Northern Depot" },
-  { division: "Mymensingh", count: "4 Districts", hubs: "12 Facilities", lead: "Ganginarpar Hub" },
+  {
+    division: "Dhaka",
+    count: "13 Districts",
+    hubs: "42 Facilities",
+    lead: "Central Sorting Gateway (Tejgaon)",
+  },
+  {
+    division: "Chittagong",
+    count: "11 Districts",
+    hubs: "34 Facilities",
+    lead: "Port Terminal Hub (Agrabad)",
+  },
+  {
+    division: "Sylhet",
+    count: "4 Districts",
+    hubs: "16 Facilities",
+    lead: "Zindabazar Express Terminal",
+  },
+  {
+    division: "Rajshahi",
+    count: "8 Districts",
+    hubs: "24 Facilities",
+    lead: "Bogra Crossdock & Shaheb Bazar",
+  },
+  {
+    division: "Khulna",
+    count: "10 Districts",
+    hubs: "26 Facilities",
+    lead: "Shibbari Divisional Gateway",
+  },
+  {
+    division: "Barishal",
+    count: "6 Districts",
+    hubs: "14 Facilities",
+    lead: "Sadhanar Mor River Terminal",
+  },
+  {
+    division: "Rangpur",
+    count: "8 Districts",
+    hubs: "18 Facilities",
+    lead: "Jahangirabad Northern Depot",
+  },
+  {
+    division: "Mymensingh",
+    count: "4 Districts",
+    hubs: "12 Facilities",
+    lead: "Ganginarpar Hub",
+  },
 ];
 
 export default function HubsPage() {
@@ -38,14 +78,15 @@ export default function HubsPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Nationwide Hub Network &{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 64-District Presence
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Waypoint operates 180+ sorting facilities, cross-dock terminals, and localized micro-depots
-              interconnected by dedicated highway linehauls.
+              Waypoint operates 180+ sorting facilities, cross-dock terminals,
+              and localized micro-depots interconnected by dedicated highway
+              linehauls.
             </p>
           </div>
         </div>
@@ -56,24 +97,48 @@ export default function HubsPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-border bg-card p-5 text-center shadow-xs">
-              <span className="text-2xl sm:text-3xl font-black text-foreground font-mono">64 / 64</span>
-              <p className="text-xs font-semibold text-primary mt-1">Districts Connected</p>
-              <p className="text-[11px] text-muted-foreground">Every upazila and union reachable</p>
+              <span className="text-2xl sm:text-3xl font-black text-foreground font-mono">
+                64 / 64
+              </span>
+              <p className="text-xs font-semibold text-primary mt-1">
+                Districts Connected
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Every upazila and union reachable
+              </p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-5 text-center shadow-xs">
-              <span className="text-2xl sm:text-3xl font-black text-foreground font-mono">180+</span>
-              <p className="text-xs font-semibold text-primary mt-1">Operational Facilities</p>
-              <p className="text-[11px] text-muted-foreground">Cross-dock, sorting, and micro-hubs</p>
+              <span className="text-2xl sm:text-3xl font-black text-foreground font-mono">
+                180+
+              </span>
+              <p className="text-xs font-semibold text-primary mt-1">
+                Operational Facilities
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Cross-dock, sorting, and micro-hubs
+              </p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-5 text-center shadow-xs">
-              <span className="text-2xl sm:text-3xl font-black text-foreground font-mono">8</span>
-              <p className="text-xs font-semibold text-primary mt-1">Divisional Gateways</p>
-              <p className="text-[11px] text-muted-foreground">High-speed overnight sorting lanes</p>
+              <span className="text-2xl sm:text-3xl font-black text-foreground font-mono">
+                8
+              </span>
+              <p className="text-xs font-semibold text-primary mt-1">
+                Divisional Gateways
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                High-speed overnight sorting lanes
+              </p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-5 text-center shadow-xs">
-              <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">99.4%</span>
-              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">SLA Accuracy</p>
-              <p className="text-[11px] text-muted-foreground">Monitored 24/7 by dispatch telemetry</p>
+              <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                99.4%
+              </span>
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
+                SLA Accuracy
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Monitored 24/7 by dispatch telemetry
+              </p>
             </div>
           </div>
         </div>
@@ -87,7 +152,8 @@ export default function HubsPage() {
               Regional Facility Directory
             </h2>
             <p className="text-sm text-muted-foreground">
-              Find contact coordinates, daily parcel intake cutoff times, and sorting capacities for any district.
+              Find contact coordinates, daily parcel intake cutoff times, and
+              sorting capacities for any district.
             </p>
           </div>
 
@@ -106,8 +172,9 @@ export default function HubsPage() {
               Direct Counter Drop-Offs Welcome
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Need to send a parcel right away? Drop off directly at any of our regional hubs before
-              the cutoff time for guaranteed next-day dispatch.
+              Need to send a parcel right away? Drop off directly at any of our
+              regional hubs before the cutoff time for guaranteed next-day
+              dispatch.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -115,7 +182,7 @@ export default function HubsPage() {
               href="/pricing"
               className={cn(
                 buttonVariants({ variant: "default", size: "default" }),
-                "rounded-xl shadow-xs font-semibold gap-1.5"
+                "rounded-xl shadow-xs font-semibold gap-1.5",
               )}
             >
               <span>Calculate Shipping Fare</span>
@@ -125,7 +192,7 @@ export default function HubsPage() {
               href="/contact"
               className={cn(
                 buttonVariants({ variant: "outline", size: "default" }),
-                "rounded-xl font-medium"
+                "rounded-xl font-medium",
               )}
             >
               Contact Operations Desk

@@ -27,12 +27,36 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { value: "64", label: "Districts Connected", sub: "100% Nationwide coverage" },
-  { value: "180+", label: "Regional Sorting Hubs", sub: "Strategic cross-dock nodes" },
-  { value: "2.4M+", label: "Parcels Fulfilled", sub: "Since platform inception" },
-  { value: "99.4%", label: "On-Time Delivery SLA", sub: "Industry-leading precision" },
-  { value: "15,000+", label: "Courier Partners", sub: "Empowered nationwide fleet" },
-  { value: "99.8%", label: "Remittance Accuracy", sub: "Next-business-day payouts" },
+  {
+    value: "64",
+    label: "Districts Connected",
+    sub: "100% Nationwide coverage",
+  },
+  {
+    value: "180+",
+    label: "Regional Sorting Hubs",
+    sub: "Strategic cross-dock nodes",
+  },
+  {
+    value: "2.4M+",
+    label: "Parcels Fulfilled",
+    sub: "Since platform inception",
+  },
+  {
+    value: "99.4%",
+    label: "On-Time Delivery SLA",
+    sub: "Industry-leading precision",
+  },
+  {
+    value: "15,000+",
+    label: "Courier Partners",
+    sub: "Empowered nationwide fleet",
+  },
+  {
+    value: "99.8%",
+    label: "Remittance Accuracy",
+    sub: "Next-business-day payouts",
+  },
 ];
 
 const corePillars = [
@@ -67,28 +91,32 @@ const teamMembers = [
     name: "Tanvir Rahman",
     role: "Chief Executive Officer & Co-Founder",
     bio: "Ex-freight director with 14 years shaping South Asian supply chains and linehaul infrastructure.",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
     initials: "TR",
   },
   {
     name: "Dr. Nabila Hossain",
     role: "Chief Technology Officer",
     bio: "PhD in Operations Research from NUS. Architect of Waypoint's dynamic waypoint routing engine.",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
     initials: "NH",
   },
   {
     name: "Rafiqul Islam",
     role: "Head of Nationwide Hub Operations",
     bio: "Oversees 180+ sorting facilities, linehaul highway scheduling, and cross-dock precision.",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
     initials: "RI",
   },
   {
     name: "Samira Chowdhury",
     role: "Head of Merchant Experience & FinTech",
     bio: "Pioneered Waypoint's automated COD next-day reconciliation engine with Bangladesh Bank integration.",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
     initials: "SC",
   },
 ];
@@ -132,15 +160,16 @@ export default function AboutPage() {
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
               Connecting Commerce.{" "}
-              <span className="bg-gradient-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
                 Empowering Every Mile.
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Waypoint was founded on a simple conviction: logistics in Bangladesh should be
-              predictable, transparent, and built on state-of-the-art technology. We are uniting
-              all 64 districts under a single intelligent logistics fabric.
+              Waypoint was founded on a simple conviction: logistics in
+              Bangladesh should be predictable, transparent, and built on
+              state-of-the-art technology. We are uniting all 64 districts under
+              a single intelligent logistics fabric.
             </p>
           </div>
         </div>
@@ -175,7 +204,10 @@ export default function AboutPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary text-xs">
+              <Badge
+                variant="outline"
+                className="border-primary/20 bg-primary/5 text-primary text-xs"
+              >
                 Our Narrative
               </Badge>
               <h2 className="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
@@ -183,20 +215,23 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
                 <p>
-                  For years, online sellers and consumers in Bangladesh endured black-box delivery:
-                  packages vanished into sorting depots with vague statuses like &quot;in processing&quot;,
-                  reconciliation was delayed by weeks, and customer trust suffered.
+                  For years, online sellers and consumers in Bangladesh endured
+                  black-box delivery: packages vanished into sorting depots with
+                  vague statuses like &quot;in processing&quot;, reconciliation
+                  was delayed by weeks, and customer trust suffered.
                 </p>
                 <p>
-                  Waypoint changed that paradigm. By integrating barcode node telemetry, centralized
-                  inter-district linehaul containers, and automated banking webhooks, we created a
-                  platform where merchants can account for every single waypoint in their parcel&apos;s
-                  journey.
+                  Waypoint changed that paradigm. By integrating barcode node
+                  telemetry, centralized inter-district linehaul containers, and
+                  automated banking webhooks, we created a platform where
+                  merchants can account for every single waypoint in their
+                  parcel&apos;s journey.
                 </p>
                 <p>
-                  Today, whether a handcrafted textile travels from Sylhet to Khulna or a computer
-                  component moves between Dhaka and Chittagong, Waypoint delivers with quantifiable
-                  accuracy and peace of mind.
+                  Today, whether a handcrafted textile travels from Sylhet to
+                  Khulna or a computer component moves between Dhaka and
+                  Chittagong, Waypoint delivers with quantifiable accuracy and
+                  peace of mind.
                 </p>
               </div>
 
@@ -223,10 +258,16 @@ export default function AboutPage() {
                   <div key={idx} className="relative pl-8 space-y-1">
                     <span className="absolute left-1.5 top-1.5 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background" />
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-primary">{m.year}</span>
-                      <span className="text-xs font-semibold text-foreground">&mdash; {m.title}</span>
+                      <span className="font-mono text-xs font-bold text-primary">
+                        {m.year}
+                      </span>
+                      <span className="text-xs font-semibold text-foreground">
+                        &mdash; {m.title}
+                      </span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{m.desc}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {m.desc}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -246,7 +287,8 @@ export default function AboutPage() {
               What Sets Waypoint Apart
             </h2>
             <p className="text-sm text-muted-foreground">
-              The foundational pillars guiding our logistics operations and product engineering.
+              The foundational pillars guiding our logistics operations and
+              product engineering.
             </p>
           </div>
 
@@ -261,7 +303,9 @@ export default function AboutPage() {
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <Icon className="size-6" />
                   </div>
-                  <h3 className="text-base font-bold text-foreground">{pillar.title}</h3>
+                  <h3 className="text-base font-bold text-foreground">
+                    {pillar.title}
+                  </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {pillar.description}
                   </p>
@@ -283,7 +327,8 @@ export default function AboutPage() {
               Experienced Minds Driving Innovation
             </h2>
             <p className="text-sm text-muted-foreground">
-              Combining world-class software engineering with decades of boots-on-the-ground supply chain mastery.
+              Combining world-class software engineering with decades of
+              boots-on-the-ground supply chain mastery.
             </p>
           </div>
 
@@ -300,8 +345,12 @@ export default function AboutPage() {
                     </span>
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-foreground">{member.name}</h3>
-                    <p className="text-xs font-medium text-primary mt-0.5">{member.role}</p>
+                    <h3 className="text-base font-bold text-foreground">
+                      {member.name}
+                    </h3>
+                    <p className="text-xs font-medium text-primary mt-0.5">
+                      {member.role}
+                    </p>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {member.bio}
@@ -314,7 +363,7 @@ export default function AboutPage() {
       </section>
 
       {/* Sustainability & Green Fleet Highlight */}
-      <section className="py-14 sm:py-20 bg-gradient-to-r from-emerald-500/10 via-background to-primary/10 border-t border-border/60">
+      <section className="py-14 sm:py-20 bg-linear-to-r from-emerald-500/10 via-background to-primary/10 border-t border-border/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-emerald-500/20 bg-card/80 p-8 sm:p-12 shadow-sm backdrop-blur-md flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="space-y-3 max-w-2xl text-center lg:text-left">
@@ -326,16 +375,17 @@ export default function AboutPage() {
                 Committed to a Net-Zero Urban Fleet by 2030
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                By investing in electric delivery trikes, solar-assisted micro-hubs in Dhaka, and
-                algorithm-driven route clustering, Waypoint has cut urban carbon output by 45 metric
-                tons in 2025 alone.
+                By investing in electric delivery trikes, solar-assisted
+                micro-hubs in Dhaka, and algorithm-driven route clustering,
+                Waypoint has cut urban carbon output by 45 metric tons in 2025
+                alone.
               </p>
             </div>
             <Link
               href="/careers"
               className={cn(
                 buttonVariants({ variant: "default", size: "lg" }),
-                "rounded-xl shadow-md font-semibold gap-2 shrink-0"
+                "rounded-xl shadow-md font-semibold gap-2 shrink-0",
               )}
             >
               <span>Join Our Mission</span>
