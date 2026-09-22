@@ -113,7 +113,7 @@ export function Navbar() {
                     "relative px-3 py-1.5 text-sm font-medium transition-colors rounded-md hover:text-foreground",
                     isActive
                       ? "text-foreground font-semibold bg-accent/60"
-                      : "text-muted-foreground hover:bg-accent/40"
+                      : "text-muted-foreground hover:bg-accent/40",
                   )}
                 >
                   {item.label}
@@ -161,7 +161,7 @@ export function Navbar() {
                   href="/register"
                   className={cn(
                     buttonVariants({ variant: "default", size: "sm" }),
-                    "gap-1.5 shadow-sm"
+                    "gap-1.5 shadow-sm",
                   )}
                 >
                   <span>Get Started</span>
@@ -181,7 +181,7 @@ export function Navbar() {
               href="/login"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "xs" }),
-                "text-xs px-2.5"
+                "text-xs px-2.5",
               )}
             >
               Sign In
@@ -190,7 +190,11 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-label={
+              isMobileMenuOpen
+                ? "Close navigation menu"
+                : "Open navigation menu"
+            }
             aria-expanded={isMobileMenuOpen}
             className="flex items-center justify-center size-9 rounded-lg border border-border/60 bg-muted/40 text-foreground hover:bg-muted active:scale-95 transition-all"
           >
@@ -205,7 +209,7 @@ export function Navbar() {
 
       {/* Mobile Navigation Strip - Visible directly on mobile devices */}
       <nav
-        className="flex md:hidden items-center gap-1.5 overflow-x-auto px-4 py-2 border-t border-border/40 bg-background/95 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="flex md:hidden items-center gap-1.5 overflow-x-auto px-4 py-2 border-t border-border/40 bg-background/95 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         aria-label="Mobile Quick Navigation"
       >
         {navItems.map((item) => {
@@ -218,7 +222,7 @@ export function Navbar() {
                 "shrink-0 inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-all active:scale-95",
                 isActive
                   ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               <span>{item.label}</span>
@@ -228,7 +232,7 @@ export function Navbar() {
                     "rounded-full px-1 py-0.2 text-[9px] font-bold",
                     isActive
                       ? "bg-primary-foreground/20 text-primary-foreground"
-                      : "bg-primary/15 text-primary"
+                      : "bg-primary/15 text-primary",
                   )}
                 >
                   {item.badge}
@@ -289,15 +293,25 @@ export function Navbar() {
                           "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px]",
                           isActive
                             ? "bg-primary/10 text-primary font-semibold"
-                            : "text-foreground hover:bg-muted"
+                            : "text-foreground hover:bg-muted",
                         )}
                       >
                         <span className="flex items-center gap-2.5">
-                          {item.label === "Tracking" && <Package className="size-4 text-primary" />}
-                          {item.label === "Services" && <Truck className="size-4 text-primary" />}
-                          {item.label === "Hub Network" && <MapPin className="size-4 text-primary" />}
-                          {item.label === "Pricing" && <ShieldCheck className="size-4 text-primary" />}
-                          {item.label === "About" && <Phone className="size-4 text-primary" />}
+                          {item.label === "Tracking" && (
+                            <Package className="size-4 text-primary" />
+                          )}
+                          {item.label === "Services" && (
+                            <Truck className="size-4 text-primary" />
+                          )}
+                          {item.label === "Hub Network" && (
+                            <MapPin className="size-4 text-primary" />
+                          )}
+                          {item.label === "Pricing" && (
+                            <ShieldCheck className="size-4 text-primary" />
+                          )}
+                          {item.label === "About" && (
+                            <Phone className="size-4 text-primary" />
+                          )}
                           {item.label}
                         </span>
                         {item.badge && (
@@ -322,16 +336,24 @@ export function Navbar() {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex flex-col p-3 rounded-lg border border-border/60 bg-card/60 hover:bg-accent/40 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-foreground">Customer Portal</span>
-                    <span className="text-[11px] text-muted-foreground">Book & track parcels</span>
+                    <span className="text-xs font-semibold text-foreground">
+                      Customer Portal
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Book & track parcels
+                    </span>
                   </Link>
                   <Link
                     href="/courier"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex flex-col p-3 rounded-lg border border-border/60 bg-card/60 hover:bg-accent/40 transition-colors"
                   >
-                    <span className="text-xs font-semibold text-foreground">Courier Portal</span>
-                    <span className="text-[11px] text-muted-foreground">Deliveries & status</span>
+                    <span className="text-xs font-semibold text-foreground">
+                      Courier Portal
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Deliveries & status
+                    </span>
                   </Link>
                 </div>
               </div>
@@ -349,7 +371,9 @@ export function Navbar() {
                           />
                         )}
                         <AvatarFallback className="bg-primary/20 text-primary font-bold">
-                          {user.name ? user.name.trim().charAt(0).toUpperCase() : "U"}
+                          {user.name
+                            ? user.name.trim().charAt(0).toUpperCase()
+                            : "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -368,13 +392,13 @@ export function Navbar() {
                           user.role === "ADMIN"
                             ? "/admin"
                             : user.role === "COURIER"
-                            ? "/courier"
-                            : "/customer"
+                              ? "/courier"
+                              : "/customer"
                         }
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
                           buttonVariants({ variant: "default", size: "sm" }),
-                          "w-full text-xs gap-1.5"
+                          "w-full text-xs gap-1.5",
                         )}
                       >
                         <LayoutDashboard className="size-3.5" />
@@ -385,7 +409,7 @@ export function Navbar() {
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
                           buttonVariants({ variant: "outline", size: "sm" }),
-                          "w-full text-xs gap-1.5"
+                          "w-full text-xs gap-1.5",
                         )}
                       >
                         <UserIcon className="size-3.5" />
@@ -413,7 +437,7 @@ export function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
                         buttonVariants({ variant: "default", size: "lg" }),
-                        "w-full h-11 font-medium justify-center shadow-md gap-2"
+                        "w-full h-11 font-medium justify-center shadow-md gap-2",
                       )}
                     >
                       <span>Create Free Account</span>
@@ -424,7 +448,7 @@ export function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
                         buttonVariants({ variant: "outline", size: "lg" }),
-                        "w-full h-11 font-medium justify-center"
+                        "w-full h-11 font-medium justify-center",
                       )}
                     >
                       Log In to Waypoint
@@ -446,7 +470,7 @@ export function Navbar() {
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </header>
   );

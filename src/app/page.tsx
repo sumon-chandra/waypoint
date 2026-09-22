@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center">
       {/* Hero Section */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background py-20 md:py-28 lg:py-32">
+      <section className="relative w-full overflow-hidden bg-linear-to-b from-primary/5 via-background to-background py-20 md:py-28 lg:py-32">
         {/* Background decorative grid */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,oklch(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,oklch(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 

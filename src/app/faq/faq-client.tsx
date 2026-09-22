@@ -50,7 +50,8 @@ const faqData: FAQItem[] = [
   {
     id: "s3",
     category: "shipping",
-    question: "Can I alter the delivery address or contact number after booking?",
+    question:
+      "Can I alter the delivery address or contact number after booking?",
     answer:
       "Yes. Merchants and senders can update the recipient phone number or delivery address through their dashboard or by calling the 24/7 helpline (09612-WAYPOINT) as long as the parcel has not left the destination distribution hub for last-mile rider handover.",
   },
@@ -103,7 +104,8 @@ const faqData: FAQItem[] = [
   {
     id: "m3",
     category: "merchants",
-    question: "Can I customize the branded SMS notifications sent to my customers?",
+    question:
+      "Can I customize the branded SMS notifications sent to my customers?",
     answer:
       "Growth and Enterprise tier merchants can configure custom sender maskings and personalized SMS templates including their brand name and direct tracking URL.",
   },
@@ -119,7 +121,8 @@ const faqData: FAQItem[] = [
   {
     id: "pr2",
     category: "prohibited",
-    question: "Can I ship fragile items such as perfumes, glassware, or cosmetics?",
+    question:
+      "Can I ship fragile items such as perfumes, glassware, or cosmetics?",
     answer:
       "Yes, provided they are declared during booking and packaged using our approved bubble-wrap standard. Senders must apply a 'Fragile Care' tag (available for ৳30) which ensures dedicated handling and prevents stacking in highway linehaul containers.",
   },
@@ -182,7 +185,7 @@ export function FAQClient() {
       </div>
 
       {/* Category Pills */}
-      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
+      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {categories.map((cat) => {
           const Icon = cat.icon;
           const isSelected = selectedCategory === cat.id;
@@ -195,7 +198,7 @@ export function FAQClient() {
                 "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all shrink-0 cursor-pointer",
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-xs"
-                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               <Icon className="size-3.5" />
@@ -234,10 +237,12 @@ export function FAQClient() {
       ) : (
         <div className="rounded-3xl border border-dashed border-border p-12 text-center space-y-3">
           <HelpCircle className="size-10 text-muted-foreground mx-auto" />
-          <h3 className="text-base font-bold text-foreground">No questions found</h3>
+          <h3 className="text-base font-bold text-foreground">
+            No questions found
+          </h3>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            We couldn&apos;t find an answer matching &quot;{searchQuery}&quot;. Please contact our 24/7
-            helpline directly.
+            We couldn&apos;t find an answer matching &quot;{searchQuery}&quot;.
+            Please contact our 24/7 helpline directly.
           </p>
         </div>
       )}
@@ -245,9 +250,12 @@ export function FAQClient() {
       {/* Direct Help Card */}
       <div className="rounded-3xl border border-primary/20 bg-card p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="space-y-1 text-center sm:text-left">
-          <h3 className="text-base font-bold text-foreground">Still have questions?</h3>
+          <h3 className="text-base font-bold text-foreground">
+            Still have questions?
+          </h3>
           <p className="text-xs text-muted-foreground">
-            Our customer dispatch and operations team is available 24/7 to help you.
+            Our customer dispatch and operations team is available 24/7 to help
+            you.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 shrink-0">
@@ -255,7 +263,7 @@ export function FAQClient() {
             href="tel:09612929764"
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
-              "rounded-xl text-xs gap-1.5 font-medium"
+              "rounded-xl text-xs gap-1.5 font-medium",
             )}
           >
             <Phone className="size-3.5 text-primary" />
@@ -265,7 +273,7 @@ export function FAQClient() {
             href="/contact"
             className={cn(
               buttonVariants({ variant: "default", size: "sm" }),
-              "rounded-xl text-xs gap-1.5 font-semibold shadow-xs"
+              "rounded-xl text-xs gap-1.5 font-semibold shadow-xs",
             )}
           >
             <span>Contact Support</span>

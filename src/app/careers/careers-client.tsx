@@ -143,7 +143,7 @@ export function CareersClient() {
   return (
     <div className="space-y-12">
       {/* Department Filter Pills */}
-      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
+      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {departments.map((dept) => {
           const isSelected = selectedDept === dept.id;
           return (
@@ -155,7 +155,7 @@ export function CareersClient() {
                 "rounded-full px-4 py-2 text-xs font-semibold transition-all shrink-0 cursor-pointer",
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-xs"
-                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               {dept.label}
@@ -173,7 +173,10 @@ export function CareersClient() {
           >
             <div className="space-y-2 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="border-primary/20 text-primary text-[10px]">
+                <Badge
+                  variant="outline"
+                  className="border-primary/20 text-primary text-[10px]"
+                >
                   {job.deptLabel}
                 </Badge>
                 <span className="text-[11px] text-muted-foreground font-medium">
@@ -247,10 +250,13 @@ export function CareersClient() {
             {submitted ? (
               <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 text-center space-y-3">
                 <CheckCircle2 className="size-10 text-emerald-500 mx-auto" />
-                <h4 className="text-base font-bold text-foreground">Application Received!</h4>
+                <h4 className="text-base font-bold text-foreground">
+                  Application Received!
+                </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Thank you, {applicant.name}. Our talent acquisition team will review your background
-                  and contact you at {applicant.email} within 3 business days.
+                  Thank you, {applicant.name}. Our talent acquisition team will
+                  review your background and contact you at {applicant.email}{" "}
+                  within 3 business days.
                 </p>
                 <Button
                   variant="outline"
@@ -264,36 +270,48 @@ export function CareersClient() {
             ) : (
               <form onSubmit={handleApplySubmit} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">Full Name *</label>
+                  <label className="text-xs font-semibold text-foreground">
+                    Full Name *
+                  </label>
                   <Input
                     required
                     placeholder="e.g. Nusrat Jahan"
                     value={applicant.name}
-                    onChange={(e) => setApplicant({ ...applicant, name: e.target.value })}
+                    onChange={(e) =>
+                      setApplicant({ ...applicant, name: e.target.value })
+                    }
                     className="text-xs"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">Email Address *</label>
+                    <label className="text-xs font-semibold text-foreground">
+                      Email Address *
+                    </label>
                     <Input
                       required
                       type="email"
                       placeholder="nusrat@example.com"
                       value={applicant.email}
-                      onChange={(e) => setApplicant({ ...applicant, email: e.target.value })}
+                      onChange={(e) =>
+                        setApplicant({ ...applicant, email: e.target.value })
+                      }
                       className="text-xs"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-foreground">Phone Number *</label>
+                    <label className="text-xs font-semibold text-foreground">
+                      Phone Number *
+                    </label>
                     <Input
                       required
                       type="tel"
                       placeholder="017xxxxxxxx"
                       value={applicant.phone}
-                      onChange={(e) => setApplicant({ ...applicant, phone: e.target.value })}
+                      onChange={(e) =>
+                        setApplicant({ ...applicant, phone: e.target.value })
+                      }
                       className="text-xs font-mono"
                     />
                   </div>
@@ -308,7 +326,9 @@ export function CareersClient() {
                     type="url"
                     placeholder="https://linkedin.com/in/..."
                     value={applicant.portfolio}
-                    onChange={(e) => setApplicant({ ...applicant, portfolio: e.target.value })}
+                    onChange={(e) =>
+                      setApplicant({ ...applicant, portfolio: e.target.value })
+                    }
                     className="text-xs"
                   />
                 </div>
@@ -321,7 +341,9 @@ export function CareersClient() {
                     rows={3}
                     placeholder="Briefly describe your relevant projects and achievements..."
                     value={applicant.note}
-                    onChange={(e) => setApplicant({ ...applicant, note: e.target.value })}
+                    onChange={(e) =>
+                      setApplicant({ ...applicant, note: e.target.value })
+                    }
                     className="text-xs"
                   />
                 </div>
