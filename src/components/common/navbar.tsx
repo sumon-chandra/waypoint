@@ -20,6 +20,7 @@ import { Logo } from "@/components/common/logo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserProfileMenu } from "@/components/common/user-profile-menu";
+import { ActiveShipmentsBadge } from "@/components/common/active-shipments-badge";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -122,9 +123,12 @@ export function Navbar() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-3">
           {/* Auth Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {mounted && isAuthenticated && user ? (
-              <UserProfileMenu align="end" />
+              <>
+                <ActiveShipmentsBadge variant="desktop" />
+                <UserProfileMenu align="end" />
+              </>
             ) : (
               <>
                 <Link
@@ -150,6 +154,9 @@ export function Navbar() {
 
         {/* Mobile Header Actions (Right) */}
         <div className="flex md:hidden items-center gap-2">
+          {mounted && isAuthenticated && user && (
+            <ActiveShipmentsBadge variant="mobile" />
+          )}
           {mounted && isAuthenticated && user ? (
             <UserProfileMenu align="end" />
           ) : (
@@ -231,6 +238,14 @@ export function Navbar() {
             aria-label="Full Navigation Drawer"
           >
             <div className="flex flex-col min-h-[calc(100dvh-5rem)] p-5 space-y-6">
+              {/* Active Orders Banner for Customer */}
+              {mounted && isAuthenticated && user?.role === "CUSTOMER" && (
+                <ActiveShipmentsBadge
+                  variant="drawer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                />
+              )}
+
               {/* Mobile Navigation Links */}
               <div className="space-y-1">
                 <p className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

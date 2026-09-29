@@ -16,6 +16,198 @@ This document is read by AI coding agents (and human contributors) working on th
 
 ---
 
+## 0. API Response Envelope & Backend Models (Source of Truth)
+
+> [!IMPORTANT]
+> **Every** backend endpoint returns this standard envelope. Do NOT write defensive code guessing other shapes.
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Operation completed successfully",
+  "data": [] // or {} or null (for void ops like logout)
+}
+```
+
+### Backend Prisma Models (use these field names exactly — no aliases)
+
+```prisma
+enum Role {
+  ADMIN
+  CUSTOMER
+  COURIER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum ShipmentStatus {
+  PENDING
+  ASSIGNED
+  PICKED_UP
+  RECEIVED_AT_ORIGIN_HUB
+  IN_TRANSIT
+  RECEIVED_AT_DEST_HUB
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentType {
+  CARD
+  CASH
+}
+
+enum DeliveryType {
+  LOCAL
+  INTER_DISTRICT
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+}
+enum HubStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+model User {
+  id              String     @id @default(uuid())
+  name            String
+  email           String     @unique
+  username        String?    @unique
+  displayUsername String?
+  password        String?
+  avatar          String?
+  role            Role       @default(CUSTOMER)
+  status          UserStatus @default(ACTIVE)
+  googleId        String?    @unique
+  emailVerified   Boolean    @default(false)
+  banned          Boolean?   @default(false)
+  banReason       String?
+  banExpires      DateTime?
+
+  stripeCustomerId String?
+
+  hubId            String?
+  hub              Hub?       @relation("HubCouriers", fields: [hubId], references: [id])
+
+  customerShipments Shipment[] @relation("CustomerShipments")
+  courierShipments  Shipment[] @relation("CourierShipments")
+  payments          Payment[]
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Shipment {
+  id               String         @id @default(uuid())
+  trackingNumber   String         @unique
+  receiverName     String
+  receiverPhone    String
+  weightKg         Float
+  status           ShipmentStatus @default(PENDING)
+  paymentType      PaymentType    @default(CARD)
+  paymentStatus    PaymentStatus  @default(UNPAID)
+  codAmount        Float?
+  senderAddress    String?
+  senderDistrict   String?
+  senderUpazila    String?
+  receiverAddress  String?
+  receiverDistrict String?
+  receiverUpazila  String?
+  deliveryType     DeliveryType   @default(LOCAL)
+  customerId       String
+  customer         User           @relation(...)
+  courierId        String?
+  courier          User?          @relation(...)
+  originHubId      String?
+  originHub        Hub?           @relation(...)
+  destinationHubId String?
+  destinationHub   Hub?           @relation(...)
+  payment          Payment?
+  trackingLogs     ShipmentTrackingLog[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model ShipmentTrackingLog {
+  id         String          @id @default(uuid())
+  shipmentId String
+  fromStatus ShipmentStatus?
+  toStatus   ShipmentStatus
+  action     String
+  actorId    String
+  location   String?
+  notes      String?
+  createdAt  DateTime        @default(now())
+}
+
+model Hub {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  name      String
+  district  String
+  division  String
+  upazila   String
+  address   String
+  cutoff    String
+  capacity  Int
+  phone     String
+  isGateway Boolean   @default(false)
+  status    HubStatus @default(ACTIVE)
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  amount                Float
+  currency              String        @default("usd")
+  status                PaymentStatus @default(PENDING)
+  stripeSessionId       String?       @unique
+  stripePaymentIntentId String?       @unique
+  stripeCustomerId      String?
+  paymentMethod         String?       @default("card")
+
+  shipmentId            String        @unique
+  shipment              Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  customerId            String
+  customer              User          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+```
+
+### Anti-Speculation Rules for Code Generation
+
+- **Use exact field names** from the Prisma models above. Never invent aliases (e.g., `recipientName` for `receiverName`, `trackingId` for `trackingNumber`).
+- **One endpoint, one response shape.** The API returns `{ success, statusCode, message, data }`. Do not write try/catch fallback chains to guess multiple endpoint paths or response formats.
+- **No fabricated defaults.** If a field is nullable in Prisma (`String?`), treat it as nullable in TypeScript — don't fill it with a hardcoded string like `"Central Sorting Node"`.
+- **No normalizer bloat.** If the API returns typed data, cast it directly. Don't write 70-line normalization functions mapping 3+ aliases per field.
+- **Ask, don't guess.** If you're unsure about a response shape or field name, ask the user — don't write defensive code covering 4 hypothetical formats.
+
+---
+
 ## 1. Tech Stack & Core Libraries
 
 - **Framework:** Next.js (App Router)
