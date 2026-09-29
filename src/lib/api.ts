@@ -1,8 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { getCookie } from "./cookies";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://waypointapi.vercel.app/api/v1";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /**
  * Central Axios instance for Waypoint API communication.
@@ -35,7 +34,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response Interceptor: Standardize error extracting
@@ -44,8 +43,14 @@ api.interceptors.response.use(
   (error: AxiosError<ApiErrorResponse>) => {
     const errorData = error.response?.data;
     const detailedErrors =
-      errorData?.errors?.map((e) => (e.field ? `${e.field}: ${e.message}` : e.message)).join("; ") ||
-      (errorData as { errorMessages?: Array<{ path?: string; message: string }> })?.errorMessages
+      errorData?.errors
+        ?.map((e) => (e.field ? `${e.field}: ${e.message}` : e.message))
+        .join("; ") ||
+      (
+        errorData as {
+          errorMessages?: Array<{ path?: string; message: string }>;
+        }
+      )?.errorMessages
         ?.map((e) => (e.path ? `${e.path}: ${e.message}` : e.message))
         .join("; ");
 
@@ -67,7 +72,7 @@ api.interceptors.response.use(
     customError.originalError = error;
 
     return Promise.reject(customError);
-  }
+  },
 );
 
 export default api;

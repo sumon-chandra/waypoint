@@ -1,13 +1,12 @@
 import Link from "next/link";
 import {
-  Search,
   ArrowRight,
   ShieldCheck,
   MapPin,
   Truck,
   Sparkles,
 } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
@@ -41,49 +40,6 @@ export default function Home() {
               courier dispatch built specifically for the high-velocity demands
               of Bangladesh&apos;s digital economy.
             </p>
-
-            {/* Quick Consignment Tracking Bar */}
-            <div className="w-full max-w-xl">
-              <form
-                action="/tracking"
-                method="GET"
-                className="relative flex items-center p-1.5 rounded-2xl border border-border bg-card/90 shadow-xl backdrop-blur-md transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
-              >
-                <div className="flex items-center pl-3 text-muted-foreground pointer-events-none">
-                  <Search className="size-5" />
-                </div>
-                <input
-                  type="text"
-                  name="id"
-                  placeholder="Enter Tracking ID (e.g. WP-DAC-98214)"
-                  className="w-full bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                />
-                <Button
-                  type="submit"
-                  size="default"
-                  className="gap-1.5 shrink-0 rounded-xl px-5"
-                >
-                  <span>Track Parcel</span>
-                  <ArrowRight className="size-4" />
-                </Button>
-              </form>
-              <div className="mt-2.5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                <span>Try sample IDs:</span>
-                <Link
-                  href="/tracking?id=WP-DAC-98214"
-                  className="underline hover:text-foreground font-mono"
-                >
-                  WP-DAC-98214
-                </Link>
-                <span>&bull;</span>
-                <Link
-                  href="/tracking?id=WP-CTG-44102"
-                  className="underline hover:text-foreground font-mono"
-                >
-                  WP-CTG-44102
-                </Link>
-              </div>
-            </div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">

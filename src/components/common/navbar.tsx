@@ -7,13 +7,11 @@ import { usePathname } from "next/navigation";
 import {
   Menu,
   X,
-  Search,
   ArrowRight,
   Truck,
   MapPin,
   ShieldCheck,
   Phone,
-  Package,
   LayoutDashboard,
   User as UserIcon,
   LogOut,
@@ -32,7 +30,6 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Tracking", href: "/tracking" },
   { label: "Services", href: "/services" },
   { label: "Hub Network", href: "/hubs", badge: "64" },
   { label: "Pricing", href: "/pricing" },
@@ -42,7 +39,6 @@ const navItems: NavItem[] = [
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [quickTrackQuery, setQuickTrackQuery] = React.useState("");
   const [mounted, setMounted] = React.useState(false);
   const [headerHeight, setHeaderHeight] = React.useState(64);
   const headerRef = React.useRef<HTMLElement>(null);
@@ -81,11 +77,6 @@ export function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
-  const handleQuickTrack = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!quickTrackQuery.trim()) return;
-    window.location.href = `/tracking?id=${encodeURIComponent(quickTrackQuery.trim())}`;
-  };
 
   return (
     <header
@@ -130,21 +121,6 @@ export function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Quick Track trigger */}
-          <form onSubmit={handleQuickTrack} className="relative">
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                placeholder="Track parcel ID..."
-                value={quickTrackQuery}
-                onChange={(e) => setQuickTrackQuery(e.target.value)}
-                className="h-9 w-44 lg:w-52 rounded-full border border-input bg-muted/40 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                aria-label="Quick track parcel"
-              />
-              <Search className="pointer-events-none absolute left-2.5 size-3.5 text-muted-foreground" />
-            </div>
-          </form>
-
           {/* Auth Actions */}
           <div className="flex items-center gap-2">
             {mounted && isAuthenticated && user ? (
@@ -255,27 +231,6 @@ export function Navbar() {
             aria-label="Full Navigation Drawer"
           >
             <div className="flex flex-col min-h-[calc(100dvh-5rem)] p-5 space-y-6">
-              {/* Quick Track Search Input */}
-              <form onSubmit={handleQuickTrack} className="w-full">
-                <div className="relative flex items-center">
-                  <Search className="absolute left-3.5 size-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Enter tracking number (e.g. WP-8921)"
-                    value={quickTrackQuery}
-                    onChange={(e) => setQuickTrackQuery(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border bg-muted/50 pl-10 pr-24 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                  <Button
-                    type="submit"
-                    size="xs"
-                    className="absolute right-2 h-7 px-3 text-xs"
-                  >
-                    Track
-                  </Button>
-                </div>
-              </form>
-
               {/* Mobile Navigation Links */}
               <div className="space-y-1">
                 <p className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -297,9 +252,6 @@ export function Navbar() {
                         )}
                       >
                         <span className="flex items-center gap-2.5">
-                          {item.label === "Tracking" && (
-                            <Package className="size-4 text-primary" />
-                          )}
                           {item.label === "Services" && (
                             <Truck className="size-4 text-primary" />
                           )}

@@ -36,7 +36,6 @@ const footerSections: FooterSection[] = [
   {
     title: "Platform & Portals",
     links: [
-      { label: "Track Consignment", href: "/tracking" },
       { label: "Customer Portal", href: "/customer" },
       { label: "Courier App", href: "/courier" },
       { label: "Admin Operations", href: "/admin" },
