@@ -22,6 +22,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserProfileMenu } from "@/components/common/user-profile-menu";
 import { ActiveShipmentsBadge } from "@/components/common/active-shipments-badge";
 import { useAuth } from "@/hooks/use-auth";
+import { useHubs } from "@/features/hubs";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -30,15 +31,22 @@ interface NavItem {
   badge?: string;
 }
 
-const navItems: NavItem[] = [
-  { label: "Services", href: "/services" },
-  { label: "Hub Network", href: "/hubs", badge: "64" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "About", href: "/about" },
-];
-
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { data: hubs, isLoading: isHubsLoading } = useHubs();
+  const totalHubs = hubs?.length ?? 0;
+  const hubsBadge = isHubsLoading ? "..." : String(totalHubs);
+
+  const navItems: NavItem[] = React.useMemo(
+    () => [
+      { label: "Services", href: "/services" },
+      { label: "Hub Network", href: "/hubs", badge: hubsBadge },
+      { label: "Pricing", href: "/pricing" },
+      { label: "About", href: "/about" },
+    ],
+    [hubsBadge],
+  );
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   const [headerHeight, setHeaderHeight] = React.useState(64);
@@ -427,7 +435,7 @@ export function Navbar() {
                 <div className="flex items-center justify-between px-2 pt-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>All 64 Hubs Active</span>
+                    <span>All {totalHubs} Hubs Active</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Phone className="size-3" />

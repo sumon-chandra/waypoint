@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Sparkles, MapPin, Building2, Truck, ArrowRight } from "lucide-react";
+import { Sparkles, Building2, ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { HubsDirectory } from "./hubs-directory";
+import { HubsDirectory } from "@/features/hubs";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
