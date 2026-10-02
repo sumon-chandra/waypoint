@@ -12,7 +12,6 @@ import {
   BarChart3,
   User,
   Settings,
-  ShieldAlert,
 } from "lucide-react";
 import type { Role } from "@/features/auth/schemas/auth.schemas";
 
