@@ -12,6 +12,7 @@ import {
   BarChart3,
   User,
   Settings,
+  Home,
 } from "lucide-react";
 import type { Role } from "@/features/auth/schemas/auth.schemas";
 
@@ -192,8 +193,15 @@ export const ADMIN_NAV_SECTIONS: DashboardNavSection[] = [
 ];
 
 export const COMMON_NAV_SECTION: DashboardNavSection = {
-  title: "Account",
+  title: "Platform & Account",
   items: [
+    {
+      title: "Home Page",
+      href: "/",
+      icon: Home,
+      exact: true,
+      description: "Return to the Waypoint main public home page.",
+    },
     {
       title: "My Profile",
       href: "/profile",
@@ -235,7 +243,7 @@ export function getNavSectionsForRole(role: Role): DashboardNavSection[] {
  * Helper to check if a navigation item is active based on current pathname.
  */
 export function isNavItemActive(pathname: string, item: DashboardNavItem): boolean {
-  if (item.exact) {
+  if (item.exact || item.href === "/") {
     return pathname === item.href;
   }
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
