@@ -116,14 +116,6 @@ export function DashboardHeader() {
             <ActiveShipmentsBadge variant="mobile" className="sm:hidden" />
           </>
         )}
-
-        {/* Theme Toggle Button */}
-        <ThemeToggle />
-
-        <div className="h-6 w-px bg-border/60 mx-0.5" />
-
-        {/* User Profile Dropdown Menu */}
-        <UserProfileMenu align="end" />
       </div>
     </header>
   );

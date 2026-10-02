@@ -43,20 +43,15 @@ export default function RootLayout({
         geistSans.variable,
         geistMono.variable,
         "font-sans",
-        inter.variable
+        inter.variable,
       )}
     >
       <head>
         <ThemeScript />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-150">
-        <Providers>
-          <Navbar />
-          <main className="flex-1 flex flex-col">{children}</main>
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
 }
-
