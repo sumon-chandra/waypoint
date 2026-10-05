@@ -1,150 +1,288 @@
-# 🎨 Waypoint — Frontend Architecture & Guidelines
+# 🎨 Waypoint — Agent & Contributor Guidelines
 
-This document is read by AI coding agents (and human contributors) working on the Waypoint logistics platform frontend. It defines what to build with, what to decide vs. what's already decided, and what requires explicit confirmation before acting.
-
-# Important Note
-
-## Base URL
-
-`https://waypointapi.vercel.app/api/v1`
-
-## Example routes
-
-`https://waypointapi.vercel.app/api/v1/users`
-
-### After everthing you will be working with make sure you give me well described commit message for github.
+> **Read this file fully before writing a single line of code.**
+> This is the single source of truth for the Waypoint logistics platform frontend.
+> The implementation task tracker lives in [`task.md`](./task.md) — not here.
 
 ---
 
-## 0. API Response Envelope & Backend Models (Source of Truth)
+## 0. Approved Architecture Decisions
 
-> [!IMPORTANT]
-> **Every** backend endpoint returns this standard envelope. Do NOT write defensive code guessing other shapes.
+All decisions below are **final**. Do not re-open them without explicit user confirmation.
 
+| Concern | Decision |
+|---|---|
+| **Framework** | Next.js 15 (App Router) |
+| **Token / Session Storage** | HTTP-only cookies (set by the backend on login) |
+| **Real-Time** | Socket.io Client (`socket.io-client`) — see Section 7 for full protocol |
+| **File Uploads** | UploadThing (`@uploadthing/react`) |
+| **Map Rendering** | Deferred — do not implement in current iterations |
+| **Form Library** | TanStack Form + Zod |
+| **Data Fetching** | TanStack Query v5 (`@tanstack/react-query`) |
+| **UI Components** | shadcn/ui |
+| **Styling** | Tailwind CSS (strict theme tokens only — no arbitrary bracket values) |
+| **Icons** | Lucide React (`lucide-react`) |
+| **Global Client State** | Zustand |
+| **Repository** | Standalone frontend repo (separate from backend) |
+
+---
+
+## 1. Safety Guardrails ⚠️ (Read Before Every Task)
+
+These require **explicit user confirmation** before acting — do not infer consent from a general task description.
+
+- **Never** modify authentication, token, or session logic as a side effect of another change.
+- **Never** touch payment, billing, or Stripe code paths without explicit confirmation.
+- **Never** commit `.env`, `.env.local`, API keys, or any credential-bearing file.
+- **Never** delete files or data without explicit confirmation.
+- **PII Flag:** Any change touching customer addresses, phone numbers, OTP codes, or delivery photos → add a one-line PII notice in your response even if the change was requested.
+- **Ask, don't guess:** If a task requires choosing between two reasonable approaches and this document doesn't decide it, ask the user.
+
+---
+
+## 2. API — Base URL & Response Envelope
+
+### Base URL
+```
+https://waypointapi.vercel.app/api/v1
+```
+
+### Standard Success Envelope
+Every endpoint returns this shape — no exceptions, no defensive fallback code:
 ```json
 {
   "success": true,
   "statusCode": 200,
   "message": "Operation completed successfully",
-  "data": [] // or {} or null (for void ops like logout)
+  "data": {}
+}
+```
+`data` is `{}` for single-resource responses, `[]` for lists, and `null` for void operations (e.g., logout).
+
+### Paginated List Envelope
+All list endpoints that support pagination return:
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "...",
+  "data": {
+    "result": [],
+    "meta": {
+      "total": 120,
+      "page": 1,
+      "limit": 10,
+      "totalPages": 12
+    }
+  }
+}
+```
+Query params for pagination: `?page=1&limit=10`. Default `limit` is `10` unless specified.
+
+### Error Envelopes
+
+**Validation / Field Error (422):**
+```json
+{
+  "success": false,
+  "statusCode": 422,
+  "message": "Validation failed",
+  "errors": [
+    { "field": "receiverPhone", "message": "Invalid Bangladeshi phone number" },
+    { "field": "weightKg", "message": "Weight must be a positive number" }
+  ]
+}
+```
+→ Map `errors[]` to TanStack Form field-level errors. Show inline under the input.
+
+**Business Logic / Auth / Server Error (4xx / 5xx):**
+```json
+{
+  "success": false,
+  "statusCode": 403,
+  "message": "Shipment cannot be cancelled after pickup"
+}
+```
+→ Show as a `toast` notification. Do **not** show this in form field errors.
+
+**Rule:** Never mix field errors and toast errors in the same error handler.
+
+---
+
+## 3. API Endpoint Contracts
+
+> Use **exact** method, path, body fields, and `data` shape listed here. Do not invent alternatives.
+
+### 3.1 Authentication
+
+| Method | Path | Body | `data` Response | Role |
+|---|---|---|---|---|
+| `POST` | `/auth/register` | `{ name, email, password, role: 'CUSTOMER'\|'COURIER' }` | `User` | Public |
+| `POST` | `/auth/login` | `{ email, password }` | `User` + sets httpOnly cookie | Public |
+| `POST` | `/auth/logout` | — | `null` + clears cookie | Auth |
+| `GET` | `/auth/me` | — | `User` | Auth |
+| `GET` | `/auth/google` | — | OAuth redirect | Public |
+
+### 3.2 Shipments
+
+| Method | Path | Body | `data` Response | Role |
+|---|---|---|---|---|
+| `POST` | `/shipments` | `CreateShipmentBody` (see below) | `Shipment` | CUSTOMER |
+| `GET` | `/shipments` | Query: `?page&limit&status&deliveryType` | `PaginatedResult<Shipment>` | All (auto-scoped by role) |
+| `GET` | `/shipments/:id` | — | `ShipmentDetail` (with relations) | Owner / ADMIN |
+| `GET` | `/shipments/track/:trackingNumber` | — | `ShipmentDetail` | Public |
+| `POST` | `/shipments/:id/cancel` | `{ reason: string }` | `Shipment` | CUSTOMER (PENDING only) |
+| `POST` | `/shipments/:id/resend-delivery-otp` | — | `null` | CUSTOMER |
+| `PATCH` | `/shipments/:id/assign-courier` | `{ courierId: string }` | `Shipment` | ADMIN |
+| `POST` | `/shipments/:id/origin-hub-checkin` | — | `Shipment` | ADMIN |
+| `POST` | `/shipments/:id/dispatch-transit` | — | `Shipment` | ADMIN |
+| `POST` | `/shipments/:id/dest-hub-checkin` | — | `Shipment` | ADMIN |
+| `POST` | `/shipments/:id/pickup` | — | `Shipment` | COURIER |
+| `POST` | `/shipments/:id/out-for-delivery` | — | `Shipment` | COURIER |
+| `POST` | `/shipments/:id/complete-delivery` | `{ otp: string, cashCollected?: number }` | `Shipment` | COURIER |
+
+**`CreateShipmentBody`:**
+```ts
+{
+  receiverName: string        // required
+  receiverPhone: string       // required, matches ^01[3-9]\d{8}$
+  weightKg: number            // required, > 0
+  deliveryType: DeliveryType  // 'LOCAL' | 'INTER_DISTRICT'
+  paymentType: PaymentType    // 'CARD' | 'CASH'
+  codAmount?: number          // required if paymentType === 'CASH', > 0
+  senderAddress?: string
+  senderDistrict?: string
+  senderUpazila?: string
+  receiverAddress?: string
+  receiverDistrict?: string
+  receiverUpazila?: string
 }
 ```
 
-### Backend Prisma Models (use these field names exactly — no aliases)
+**`ShipmentDetail` — relations included in `GET /shipments/:id` response `data`:**
+```ts
+Shipment & {
+  customer: User | null
+  courier: User | null
+  originHub: Hub | null
+  destinationHub: Hub | null
+  trackingLogs: ShipmentTrackingLog[]
+  payment: Payment | null
+}
+```
+
+### 3.3 Hubs
+
+| Method | Path | Body | `data` Response | Role |
+|---|---|---|---|---|
+| `GET` | `/hubs` | Query: `?page&limit&status&district` | `PaginatedResult<Hub>` | Auth |
+| `GET` | `/hubs/:id` | — | `Hub` | Auth |
+| `POST` | `/hubs` | `CreateHubBody` (see below) | `Hub` | ADMIN |
+| `PATCH` | `/hubs/:id` | `Partial<CreateHubBody>` | `Hub` | ADMIN |
+| `DELETE` | `/hubs/:id` | — | `null` | ADMIN |
+
+**`CreateHubBody`:**
+```ts
+{
+  code: string       // unique short code, e.g. "CTG-01"
+  name: string
+  district: string
+  division: string
+  upazila: string
+  address: string
+  cutoff: string     // e.g. "18:00"
+  capacity: number   // integer
+  phone: string      // BD phone, matches ^01[3-9]\d{8}$
+  isGateway?: boolean
+  status?: HubStatus // 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE'
+  latitude?: number
+  longitude?: number
+}
+```
+
+### 3.4 Users
+
+| Method | Path | Body | `data` Response | Role |
+|---|---|---|---|---|
+| `GET` | `/users` | Query: `?page&limit&role&status` | `PaginatedResult<User>` | ADMIN |
+| `GET` | `/users/:id` | — | `User` | ADMIN / Self |
+| `PATCH` | `/users/:id` | `{ name?, displayUsername?, avatar? }` | `User` | Self (profile update) |
+| `PATCH` | `/users/:id/status` | `{ status: UserStatus, banReason?: string, banExpires?: string }` | `User` | ADMIN |
+
+### 3.5 Payments
+
+| Method | Path | Body | `data` Response | Role |
+|---|---|---|---|---|
+| `POST` | `/payments/create-checkout-session` | `{ shipmentId: string }` | `{ url: string }` | CUSTOMER |
+| `GET` | `/payments` | Query: `?page&limit` | `PaginatedResult<Payment>` | CUSTOMER (own) |
+
+---
+
+## 4. Backend Data Models (Source of Truth)
+
+Use these **exact field names** everywhere — TypeScript types, Zod schemas, UI labels, API calls. Never alias them.
 
 ```prisma
-enum Role {
-  ADMIN
-  CUSTOMER
-  COURIER
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  BANNED
-}
-
+enum Role           { ADMIN CUSTOMER COURIER }
+enum UserStatus     { ACTIVE INACTIVE BANNED }
+enum HubStatus      { ACTIVE INACTIVE MAINTENANCE }
+enum PaymentType    { CARD CASH }
+enum PaymentStatus  { UNPAID PENDING PAID FAILED EXPIRED }
+enum DeliveryType   { LOCAL INTER_DISTRICT }
 enum ShipmentStatus {
-  PENDING
-  ASSIGNED
-  PICKED_UP
-  RECEIVED_AT_ORIGIN_HUB
-  IN_TRANSIT
-  RECEIVED_AT_DEST_HUB
-  OUT_FOR_DELIVERY
-  DELIVERED
-  CANCELLED
-}
-
-enum PaymentType {
-  CARD
-  CASH
-}
-
-enum DeliveryType {
-  LOCAL
-  INTER_DISTRICT
-}
-
-enum PaymentStatus {
-  UNPAID
-  PENDING
-  PAID
-  FAILED
-  EXPIRED
-}
-enum HubStatus {
-  ACTIVE
-  INACTIVE
-  MAINTENANCE
+  PENDING ASSIGNED PICKED_UP
+  RECEIVED_AT_ORIGIN_HUB IN_TRANSIT RECEIVED_AT_DEST_HUB
+  OUT_FOR_DELIVERY DELIVERED CANCELLED
 }
 
 model User {
-  id              String     @id @default(uuid())
-  name            String
-  email           String     @unique
-  username        String?    @unique
-  displayUsername String?
-  password        String?
-  avatar          String?
-  role            Role       @default(CUSTOMER)
-  status          UserStatus @default(ACTIVE)
-  googleId        String?    @unique
-  emailVerified   Boolean    @default(false)
-  banned          Boolean?   @default(false)
-  banReason       String?
-  banExpires      DateTime?
-
+  id               String      // UUID
+  name             String
+  email            String      // unique
+  username         String?     // unique
+  displayUsername  String?
+  password         String?
+  avatar           String?
+  role             Role
+  status           UserStatus
+  googleId         String?
+  emailVerified    Boolean
+  banned           Boolean?
+  banReason        String?
+  banExpires       DateTime?
   stripeCustomerId String?
-
-  hubId            String?
-  hub              Hub?       @relation("HubCouriers", fields: [hubId], references: [id])
-
-  customerShipments Shipment[] @relation("CustomerShipments")
-  courierShipments  Shipment[] @relation("CourierShipments")
-  payments          Payment[]
-
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("users")
+  hubId            String?     // courier's assigned hub
+  createdAt        DateTime
+  updatedAt        DateTime
 }
 
 model Shipment {
-  id               String         @id @default(uuid())
-  trackingNumber   String         @unique
+  id               String
+  trackingNumber   String         // unique, public-facing
   receiverName     String
   receiverPhone    String
   weightKg         Float
-  status           ShipmentStatus @default(PENDING)
-  paymentType      PaymentType    @default(CARD)
-  paymentStatus    PaymentStatus  @default(UNPAID)
-  codAmount        Float?
+  status           ShipmentStatus
+  paymentType      PaymentType
+  paymentStatus    PaymentStatus
+  codAmount        Float?         // only if paymentType === 'CASH'
   senderAddress    String?
   senderDistrict   String?
   senderUpazila    String?
   receiverAddress  String?
   receiverDistrict String?
   receiverUpazila  String?
-  deliveryType     DeliveryType   @default(LOCAL)
+  deliveryType     DeliveryType
   customerId       String
-  customer         User           @relation(...)
   courierId        String?
-  courier          User?          @relation(...)
   originHubId      String?
-  originHub        Hub?           @relation(...)
   destinationHubId String?
-  destinationHub   Hub?           @relation(...)
-  payment          Payment?
-  trackingLogs     ShipmentTrackingLog[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  createdAt        DateTime
+  updatedAt        DateTime
 }
 
 model ShipmentTrackingLog {
-  id         String          @id @default(uuid())
+  id         String
   shipmentId String
   fromStatus ShipmentStatus?
   toStatus   ShipmentStatus
@@ -152,282 +290,492 @@ model ShipmentTrackingLog {
   actorId    String
   location   String?
   notes      String?
-  createdAt  DateTime        @default(now())
+  createdAt  DateTime
 }
 
 model Hub {
-  id        String    @id @default(uuid())
-  code      String    @unique
+  id        String
+  code      String     // unique, e.g. "DHK-01"
   name      String
   district  String
   division  String
   upazila   String
   address   String
-  cutoff    String
+  cutoff    String     // "HH:mm" format
   capacity  Int
   phone     String
-  isGateway Boolean   @default(false)
-  status    HubStatus @default(ACTIVE)
+  isGateway Boolean
+  status    HubStatus
   latitude  Float?
   longitude Float?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime
+  updatedAt DateTime
 }
 
 model Payment {
-  id                    String        @id @default(uuid())
+  id                    String
   amount                Float
-  currency              String        @default("usd")
-  status                PaymentStatus @default(PENDING)
-  stripeSessionId       String?       @unique
-  stripePaymentIntentId String?       @unique
+  currency              String        // default "usd"
+  status                PaymentStatus
+  stripeSessionId       String?
+  stripePaymentIntentId String?
   stripeCustomerId      String?
-  paymentMethod         String?       @default("card")
-
-  shipmentId            String        @unique
-  shipment              Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-
+  paymentMethod         String?       // default "card"
+  shipmentId            String        // unique
   customerId            String
-  customer              User          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt             DateTime
+  updatedAt             DateTime
+}
+```
 
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+### Anti-Speculation Rules
 
-  @@map("payments")
+- **Exact field names only.** Never invent aliases (`recipientName` for `receiverName`, `trackingId` for `trackingNumber`).
+- **One endpoint, one shape.** Do not write fallback chains guessing response formats.
+- **Nullables are nullable.** If a field is `String?` in Prisma, type it as `string | null` in TypeScript — never fill with a hardcoded default like `"N/A"`.
+- **No normalizer bloat.** Cast API responses directly to types — don't write 50-line mapping functions.
+- **Ask, don't guess.** If a field or endpoint is unclear, stop and ask — don't write defensive code for multiple hypothetical shapes.
+
+---
+
+## 5. TypeScript Type Catalog
+
+All shared types live in `src/types/`. Do not duplicate types inside feature folders.
+
+```
+src/types/
+├── api.ts        → ApiResponse<T>, PaginatedResult<T>, PaginatedMeta
+├── user.ts       → User, Role, UserStatus
+├── shipment.ts   → Shipment, ShipmentDetail, ShipmentStatus, DeliveryType, ShipmentTrackingLog
+├── hub.ts        → Hub, HubStatus
+├── payment.ts    → Payment, PaymentStatus, PaymentType
+└── index.ts      → re-exports all of the above
+```
+
+**Canonical utility types (`src/types/api.ts`):**
+```ts
+export interface ApiResponse<T> {
+  success: boolean
+  statusCode: number
+  message: string
+  data: T
 }
 
+export interface PaginatedMeta {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface PaginatedResult<T> {
+  result: T[]
+  meta: PaginatedMeta
+}
 ```
 
-### Anti-Speculation Rules for Code Generation
-
-- **Use exact field names** from the Prisma models above. Never invent aliases (e.g., `recipientName` for `receiverName`, `trackingId` for `trackingNumber`).
-- **One endpoint, one response shape.** The API returns `{ success, statusCode, message, data }`. Do not write try/catch fallback chains to guess multiple endpoint paths or response formats.
-- **No fabricated defaults.** If a field is nullable in Prisma (`String?`), treat it as nullable in TypeScript — don't fill it with a hardcoded string like `"Central Sorting Node"`.
-- **No normalizer bloat.** If the API returns typed data, cast it directly. Don't write 70-line normalization functions mapping 3+ aliases per field.
-- **Ask, don't guess.** If you're unsure about a response shape or field name, ask the user — don't write defensive code covering 4 hypothetical formats.
+**Rules:**
+- `type FormValues = z.infer<typeof schema>` — no redundant interface declarations alongside Zod schemas.
+- `any` is **forbidden**. Use `unknown` and narrow with type guards.
+- Never re-declare a type that already exists in `src/types/`.
 
 ---
 
-## 1. Tech Stack & Core Libraries
-
-- **Framework:** Next.js (App Router)
-- **Data Fetching & State:** TanStack Query (React Query)
-- **Form Management:** TanStack Form with Zod validation
-- **UI Components:** shadcn/ui
-- **Styling:** Tailwind CSS
-- **Real-time:** [DECIDE — see Section 8]
-
----
-
-## 2. Safety Guardrails (Critical — read first)
-
-These require explicit user confirmation before proceeding. Do not infer consent from a general task description.
-
-- Never modify authentication, token, or session logic without explicit confirmation — even as a side effect of another change.
-- Never touch payment, billing, or invoicing code paths without explicit confirmation.
-- Never commit `.env`, `.env.local`, API keys, or any credential-bearing file.
-- Never delete files or drop generated data without explicit confirmation.
-- Any change touching PII (customer addresses, phone numbers, courier location history, delivery photos) needs a one-line flag in the response, even if the change itself was requested.
-- If a task requires choosing between two reasonable approaches and this doc doesn't decide it, ask — don't silently pick one (see Section 9, "Decisions").
-
----
-
-## 3. Strict UI & Styling Rules
-
-- **shadcn/ui First:** Always import and use components from shadcn/ui for interactive or standard UI elements (Buttons, Inputs, Dialogs, Cards, etc.). Don't build these primitives from scratch unless shadcn/ui has no equivalent.
-- **No Arbitrary Tailwind Values (default):** Avoid arbitrary value classes (e.g., `w-[100px]`, `text-[#123456]`). Use canonical theme tokens (`w-24`, `max-w-xs`, `text-muted-foreground`).
-  - **Exception:** Arbitrary values are allowed for pixel-exact requirements that can't be expressed in the token scale — map overlay positioning, SVG/icon alignment, brand asset dimensions. When used, add a one-line comment explaining why the token scale didn't fit.
-- **Conditional Styling:** Use the `cn()` utility (`@/lib/utils`) for merging Tailwind classes dynamically.
-- **Responsive Design:** Mobile-first, using standard breakpoints (`sm:`, `md:`, `lg:`, `xl:`). Given the BD user base, assume a meaningful share of traffic is on slower mobile connections — avoid heavy client-side bundles on first-load routes.
-
----
-
-## 4. Data Fetching & Server Communication
-
-- **TanStack Query:** Always use `useQuery` / `useMutation` for backend communication. Never plain `fetch`/`axios` inside `useEffect`.
-- **Query Key Schema (fixed — do not improvise per feature):**
-  ```
-  [domain, resource, scope, ...params]
-  // e.g.
-  ['shipments', 'list', { status, page }]
-  ['shipments', 'detail', shipmentId]
-  ['couriers', 'list', { region }]
-  ```
-  Filters and pagination params are part of the key, not separate state. If a new domain needs a key, follow this shape — don't invent a new pattern.
-- **API Client:** Centralized client (Axios or fetch wrapper) that auto-attaches `Authorization: Bearer <token>`.
-- **Retry/Resilience:** Given inconsistent mobile network conditions in the target market, configure TanStack Query with retry + exponential backoff on network errors (not on 4xx). Don't leave this at library defaults without deciding it.
-- **Error Handling:** Backend returns a structured validation error envelope.
-  - Field-level errors → map to TanStack Form field errors, shown inline under the field.
-  - Non-field errors (auth failures, server errors, conflict errors) → toast notification.
-  - Don't mix the two per-form; pick one per error type, consistently.
-
----
-
-## 5. Form Management & Validation
-
-- **TanStack Form** for all form state.
-- **Zod Validation (strict):** Every form backed by a Zod schema matching backend requirements (e.g., `receiverPhone` matches `^01[3-9]\d{8}$`).
-- **Type Inference:** `type FormValues = z.infer<typeof schema>` — no redundant interface declarations.
-
----
-
-## 6. File Uploads
-
-Used for proof-of-delivery photos, ID/KYC verification, and courier documents.
-
-- **Method:** [DECIDE — presigned URL direct-to-storage, or proxied through backend]
-- **Limits:** [DECIDE — max size, accepted MIME types per upload type]
-- **Client behavior:** Validate type/size client-side before upload attempt; show upload progress for anything over ~1MB; never block form submission on upload completion without a visible loading state.
-
----
-
-## 7. Directory Structure & Consistency
-
-```text
-src/
-├── app/                  # Next.js App Router pages, layouts, loading states
-├── components/
-│   ├── ui/               # Raw shadcn/ui primitives
-│   └── common/           # Shared reusable composition components (Navbars, Footers)
-├── features/             # Domain-driven feature slices (shipment, auth, dashboard, tracking)
-│   ├── shipment/
-│   │   ├── components/
-│   │   ├── api/          # TanStack queries and mutations
-│   │   └── schemas/      # Zod validation schemas
-│   └── ...
-├── lib/                  # Shared utilities (cn, API client setup)
-├── hooks/                # Custom reusable React hooks
-├── types/                # Global TypeScript definitions
-└── store/                # Global state (if any, e.g., Zustand)
-```
-
-New domains follow the same `features/<domain>/{components,api,schemas}` shape. Don't restructure an existing feature slice without flagging it.
-
----
-
-## 8. Real-Time / Live Tracking
-
-Courier location and shipment status updates are core to the product and are **not** a good fit for TanStack Query's pull-based caching alone.
-
-- **Mechanism:** [DECIDE — WebSocket connection, SSE, or short-interval polling as fallback]
-- **State ownership:** Live location/status state lives outside the TanStack Query cache (e.g., a dedicated store or a query with a `refetchInterval` explicitly justified as a stopgap, not the long-term mechanism).
-- **Reconnection:** Define behavior on connection drop — silent retry with backoff, plus a visible "reconnecting" indicator for the user; don't fail silently.
-- **Map rendering:** [DECIDE — mapping library, e.g., Mapbox/Leaflet/Google Maps — and confirm it's compatible with the licensing/cost model for BD-scale traffic before adopting]
-
----
-
-## 9. Authentication & Roles
-
-- **Role-Based UI:** UI adapts to role (`CUSTOMER`, `COURIER`, `ADMIN`) via a centralized auth hook/context.
-- **Protected Routes:** Unauthenticated users redirect to `/login`. Users cannot access another role's dashboard, even via direct URL.
-- **Token Storage:** [DECIDE — httpOnly cookie vs. local storage. This must be picked once and applied everywhere; don't let it vary by feature or by which agent session built it.]
-
----
-
-## 11. Code Quality & Git Strategy
-
-- **TypeScript Strict Mode:** `any` is forbidden.
-- **Component Anatomy:** Small, modular, single-responsibility components.
-- **Commits:** Conventional commits (`feat:`, `fix:`, `chore:`, `refactor:`). Code must lint and format successfully before pushing.
-
-# Waypoint Frontend Implementation Plan
-
-This plan details the implementation strategy for the Waypoint logistics platform frontend.
-
-## Approved Architecture Decisions
-
-> [!NOTE]
-> Based on user feedback, the following key decisions have been made:
->
-> 1. **Token Storage:** HTTP-only cookies will be used for security.
-> 2. **Real-time Updates:** Manual shipment status updates (no WebSockets/SSE for now).
-> 3. **File Uploads:** UploadThing integration.
-> 4. **Map Rendering:** Deferred to future iterations.
-> 5. **Repository Strategy:** The frontend will be housed in a completely separate repository.
-
-## Proposed Architecture & Structure
-
-### Tech Stack
-
-- **Framework**: Next.js (App Router)
-- **Data Fetching**: TanStack Query (React Query)
-- **Forms & Validation**: TanStack Form + Zod
-- **UI Components**: shadcn/ui + Tailwind CSS
-
-### Directory Structure
+## 6. Directory Structure & Naming Conventions
 
 ```text
 src/
 ├── app/
-│   ├── (auth)/           # /login, /register
-│   ├── (dashboard)/
-│   │   ├── admin/        # Admin routes
-│   │   ├── courier/      # Courier routes
-│   │   └── customer/     # Customer routes
-│   ├── profile/          # Profile management
-│   └── layout.tsx        # Root layout with providers
+│   ├── (auth)/                   # /login, /register
+│   │   └── layout.tsx
+│   ├── (dashboard)/              # Role-guarded layouts
+│   │   ├── layout.tsx            # Sidebar + auth guard wrapper
+│   │   ├── admin/                # /admin — overview, hubs, shipments, users
+│   │   ├── courier/              # /courier — overview, shipments, [id]
+│   │   └── customer/             # /customer — overview, book, shipments, [id]
+│   ├── track/
+│   │   └── [trackingNumber]/     # Public live tracking (no auth required)
+│   ├── payment/
+│   │   ├── success/              # Stripe return: /payment/success?session_id=...
+│   │   └── cancel/               # Stripe cancel return
+│   ├── (public)/                 # Landing page, marketing
+│   ├── layout.tsx                # Root layout (Providers, fonts, metadata)
+│   └── globals.css
 ├── components/
-│   ├── ui/               # shadcn/ui primitives
-│   └── common/           # Shared components (Sidebar, Navbar)
+│   ├── ui/                       # shadcn/ui primitives only — never modify these
+│   └── common/                   # Shared compositions: Sidebar, Navbar, StatusBadge,
+│                                 # DeliveryStepper, DataTable, EmptyState, PageHeader
 ├── features/
-│   ├── auth/             # Login, Register, Google OAuth hooks
-│   ├── shipments/        # Booking, Listing, Tracking, Courier assignment
-│   ├── hubs/             # Hub CRUD
-│   ├── analytics/        # Charts and Metric cards
-│   └── users/            # Profile and user management
+│   ├── auth/
+│   │   ├── components/           # LoginForm, RegisterForm
+│   │   ├── api/                  # useLogin, useRegister, useLogout, useMe
+│   │   ├── context/              # AuthContext, AuthProvider
+│   │   └── schemas/              # loginSchema, registerSchema
+│   ├── shipments/
+│   │   ├── components/           # ShipmentTable, ShipmentCard, TrackingTimeline,
+│   │   │                         # BookingForm, CancelDialog, CompleteDeliveryModal
+│   │   ├── api/                  # useShipments, useShipment, useCreateShipment,
+│   │   │                         # usePickup, useOutForDelivery, useCompleteDelivery,
+│   │   │                         # useCancelShipment, useAssignCourier, useHubCheckins
+│   │   └── schemas/              # createShipmentSchema, cancelShipmentSchema,
+│   │                             # completeDeliverySchema, assignCourierSchema
+│   ├── hubs/
+│   │   ├── components/           # HubTable, HubForm, HubDialog
+│   │   ├── api/                  # useHubs, useHub, useCreateHub, useUpdateHub, useDeleteHub
+│   │   └── schemas/              # createHubSchema
+│   ├── users/
+│   │   ├── components/           # UserTable, UpdateStatusDialog, ProfileForm
+│   │   ├── api/                  # useUsers, useUser, useUpdateUserStatus, useUpdateProfile
+│   │   └── schemas/              # updateStatusSchema, updateProfileSchema
+│   ├── payments/
+│   │   ├── api/                  # useCreateCheckoutSession, usePayments
+│   │   └── components/           # PaymentStatusBadge
+│   ├── analytics/
+│   │   └── components/           # KpiCard, RevenueChart, ShipmentVolumeChart
+│   └── tracking/
+│       ├── components/           # LiveTrackingFeed, TrackingAuditLog
+│       └── hooks/                # useTrackingSocket
 ├── lib/
-│   ├── api.ts            # Axios instance with interceptors
-│   ├── utils.ts          # Tailwind cn() utility
-│   └── query-client.ts   # TanStack Query configuration
+│   ├── api-client.ts             # Axios instance — auto-attaches cookies, handles 401
+│   ├── socket.ts                 # Socket.io singleton (autoConnect: false)
+│   ├── query-client.ts           # TanStack Query global config (retry, staleTime)
+│   ├── query-keys.ts             # All TanStack Query key factories (see Section 10)
+│   └── utils.ts                  # cn() and other shared utilities
+├── hooks/
+│   ├── use-auth.ts               # useAuth() — session, role, redirect helpers
+│   └── use-socket.ts             # Global WebSocket lifecycle hook
+├── store/
+│   └── ui-store.ts               # Zustand: modal open states, notification count, sidebar
 └── types/
+    ├── api.ts
+    ├── user.ts
+    ├── shipment.ts
+    ├── hub.ts
+    ├── payment.ts
+    └── index.ts
 ```
 
-## Features & Pages
+### Component & File Naming Rules
 
-### 1. Authentication & Onboarding
+| Type | Convention | Example |
+|---|---|---|
+| Component file | PascalCase | `ShipmentTable.tsx`, `BookingForm.tsx` |
+| One default export per file | Same name as file | `export default function ShipmentTable()` |
+| Hook file | kebab-case prefixed `use-` | `use-auth.ts`, `use-socket.ts` |
+| Zod schema file | camelCase + `Schema` suffix | `createShipmentSchema.ts` |
+| Page files | `page.tsx` (Next.js convention) | lowercase always |
+| Utility / lib files | kebab-case | `api-client.ts`, `query-keys.ts` |
 
-- **Pages**: `/login`, `/register`
-- **Features**:
-  - Email/Password login and registration (Customer/Courier roles).
-  - Google OAuth integration.
-  - Auth context to handle role-based redirection (e.g., redirecting an Admin away from the Customer dashboard).
+No barrel re-exports inside feature folders unless exposing a feature's public API to other features.
 
-### 2. Customer Portal (`/customer`)
+---
 
-- **`/customer/overview`**: Dashboard showing total spend, shipment counts, and a breakdown of delivered statuses.
-- **`/customer/book`**: Form to book a new parcel (Receiver Name, Phone, Weight). Uses TanStack Form + Zod.
-- **`/customer/shipments`**: List of booked shipments. Includes a "Pay Now" button linking to Stripe Checkout if `paymentStatus` is `UNPAID`.
-- **`/customer/shipments/[id]`**: Detailed view of a shipment's progress.
+## 7. Real-Time — Socket.io Protocol
 
-### 3. Courier Portal (`/courier`)
+Socket.io is **the** real-time layer. Do not use polling as a substitute.
 
-- **`/courier/overview`**: Dashboard displaying assigned deliveries, completed count, and completion rate.
-- **`/courier/shipments`**: List of shipments assigned to them.
-- **`/courier/shipments/[id]`**: Detailed view allowing status updates (`IN_TRANSIT` ➔ `DELIVERED`).
+### Client Singleton (`src/lib/socket.ts`)
+```typescript
+import { io, Socket } from "socket.io-client";
 
-### 4. Admin Portal (`/admin`)
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL!;
 
-- **`/admin/overview`**: Platform-wide metrics (volume, revenue, success rate, charts for trends).
-- **`/admin/hubs`**: Table view to list hubs, with a modal to Create/Edit/Delete hubs.
-- **`/admin/shipments`**: Global list of shipments. Includes an action to assign a Courier and Hub to a `PENDING` shipment.
-- **`/admin/users`**: List of all users. Ability to update user status (`BANNED`, `INACTIVE`, `ACTIVE`).
-- **Export Reports**: Buttons to download CSV reports for shipments and payments.
+export const socket: Socket = io(SOCKET_URL, {
+  autoConnect: false,       // Connect explicitly — never auto-connect on import
+  withCredentials: true,    // Required for httpOnly cookie auth
+  transports: ["websocket", "polling"],
+});
+```
 
-### 5. Profile Management (`/profile`)
+### Connection Rules
+- Connect inside `AuthProvider` **after** a successful `GET /auth/me`.
+- Disconnect and clear `socket.auth` on logout.
+- For the public tracking page (`/track/[trackingNumber]`) — connect without credentials.
+- Every `socket.on(...)` call inside a `useEffect` **must** return a cleanup with `socket.off(...)`.
 
-- Unified page for all roles to update their name, display username, avatar, and password.
+### Room Subscriptions
 
-## Verification Plan
+#### A. Public Tracking Page (`/track/[trackingNumber]`)
+```typescript
+useEffect(() => {
+  if (!trackingNumber) return;
+  socket.connect();
+  socket.emit("join_tracking_room", { trackingNumber });
 
-### Automated Checks
+  socket.on("shipment:status_changed", () => {
+    queryClient.invalidateQueries({ queryKey: shipmentKeys.track(trackingNumber) });
+  });
 
-- Run `bun run lint` and `bun run build` to ensure no TypeScript or Next.js build errors.
-- Ensure Zod schemas match the backend validation requirements perfectly.
+  return () => {
+    socket.emit("leave_tracking_room", { trackingNumber });
+    socket.off("shipment:status_changed");
+    socket.disconnect();
+  };
+}, [trackingNumber]);
+```
 
-### Manual Verification
+#### B. Authenticated Notification Stream (all roles)
+```typescript
+// Inside AuthProvider, after confirming session
+socket.auth = { token: `Bearer ${accessToken}` };
+socket.connect();
 
-- **Auth Flow**: Register, login, and verify correct role redirection.
-- **Customer Flow**: Book a shipment, proceed to Stripe checkout mock, verify shipment appears in list.
-- **Admin Flow**: Create a hub, assign a courier to a shipment, view analytics.
-- **Courier Flow**: View assigned shipment, update status to `IN_TRANSIT` and `DELIVERED`.
-- **UI/UX**: Check responsiveness and dark mode compatibility across the shadcn/ui components.
+socket.on("notification", (payload: { title: string; message: string }) => {
+  toast({ title: payload.title, description: payload.message });
+  queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
+});
+
+// Admin-only live dispatch events
+socket.on("admin:shipment_event", () => {
+  queryClient.invalidateQueries({ queryKey: shipmentKeys.lists() });
+});
+```
+
+### Reconnection Behavior
+- Silent retry with exponential backoff (Socket.io default).
+- Show a visible `"Reconnecting…"` indicator in the UI — do **not** fail silently.
+
+---
+
+## 8. Shipment FSM — UI Rendering Rules
+
+> ⚠️ Most domain-critical UI logic in the codebase. Read fully before building any stepper or tracking component.
+
+The backend enforces a 9-stage Finite State Machine. The frontend stepper **branches on `shipment.deliveryType`**.
+
+### Status → UI Badge Mapping
+
+| `status` | UI Label | Badge Variant |
+|---|---|---|
+| `PENDING` | Order Placed | `secondary` (Yellow) |
+| `ASSIGNED` | Courier Assigned | `outline` (Blue) |
+| `PICKED_UP` | Parcel Collected | `default` (Sky) |
+| `RECEIVED_AT_ORIGIN_HUB` | In Origin Hub | `secondary` (Amber) |
+| `IN_TRANSIT` | In Line-Haul Transit | `default` (Indigo) |
+| `RECEIVED_AT_DEST_HUB` | At Destination Hub | `secondary` (Purple) |
+| `OUT_FOR_DELIVERY` | Out for Delivery | `default` (Orange) |
+| `DELIVERED` | Delivered | `default` (Green) |
+| `CANCELLED` | Cancelled | `destructive` (Red) |
+
+### Dynamic Stepper: `LOCAL` Delivery (5 active steps)
+```
+PENDING → ASSIGNED → PICKED_UP → RECEIVED_AT_ORIGIN_HUB → OUT_FOR_DELIVERY → DELIVERED
+```
+- **Omit** `IN_TRANSIT` and `RECEIVED_AT_DEST_HUB` from the stepper entirely.
+- Display tag: `Intra-Hub Local Delivery`.
+
+### Dynamic Stepper: `INTER_DISTRICT` Delivery (8 active steps)
+```
+PENDING → ASSIGNED → PICKED_UP → RECEIVED_AT_ORIGIN_HUB → IN_TRANSIT → RECEIVED_AT_DEST_HUB → OUT_FOR_DELIVERY → DELIVERED
+```
+- Display the full 8 steps.
+- Display tag: `Inter-District Line-Haul`.
+
+### Cancelled State
+`CANCELLED` is a **terminal state**. Render a distinct cancelled view — do not show it as a step in the stepper. Display the cancellation reason from `trackingLogs`.
+
+---
+
+## 9. COD & Stripe Payment Flows
+
+### Booking Form — Payment Type Selection
+- Radio group or segmented tabs: `CARD` vs `CASH`.
+- If `CASH` → `codAmount` becomes **required** (positive number, BDT ৳). Show helper text: *"Our courier will collect this exact amount from the recipient upon delivery."*
+- If `CARD` → on submit call `POST /payments/create-checkout-session { shipmentId }` → redirect to `data.url`.
+
+### Stripe Return Pages
+- `/payment/success?session_id=...` → confirm payment, show success state, link to shipment detail.
+- `/payment/cancel` → show cancellation message, link back to `/customer/shipments`.
+
+### Courier — Complete Delivery Modal
+When `status === 'OUT_FOR_DELIVERY'`:
+
+| `paymentType` | Modal Contents |
+|---|---|
+| `CASH` | ⚠️ Banner: `Collect Cash: ৳{codAmount}` + OTP input (4 digits) + cash collected field (must be `>= codAmount`) |
+| `CARD` | Green badge: `Prepaid (Card)` + OTP input only |
+
+- Use shadcn `InputOTP` primitive for the 4-digit input.
+- Lock after 5 failed OTP attempts — show remaining attempts countdown.
+- "Resend OTP" button with 60-second cooldown. Calls `POST /shipments/:id/resend-delivery-otp`.
+
+---
+
+## 10. Data Fetching — TanStack Query
+
+### Query Key Factories (`src/lib/query-keys.ts`)
+
+Use these factories everywhere — do not improvise per component or feature.
+
+```typescript
+export const shipmentKeys = {
+  all:     ["shipments"] as const,
+  lists:   () => [...shipmentKeys.all, "list"] as const,
+  list:    (filters: Record<string, unknown>) => [...shipmentKeys.lists(), filters] as const,
+  details: () => [...shipmentKeys.all, "detail"] as const,
+  detail:  (id: string) => [...shipmentKeys.details(), id] as const,
+  track:   (trackingNumber: string) => [...shipmentKeys.all, "track", trackingNumber] as const,
+};
+
+export const hubKeys = {
+  all:     ["hubs"] as const,
+  lists:   () => [...hubKeys.all, "list"] as const,
+  list:    (filters: Record<string, unknown>) => [...hubKeys.lists(), filters] as const,
+  details: () => [...hubKeys.all, "detail"] as const,
+  detail:  (id: string) => [...hubKeys.details(), id] as const,
+};
+
+export const userKeys = {
+  all:     ["users"] as const,
+  lists:   () => [...userKeys.all, "list"] as const,
+  list:    (filters: Record<string, unknown>) => [...userKeys.lists(), filters] as const,
+  details: () => [...userKeys.all, "detail"] as const,
+  detail:  (id: string) => [...userKeys.details(), id] as const,
+  me:      () => [...userKeys.all, "me"] as const,
+};
+
+export const paymentKeys = {
+  all:   ["payments"] as const,
+  lists: () => [...paymentKeys.all, "list"] as const,
+  list:  (filters: Record<string, unknown>) => [...paymentKeys.lists(), filters] as const,
+};
+```
+
+### Query Client Config (`src/lib/query-client.ts`)
+```typescript
+import { QueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60,   // 1 minute
+      retry: (failureCount, error) => {
+        // Retry only on network errors — NOT on 4xx responses
+        if (error instanceof AxiosError && error.response) return false;
+        return failureCount < 3;
+      },
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000), // exponential backoff
+    },
+  },
+});
+```
+
+### Rules
+- **Never** use `fetch` or `axios` directly inside a `useEffect`. Always use `useQuery` / `useMutation`.
+- Pagination filters and sort params are part of the query key — not a separate `useState`.
+- After a successful mutation, invalidate the relevant list key: `queryClient.invalidateQueries({ queryKey: shipmentKeys.lists() })`.
+
+---
+
+## 11. Forms — Validation Rules
+
+- All forms use **TanStack Form** + **Zod**.
+- `type FormValues = z.infer<typeof schema>` — no redundant interfaces alongside schemas.
+- Show Zod errors inline immediately below the input with class `text-destructive text-sm`.
+
+### Critical Validation Rules (Apply Everywhere)
+
+| Field | Rule |
+|---|---|
+| `receiverPhone`, `hub.phone` | `z.string().regex(/^01[3-9]\d{8}$/, "Invalid BD mobile number")` |
+| `weightKg` | `z.number().positive()` |
+| `codAmount` | `z.number().positive()` — required when `paymentType === 'CASH'` |
+| `hub.code` | Uppercase, alphanumeric + hyphen, e.g. `CTG-01` |
+| `otp` | `z.string().length(4).regex(/^\d{4}$/, "OTP must be 4 digits")` |
+| `reason` (cancel) | `z.string().min(10, "Please provide a meaningful reason")` |
+| District selectors | Populated from BD's 64 official administrative districts (static data) |
+| Upazila selectors | Cascades dynamically from selected district |
+
+---
+
+## 12. UI & Styling Rules
+
+- **shadcn/ui First:** Always use shadcn/ui primitives for buttons, inputs, dialogs, cards, tables, badges, sheets, tabs, toasts. Never rebuild these from scratch.
+- **No Arbitrary Tailwind Values:**
+  - **Forbidden:** `w-[320px]`, `h-[52px]`, `text-[#0284c7]`, `bg-[#1e293b]`
+  - **Required:** Canonical tokens — `w-80`, `h-12`, `text-primary`, `bg-muted`
+  - **Exception:** pixel-exact SVG/map positioning — add an inline comment explaining why the token scale doesn't fit.
+- **Conditional Classes:** Always use `cn()` from `@/lib/utils` for all dynamic class merging.
+- **Mobile-First:** All layouts start from mobile (`sm:`, `md:`, `lg:`). Couriers use budget Android devices on 3G — avoid heavy client bundles on first load.
+- **Dark Mode:** All components must work in both light and dark modes using CSS variables from the shadcn/ui theme.
+
+---
+
+## 13. Loading, Skeleton & Empty States
+
+Every data-dependent UI section must handle all three states — no exceptions.
+
+| State | Implementation |
+|---|---|
+| **Loading** | shadcn `Skeleton` matching the shape of the loaded content (table rows, cards). Do **not** use a full-page spinner for data loading. |
+| **Empty** | Shared `<EmptyState />` component from `components/common/` with icon, heading, and optional CTA. Example: *"No shipments yet"* + *"Book a Parcel"* button. |
+| **Error** | shadcn `Alert` with `variant="destructive"` + a retry button calling `refetch()`. |
+
+For mutations (form submit, action buttons): show a spinner inside the button using `isPending` from `useMutation`. Disable the button while `isPending`.
+
+---
+
+## 14. Authentication & Role-Based Routing
+
+### Auth Flow
+1. On app load, `AuthProvider` calls `GET /auth/me`.
+2. On success → store user in context, connect Socket.io.
+3. On 401 → redirect to `/login`.
+4. After login → redirect by `user.role`:
+   - `CUSTOMER` → `/customer`
+   - `COURIER` → `/courier`
+   - `ADMIN` → `/admin`
+
+### Protected Routes
+- `/customer/*` → `CUSTOMER` only
+- `/courier/*` → `COURIER` only
+- `/admin/*` → `ADMIN` only
+- `/track/*` → **public**, no auth required
+- A user navigating to another role's route redirects to their own dashboard.
+
+### `useAuth()` Contract
+```typescript
+interface UseAuthReturn {
+  user: User | null
+  isLoading: boolean
+  isAuthenticated: boolean
+  role: Role | null
+  isCustomer: boolean
+  isCourier: boolean
+  isAdmin: boolean
+}
+```
+
+---
+
+## 15. Code Quality & Pre-Commit Checklist
+
+Run all of these before every commit — zero failures allowed:
+
+1. `bunx tsc --noEmit` — zero TypeScript errors. `any` is forbidden.
+2. `bun run lint` — zero ESLint errors or unused imports.
+3. No arbitrary Tailwind bracket classes in changed files.
+4. All `useEffect` socket listeners have `socket.off(...)` cleanup.
+5. No `fetch`/`axios` calls inside `useEffect` — all fetching via TanStack Query.
+6. No field name aliases — verify against Section 4 models.
+
+### Commit Message Convention
+Use conventional commits. Be specific:
+
+```
+feat(shipments): add COD complete-delivery modal with OTP and cash validation
+fix(auth): correct redirect loop on 401 for public track route
+feat(admin): implement assign-courier modal with courier search dropdown
+chore(types): add PaginatedResult<T> and ApiResponse<T> to src/types/api.ts
+refactor(shipments): extract DeliveryStepper into components/common
+```
+
+---
+
+## 16. Current Implementation Status
+
+> See [`task.md`](./task.md) for the live task tracker (what is done ✅, in progress 🔄, and remaining ⬜).
+
+**Do not assume a feature is unbuilt just because it is mentioned in this document.**
+Always check `task.md` and the existing `src/` directory before generating code for a feature.
