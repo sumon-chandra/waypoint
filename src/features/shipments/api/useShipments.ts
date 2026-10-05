@@ -2,7 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { shipmentKeys } from "@/lib/query-keys";
 import { useAuth } from "@/hooks/use-auth";
-import type { ApiResponse, PaginatedResult, Shipment, ShipmentStatus, DeliveryType } from "@/types";
+import type {
+  ApiResponse,
+  PaginatedResult,
+  Shipment,
+  ShipmentStatus,
+  DeliveryType,
+} from "@/types";
 
 export interface ShipmentFilters {
   page?: number;
@@ -21,10 +27,14 @@ export interface UseShipmentsResult {
 
 /**
  * Fetches shipments list with optional filters and pagination.
- * GET /shipments?page&limit&status&deliveryType
+ * GET /shipments/my-shipments?page&limit&status&deliveryType
  */
-export async function fetchShipments(filters: ShipmentFilters = {}): Promise<UseShipmentsResult> {
-  const response = await api.get<ApiResponse<PaginatedResult<Shipment> | Shipment[]>>("/shipments", {
+export async function fetchShipments(
+  filters: ShipmentFilters = {},
+): Promise<UseShipmentsResult> {
+  const response = await api.get<
+    ApiResponse<PaginatedResult<Shipment> | Shipment[]>
+  >("/shipments/my-shipments", {
     params: {
       page: filters.page ?? 1,
       limit: filters.limit ?? 20,
@@ -36,7 +46,12 @@ export async function fetchShipments(filters: ShipmentFilters = {}): Promise<Use
   const payload = response.data?.data;
 
   // Handle standard PaginatedResult envelope: { result: [], meta: { ... } }
-  if (payload && typeof payload === "object" && "result" in payload && Array.isArray(payload.result)) {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "result" in payload &&
+    Array.isArray(payload.result)
+  ) {
     return {
       shipments: payload.result,
       total: payload.meta?.total ?? payload.result.length,

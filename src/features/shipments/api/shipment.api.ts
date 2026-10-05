@@ -21,7 +21,7 @@ export const ACTIVE_STATUSES = new Set<ShipmentStatus>([
  */
 export async function fetchActiveShipments(): Promise<ShipmentDetail[]> {
   const response = await api.get<ApiResponse<PaginatedResult<ShipmentDetail> | ShipmentDetail[]>>(
-    "/shipments",
+    "/shipments/my-shipments",
     { params: { limit: 50 } }
   );
 

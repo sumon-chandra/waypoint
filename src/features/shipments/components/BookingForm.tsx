@@ -12,14 +12,15 @@ import {
   Truck,
   CreditCard,
   Banknote,
-  Info,
   CheckCircle2,
   Copy,
   Check,
   ArrowRight,
+  ArrowLeft,
   ShieldCheck,
-  AlertCircle,
   Loader2,
+  Receipt,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -41,17 +42,29 @@ import {
   getUpazilasByDistrict,
 } from "@/config/bangladesh-geo";
 import {
-  createShipmentSchema,
-  BD_PHONE_REGEX,
-  type CreateShipmentFormValues,
+  senderGroupSchema,
+  receiverGroupSchema,
+  parcelGroupSchema,
+  billingGroupSchema,
+  calculateDeliveryCost,
 } from "../schemas/createShipmentSchema";
 import { useCreateShipment } from "../api/useCreateShipment";
-import type { Shipment, DeliveryType, PaymentType } from "@/types";
+import type { Shipment, DeliveryType, PaymentType, CreateShipmentBody } from "@/types";
 import { cn } from "@/lib/utils";
+
+const STAGES = [
+  { id: 0, title: "Origin", label: "Sender & Pickup", icon: MapPin },
+  { id: 1, title: "Destination", label: "Recipient Details", icon: User },
+  { id: 2, title: "Parcel", label: "Weight & Routing", icon: Package },
+  { id: 3, title: "Billing", label: "Payment & Review", icon: CreditCard },
+];
 
 export function BookingForm() {
   const router = useRouter();
   const createShipmentMutation = useCreateShipment();
+
+  // Multi-stage navigation state: 0 = Origin, 1 = Destination, 2 = Parcel, 3 = Billing
+  const [currentStage, setCurrentStage] = React.useState<number>(0);
 
   // Dialog state for post-booking success
   const [createdShipment, setCreatedShipment] = React.useState<Shipment | null>(null);
@@ -61,39 +74,49 @@ export function BookingForm() {
   // Geographic district lists
   const allDistricts = React.useMemo(() => getAllDistricts(), []);
 
+  // Initialize TanStack Form with grouped form data structure
   const form = useForm({
     defaultValues: {
-      receiverName: "",
-      receiverPhone: "",
-      weightKg: 1,
-      deliveryType: "LOCAL" as DeliveryType,
-      paymentType: "CASH" as PaymentType,
-      codAmount: 0,
-      senderAddress: "",
-      senderDistrict: "Dhaka",
-      senderUpazila: "",
-      receiverAddress: "",
-      receiverDistrict: "Dhaka",
-      receiverUpazila: "",
+      sender: {
+        address: "",
+        district: "Dhaka",
+        upazila: "",
+      },
+      receiver: {
+        name: "",
+        phone: "",
+        address: "",
+        district: "Dhaka",
+        upazila: "",
+      },
+      parcel: {
+        weightKg: 1,
+        deliveryType: "LOCAL" as DeliveryType,
+      },
+      billing: {
+        paymentType: "CASH" as PaymentType,
+      },
     },
     onSubmit: async ({ value }) => {
-      // Validate with Zod
-      const validation = createShipmentSchema.safeParse(value);
-      if (!validation.success) {
-        const firstError = validation.error.issues[0]?.message || "Validation failed";
-        toast.error(firstError);
-        return;
-      }
+      // Calculate delivery cost matching backend logic
+      const { totalAmount } = calculateDeliveryCost(value.parcel.weightKg);
+
+      const payload: CreateShipmentBody = {
+        senderAddress: value.sender.address,
+        senderDistrict: value.sender.district,
+        senderUpazila: value.sender.upazila,
+        receiverName: value.receiver.name,
+        receiverPhone: value.receiver.phone,
+        receiverAddress: value.receiver.address,
+        receiverDistrict: value.receiver.district,
+        receiverUpazila: value.receiver.upazila,
+        weightKg: value.parcel.weightKg,
+        deliveryType: value.parcel.deliveryType,
+        paymentType: value.billing.paymentType,
+        codAmount: value.billing.paymentType === "CASH" ? totalAmount : undefined,
+      };
 
       try {
-        const payload = {
-          ...validation.data,
-          codAmount:
-            validation.data.paymentType === "CASH"
-              ? Number(validation.data.codAmount)
-              : undefined,
-        };
-
         const result = await createShipmentMutation.mutateAsync(payload);
         setCreatedShipment(result);
         setSuccessDialogOpen(true);
@@ -102,6 +125,38 @@ export function BookingForm() {
       }
     },
   });
+
+  // Stage validation before advancing
+  const handleNextStage = () => {
+    if (currentStage === 0) {
+      const senderData = form.getFieldValue("sender");
+      const validation = senderGroupSchema.safeParse(senderData);
+      if (!validation.success) {
+        toast.error(validation.error.issues[0]?.message || "Please fill in all sender details");
+        return;
+      }
+    } else if (currentStage === 1) {
+      const receiverData = form.getFieldValue("receiver");
+      const validation = receiverGroupSchema.safeParse(receiverData);
+      if (!validation.success) {
+        toast.error(validation.error.issues[0]?.message || "Please fill in all recipient details");
+        return;
+      }
+    } else if (currentStage === 2) {
+      const parcelData = form.getFieldValue("parcel");
+      const validation = parcelGroupSchema.safeParse(parcelData);
+      if (!validation.success) {
+        toast.error(validation.error.issues[0]?.message || "Please specify valid parcel details");
+        return;
+      }
+    }
+
+    setCurrentStage((prev) => Math.min(prev + 1, STAGES.length - 1));
+  };
+
+  const handlePrevStage = () => {
+    setCurrentStage((prev) => Math.max(prev - 1, 0));
+  };
 
   const handleCopyTracking = () => {
     if (!createdShipment?.trackingNumber) return;
@@ -112,535 +167,679 @@ export function BookingForm() {
 
   return (
     <div className="space-y-8">
+      {/* MULTI-STAGE STEPPER HEADER */}
+      <div className="rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {STAGES.map((stage, idx) => {
+            const Icon = stage.icon;
+            const isCompleted = idx < currentStage;
+            const isCurrent = idx === currentStage;
+
+            return (
+              <button
+                key={stage.id}
+                type="button"
+                onClick={() => {
+                  // Only allow jumping back to previously completed stages
+                  if (idx < currentStage) {
+                    setCurrentStage(idx);
+                  }
+                }}
+                disabled={idx > currentStage}
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-2xl border text-left transition-all select-none",
+                  isCurrent &&
+                    "border-primary bg-primary/10 shadow-xs ring-2 ring-primary/20",
+                  isCompleted &&
+                    "border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer",
+                  !isCurrent &&
+                    !isCompleted &&
+                    "border-border/60 bg-muted/20 opacity-60 cursor-not-allowed"
+                )}
+              >
+                <div
+                  className={cn(
+                    "size-8 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs transition-colors",
+                    isCurrent && "bg-primary text-primary-foreground",
+                    isCompleted && "bg-emerald-500 text-white",
+                    !isCurrent && !isCompleted && "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {isCompleted ? <Check className="size-4" /> : idx + 1}
+                </div>
+                <div className="min-w-0">
+                  <span
+                    className={cn(
+                      "block text-xs font-bold leading-tight truncate",
+                      isCurrent && "text-primary",
+                      isCompleted && "text-foreground",
+                      !isCurrent && !isCompleted && "text-muted-foreground"
+                    )}
+                  >
+                    {stage.title}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground truncate">
+                    {stage.label}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* FORM CONTAINER */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          form.handleSubmit();
+          if (currentStage === 3) {
+            form.handleSubmit();
+          } else {
+            handleNextStage();
+          }
         }}
         className="space-y-8"
       >
-        {/* SECTION 1: Sender Origin */}
-        <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
-          <div className="flex items-center gap-3 border-b border-border/60 pb-4">
-            <div className="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-              <MapPin className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-foreground">
-                1. Sender & Origin Location
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Pickup address where the waypoint courier will collect the consignment.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Sender District */}
-            <form.Field name="senderDistrict">
-              {(field) => {
-                return (
-                  <div className="space-y-2">
-                    <Label htmlFor="senderDistrict" className="text-xs font-semibold">
-                      Sender District <span className="text-destructive">*</span>
-                    </Label>
-                    <Select
-                      id="senderDistrict"
-                      value={field.state.value}
-                      onChange={(e) => {
-                        const newDistrict = e.target.value;
-                        field.handleChange(newDistrict);
-                        // Reset upazila when district changes
-                        form.setFieldValue("senderUpazila", "");
-                      }}
-                    >
-                      <option value="" disabled>
-                        Select District
-                      </option>
-                      {allDistricts.map((dist) => (
-                        <option key={dist} value={dist}>
-                          {dist}
-                        </option>
-                      ))}
-                    </Select>
+        {/* STAGE 0: SENDER & ORIGIN FORM GROUP */}
+        {currentStage === 0 && (
+          <form.FormGroup name="sender">
+            {() => (
+              <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6 animate-in fade-in-0 duration-200">
+                <div className="flex items-center gap-3 border-b border-border/60 pb-4">
+                  <div className="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                    <MapPin className="size-5" />
                   </div>
-                );
-              }}
-            </form.Field>
-
-            {/* Sender Upazila / Thana */}
-            <form.Field name="senderUpazila">
-              {(field) => {
-                const currentDistrict = form.getFieldValue("senderDistrict");
-                const availableUpazilas = getUpazilasByDistrict(currentDistrict);
-
-                return (
-                  <div className="space-y-2">
-                    <Label htmlFor="senderUpazila" className="text-xs font-semibold">
-                      Sender Upazila / Thana <span className="text-destructive">*</span>
-                    </Label>
-                    <Select
-                      id="senderUpazila"
-                      value={field.state.value}
-                      disabled={!currentDistrict || availableUpazilas.length === 0}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    >
-                      <option value="">
-                        {availableUpazilas.length === 0
-                          ? "Select a district first"
-                          : "Select Upazila / Thana"}
-                      </option>
-                      {availableUpazilas.map((upz) => (
-                        <option key={upz} value={upz}>
-                          {upz}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                );
-              }}
-            </form.Field>
-
-            {/* Sender Street Address */}
-            <div className="md:col-span-2 space-y-2">
-              <form.Field name="senderAddress">
-                {(field) => (
-                  <div className="space-y-2">
-                    <Label htmlFor="senderAddress" className="text-xs font-semibold">
-                      Sender Full Street Address <span className="text-destructive">*</span>
-                    </Label>
-                    <Textarea
-                      id="senderAddress"
-                      placeholder="House/Plot #, Road #, Sector/Area, Landmark..."
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      rows={2}
-                    />
-                  </div>
-                )}
-              </form.Field>
-            </div>
-          </div>
-        </div>
-
-        {/* SECTION 2: Recipient Destination */}
-        <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
-          <div className="flex items-center gap-3 border-b border-border/60 pb-4">
-            <div className="size-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              <User className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-foreground">
-                2. Recipient & Destination Details
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Final recipient details for milestone verification and delivery handoff.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Receiver Name */}
-            <form.Field name="receiverName">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="receiverName" className="text-xs font-semibold">
-                    Recipient Full Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="receiverName"
-                    placeholder="e.g. Tanvir Ahmed"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                </div>
-              )}
-            </form.Field>
-
-            {/* Receiver Phone */}
-            <form.Field name="receiverPhone">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="receiverPhone" className="text-xs font-semibold">
-                    Recipient Phone Number <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="receiverPhone"
-                      placeholder="017XXXXXXXX"
-                      maxLength={11}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    <Phone className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    11-digit Bangladeshi mobile number for delivery OTP verification.
-                  </p>
-                </div>
-              )}
-            </form.Field>
-
-            {/* Receiver District */}
-            <form.Field name="receiverDistrict">
-              {(field) => {
-                return (
-                  <div className="space-y-2">
-                    <Label htmlFor="receiverDistrict" className="text-xs font-semibold">
-                      Recipient District <span className="text-destructive">*</span>
-                    </Label>
-                    <Select
-                      id="receiverDistrict"
-                      value={field.state.value}
-                      onChange={(e) => {
-                        const newDistrict = e.target.value;
-                        field.handleChange(newDistrict);
-                        form.setFieldValue("receiverUpazila", "");
-
-                        // Auto-toggle delivery type if districts differ
-                        const senderDistrict = form.getFieldValue("senderDistrict");
-                        if (senderDistrict && newDistrict) {
-                          if (senderDistrict === newDistrict) {
-                            form.setFieldValue("deliveryType", "LOCAL");
-                          } else {
-                            form.setFieldValue("deliveryType", "INTER_DISTRICT");
-                          }
-                        }
-                      }}
-                    >
-                      <option value="" disabled>
-                        Select District
-                      </option>
-                      {allDistricts.map((dist) => (
-                        <option key={dist} value={dist}>
-                          {dist}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                );
-              }}
-            </form.Field>
-
-            {/* Receiver Upazila / Thana */}
-            <form.Field name="receiverUpazila">
-              {(field) => {
-                const currentDistrict = form.getFieldValue("receiverDistrict");
-                const availableUpazilas = getUpazilasByDistrict(currentDistrict);
-
-                return (
-                  <div className="space-y-2">
-                    <Label htmlFor="receiverUpazila" className="text-xs font-semibold">
-                      Recipient Upazila / Thana <span className="text-destructive">*</span>
-                    </Label>
-                    <Select
-                      id="receiverUpazila"
-                      value={field.state.value}
-                      disabled={!currentDistrict || availableUpazilas.length === 0}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    >
-                      <option value="">
-                        {availableUpazilas.length === 0
-                          ? "Select a district first"
-                          : "Select Upazila / Thana"}
-                      </option>
-                      {availableUpazilas.map((upz) => (
-                        <option key={upz} value={upz}>
-                          {upz}
-                        </option>
-                      ))}
-                    </Select>
-                  </div>
-                );
-              }}
-            </form.Field>
-
-            {/* Receiver Street Address */}
-            <div className="md:col-span-2 space-y-2">
-              <form.Field name="receiverAddress">
-                {(field) => (
-                  <div className="space-y-2">
-                    <Label htmlFor="receiverAddress" className="text-xs font-semibold">
-                      Recipient Delivery Address <span className="text-destructive">*</span>
-                    </Label>
-                    <Textarea
-                      id="receiverAddress"
-                      placeholder="Apartment/Flat #, Building Name, Road #, Landmark..."
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      rows={2}
-                    />
-                  </div>
-                )}
-              </form.Field>
-            </div>
-          </div>
-        </div>
-
-        {/* SECTION 3: Package & Delivery Type */}
-        <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
-          <div className="flex items-center gap-3 border-b border-border/60 pb-4">
-            <div className="size-10 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
-              <Package className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-foreground">
-                3. Parcel & Route Configuration
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Delivery routing classification and parcel weight.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-5">
-            {/* Delivery Type Segmented Cards */}
-            <form.Field name="deliveryType">
-              {(field) => (
-                <div className="space-y-3">
-                  <Label className="text-xs font-semibold">
-                    Delivery Classification <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div
-                      onClick={() => field.handleChange("LOCAL")}
-                      className={cn(
-                        "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
-                        field.state.value === "LOCAL"
-                          ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
-                          : "border-border hover:border-border/80 hover:bg-muted/30"
-                      )}
-                    >
-                      <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                        <Truck className="size-4" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-foreground">
-                            Local Delivery
-                          </span>
-                          <Badge variant="outline" className="text-[10px] py-0">
-                            Intra-District
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Direct intra-district delivery routed via local city sorting hub (5 milestones).
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      onClick={() => field.handleChange("INTER_DISTRICT")}
-                      className={cn(
-                        "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
-                        field.state.value === "INTER_DISTRICT"
-                          ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
-                          : "border-border hover:border-border/80 hover:bg-muted/30"
-                      )}
-                    >
-                      <div className="size-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                        <Truck className="size-4" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-foreground">
-                            Inter-District Line-Haul
-                          </span>
-                          <Badge variant="secondary" className="text-[10px] py-0">
-                            Nationwide
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Highway line-haul transit across origin & destination divisional hubs (8 milestones).
-                        </p>
-                      </div>
-                    </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-foreground">
+                      Stage 1: Sender & Origin Location
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Specify the pickup address where our courier will collect the parcel.
+                    </p>
                   </div>
                 </div>
-              )}
-            </form.Field>
 
-            {/* Weight Input */}
-            <form.Field name="weightKg">
-              {(field) => (
-                <div className="space-y-2 max-w-sm">
-                  <Label htmlFor="weightKg" className="text-xs font-semibold">
-                    Consignment Weight (kg) <span className="text-destructive">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="weightKg"
-                      type="number"
-                      min={0.1}
-                      max={100}
-                      step={0.1}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                    />
-                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">
-                      KG
-                    </span>
-                  </div>
-                </div>
-              )}
-            </form.Field>
-          </div>
-        </div>
-
-        {/* SECTION 4: Payment Selection */}
-        <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
-          <div className="flex items-center gap-3 border-b border-border/60 pb-4">
-            <div className="size-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <CreditCard className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-foreground">
-                4. Billing & Payment Method
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Choose prepaid card checkout with Stripe or Cash on Delivery (COD).
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-5">
-            <form.Field name="paymentType">
-              {(field) => (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* CASH / COD */}
-                  <div
-                    onClick={() => field.handleChange("CASH")}
-                    className={cn(
-                      "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
-                      field.state.value === "CASH"
-                        ? "border-emerald-500 bg-emerald-500/5 shadow-xs ring-1 ring-emerald-500"
-                        : "border-border hover:border-border/80 hover:bg-muted/30"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Sender District */}
+                  <form.Field name="sender.district">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label htmlFor="senderDistrict" className="text-xs font-semibold">
+                          Sender District <span className="text-destructive">*</span>
+                        </Label>
+                        <Select
+                          id="senderDistrict"
+                          value={field.state.value}
+                          onChange={(e) => {
+                            const newDistrict = e.target.value;
+                            field.handleChange(newDistrict);
+                            form.setFieldValue("sender.upazila", "");
+                          }}
+                        >
+                          <option value="" disabled>
+                            Select District
+                          </option>
+                          {allDistricts.map((dist) => (
+                            <option key={dist} value={dist}>
+                              {dist}
+                            </option>
+                          ))}
+                        </Select>
+                      </div>
                     )}
-                  >
-                    <div className="size-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                      <Banknote className="size-4" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-foreground">
-                          Cash on Delivery (COD)
-                        </span>
-                        <Badge variant="outline" className="text-[10px] py-0 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-                          Cash Collection
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Courier collects the designated amount from the recipient upon final delivery.
-                      </p>
-                    </div>
-                  </div>
+                  </form.Field>
 
-                  {/* CARD / Stripe */}
-                  <div
-                    onClick={() => field.handleChange("CARD")}
-                    className={cn(
-                      "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
-                      field.state.value === "CARD"
-                        ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
-                        : "border-border hover:border-border/80 hover:bg-muted/30"
-                    )}
-                  >
-                    <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                      <CreditCard className="size-4" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-foreground">
-                          Prepaid Card (Stripe)
-                        </span>
-                        <Badge variant="default" className="text-[10px] py-0">
-                          Instant
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Authorize instantly with Visa, Mastercard, or American Express via Stripe checkout.
-                      </p>
-                    </div>
+                  {/* Sender Upazila */}
+                  <form.Field name="sender.upazila">
+                    {(field) => {
+                      const currentDistrict = form.getFieldValue("sender.district");
+                      const availableUpazilas = getUpazilasByDistrict(currentDistrict);
+
+                      return (
+                        <div className="space-y-2">
+                          <Label htmlFor="senderUpazila" className="text-xs font-semibold">
+                            Sender Upazila / Thana <span className="text-destructive">*</span>
+                          </Label>
+                          <Select
+                            id="senderUpazila"
+                            value={field.state.value}
+                            disabled={!currentDistrict || availableUpazilas.length === 0}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          >
+                            <option value="">
+                              {availableUpazilas.length === 0
+                                ? "Select a district first"
+                                : "Select Upazila / Thana"}
+                            </option>
+                            {availableUpazilas.map((upz) => (
+                              <option key={upz} value={upz}>
+                                {upz}
+                              </option>
+                            ))}
+                          </Select>
+                        </div>
+                      );
+                    }}
+                  </form.Field>
+
+                  {/* Sender Street Address */}
+                  <div className="md:col-span-2 space-y-2">
+                    <form.Field name="sender.address">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label htmlFor="senderAddress" className="text-xs font-semibold">
+                            Full Street Address & Landmark <span className="text-destructive">*</span>
+                          </Label>
+                          <Textarea
+                            id="senderAddress"
+                            placeholder="Building/Plot #, Road #, Area/Sector, Landmark notes..."
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                      )}
+                    </form.Field>
                   </div>
                 </div>
-              )}
-            </form.Field>
-
-            {/* Conditional COD Amount Field */}
-            {form.getFieldValue("paymentType") === "CASH" && (
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-5 space-y-3 animate-in fade-in-0 duration-200">
-                <form.Field name="codAmount">
-                  {(field) => (
-                    <div className="space-y-2 max-w-sm">
-                      <Label htmlFor="codAmount" className="text-xs font-semibold text-foreground">
-                        Cash on Delivery Amount (BDT ৳) <span className="text-destructive">*</span>
-                      </Label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
-                          ৳
-                        </span>
-                        <Input
-                          id="codAmount"
-                          type="number"
-                          min={1}
-                          placeholder="e.g. 1500"
-                          value={field.state.value ?? ""}
-                          onChange={(e) => field.handleChange(Number(e.target.value))}
-                          className="pl-8"
-                        />
-                      </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        Our courier rider will collect this exact amount from the recipient upon delivery before releasing OTP.
-                      </p>
-                    </div>
-                  )}
-                </form.Field>
               </div>
             )}
-          </div>
-        </div>
+          </form.FormGroup>
+        )}
 
-        {/* Submit Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-3xl border border-border/80 bg-card p-6 shadow-xs">
-          <div className="space-y-1 text-center sm:text-left">
-            <span className="text-xs font-bold text-foreground">
-              Ready to generate digital waybill?
-            </span>
-            <p className="text-[11px] text-muted-foreground">
-              Waypoint guarantees milestone tracking and live courier telemetry across all 64 districts.
-            </p>
+        {/* STAGE 1: RECIPIENT & DESTINATION FORM GROUP */}
+        {currentStage === 1 && (
+          <form.FormGroup name="receiver">
+            {() => (
+              <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6 animate-in fade-in-0 duration-200">
+                <div className="flex items-center gap-3 border-b border-border/60 pb-4">
+                  <div className="size-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                    <User className="size-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-foreground">
+                      Stage 2: Recipient & Destination Details
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Who will receive the parcel and where should it be delivered?
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Receiver Name */}
+                  <form.Field name="receiver.name">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label htmlFor="receiverName" className="text-xs font-semibold">
+                          Recipient Full Name <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="receiverName"
+                          placeholder="e.g. Tanvir Ahmed"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </form.Field>
+
+                  {/* Receiver Phone */}
+                  <form.Field name="receiver.phone">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label htmlFor="receiverPhone" className="text-xs font-semibold">
+                          Recipient Phone Number <span className="text-destructive">*</span>
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="receiverPhone"
+                            placeholder="017XXXXXXXX"
+                            maxLength={11}
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          />
+                          <Phone className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          11-digit Bangladeshi mobile number for handover OTP verification.
+                        </p>
+                      </div>
+                    )}
+                  </form.Field>
+
+                  {/* Receiver District */}
+                  <form.Field name="receiver.district">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label htmlFor="receiverDistrict" className="text-xs font-semibold">
+                          Recipient District <span className="text-destructive">*</span>
+                        </Label>
+                        <Select
+                          id="receiverDistrict"
+                          value={field.state.value}
+                          onChange={(e) => {
+                            const newDistrict = e.target.value;
+                            field.handleChange(newDistrict);
+                            form.setFieldValue("receiver.upazila", "");
+
+                            // Auto-set routing if sender and receiver districts differ
+                            const senderDistrict = form.getFieldValue("sender.district");
+                            if (senderDistrict && newDistrict) {
+                              if (senderDistrict === newDistrict) {
+                                form.setFieldValue("parcel.deliveryType", "LOCAL");
+                              } else {
+                                form.setFieldValue("parcel.deliveryType", "INTER_DISTRICT");
+                              }
+                            }
+                          }}
+                        >
+                          <option value="" disabled>
+                            Select District
+                          </option>
+                          {allDistricts.map((dist) => (
+                            <option key={dist} value={dist}>
+                              {dist}
+                            </option>
+                          ))}
+                        </Select>
+                      </div>
+                    )}
+                  </form.Field>
+
+                  {/* Receiver Upazila */}
+                  <form.Field name="receiver.upazila">
+                    {(field) => {
+                      const currentDistrict = form.getFieldValue("receiver.district");
+                      const availableUpazilas = getUpazilasByDistrict(currentDistrict);
+
+                      return (
+                        <div className="space-y-2">
+                          <Label htmlFor="receiverUpazila" className="text-xs font-semibold">
+                            Recipient Upazila / Thana <span className="text-destructive">*</span>
+                          </Label>
+                          <Select
+                            id="receiverUpazila"
+                            value={field.state.value}
+                            disabled={!currentDistrict || availableUpazilas.length === 0}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          >
+                            <option value="">
+                              {availableUpazilas.length === 0
+                                ? "Select a district first"
+                                : "Select Upazila / Thana"}
+                            </option>
+                            {availableUpazilas.map((upz) => (
+                              <option key={upz} value={upz}>
+                                {upz}
+                              </option>
+                            ))}
+                          </Select>
+                        </div>
+                      );
+                    }}
+                  </form.Field>
+
+                  {/* Receiver Street Address */}
+                  <div className="md:col-span-2 space-y-2">
+                    <form.Field name="receiver.address">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label htmlFor="receiverAddress" className="text-xs font-semibold">
+                            Recipient Delivery Address <span className="text-destructive">*</span>
+                          </Label>
+                          <Textarea
+                            id="receiverAddress"
+                            placeholder="Flat/House #, Road #, Area/Neighborhood, Landmark..."
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                      )}
+                    </form.Field>
+                  </div>
+                </div>
+              </div>
+            )}
+          </form.FormGroup>
+        )}
+
+        {/* STAGE 2: PARCEL & ROUTE FORM GROUP */}
+        {currentStage === 2 && (
+          <form.FormGroup name="parcel">
+            {() => (
+              <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6 animate-in fade-in-0 duration-200">
+                <div className="flex items-center gap-3 border-b border-border/60 pb-4">
+                  <div className="size-10 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                    <Package className="size-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-foreground">
+                      Stage 3: Parcel Weight & Route Classification
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Select delivery network routing and parcel weight.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Delivery Type Selection */}
+                  <form.Field name="parcel.deliveryType">
+                    {(field) => (
+                      <div className="space-y-3">
+                        <Label className="text-xs font-semibold">
+                          Delivery Classification <span className="text-destructive">*</span>
+                        </Label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div
+                            onClick={() => field.handleChange("LOCAL")}
+                            className={cn(
+                              "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
+                              field.state.value === "LOCAL"
+                                ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                                : "border-border hover:border-border/80 hover:bg-muted/30"
+                            )}
+                          >
+                            <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                              <Truck className="size-4" />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-bold text-foreground">
+                                  Local Delivery
+                                </span>
+                                <Badge variant="outline" className="text-[10px] py-0">
+                                  Intra-District
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                Same-district delivery routed through local sorting hub (5 milestones).
+                              </p>
+                            </div>
+                          </div>
+
+                          <div
+                            onClick={() => field.handleChange("INTER_DISTRICT")}
+                            className={cn(
+                              "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
+                              field.state.value === "INTER_DISTRICT"
+                                ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                                : "border-border hover:border-border/80 hover:bg-muted/30"
+                            )}
+                          >
+                            <div className="size-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                              <Truck className="size-4" />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-bold text-foreground">
+                                  Inter-District Line-Haul
+                                </span>
+                                <Badge variant="secondary" className="text-[10px] py-0">
+                                  Nationwide
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                Highway line-haul transit between origin & destination hubs (8 milestones).
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </form.Field>
+
+                  {/* Weight Input */}
+                  <form.Field name="parcel.weightKg">
+                    {(field) => (
+                      <div className="space-y-2 max-w-sm">
+                        <Label htmlFor="weightKg" className="text-xs font-semibold">
+                          Consignment Weight (kg) <span className="text-destructive">*</span>
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="weightKg"
+                            type="number"
+                            min={0.1}
+                            max={100}
+                            step={0.1}
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(Number(e.target.value))}
+                          />
+                          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">
+                            KG
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Rate is automatically calculated at ৳100 base + ৳100 per kg.
+                        </p>
+                      </div>
+                    )}
+                  </form.Field>
+                </div>
+              </div>
+            )}
+          </form.FormGroup>
+        )}
+
+        {/* STAGE 3: BILLING & PAYMENT FORM GROUP */}
+        {currentStage === 3 && (
+          <form.FormGroup name="billing">
+            {() => (
+              <div className="space-y-6 animate-in fade-in-0 duration-200">
+                {/* Payment Method Selector */}
+                <div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
+                  <div className="flex items-center gap-3 border-b border-border/60 pb-4">
+                    <div className="size-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <CreditCard className="size-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base sm:text-lg font-bold text-foreground">
+                        Stage 4: Payment Method & Cost Review
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        Select how this delivery will be settled.
+                      </p>
+                    </div>
+                  </div>
+
+                  <form.Field name="billing.paymentType">
+                    {(field) => (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* CASH / COD */}
+                        <div
+                          onClick={() => field.handleChange("CASH")}
+                          className={cn(
+                            "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
+                            field.state.value === "CASH"
+                              ? "border-emerald-500 bg-emerald-500/5 shadow-xs ring-1 ring-emerald-500"
+                              : "border-border hover:border-border/80 hover:bg-muted/30"
+                          )}
+                        >
+                          <div className="size-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                            <Banknote className="size-4" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-foreground">
+                                Cash on Delivery (COD)
+                              </span>
+                              <Badge variant="outline" className="text-[10px] py-0 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+                                Cash Handover
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Courier will collect the calculated delivery amount in cash from recipient.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* CARD / Stripe */}
+                        <div
+                          onClick={() => field.handleChange("CARD")}
+                          className={cn(
+                            "rounded-2xl border p-4 cursor-pointer transition-all flex items-start gap-3 select-none",
+                            field.state.value === "CARD"
+                              ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                              : "border-border hover:border-border/80 hover:bg-muted/30"
+                          )}
+                        >
+                          <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                            <CreditCard className="size-4" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-foreground">
+                                Prepaid Card (Stripe)
+                              </span>
+                              <Badge variant="default" className="text-[10px] py-0">
+                                Instant
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Pay securely with card via Stripe right after manifesting.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </form.Field>
+                </div>
+
+                {/* AUTOMATIC DELIVERY COST BREAKDOWN CARD */}
+                <form.Subscribe
+                  selector={(state) => ({
+                    values: state.values,
+                    weight: state.values.parcel.weightKg || 1,
+                    paymentType: state.values.billing.paymentType,
+                  })}
+                >
+                  {({ values, weight, paymentType }) => {
+                    const stagePricing = calculateDeliveryCost(weight);
+                    return (
+                      <div className="space-y-6">
+                        <div className="rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8 space-y-4">
+                          <div className="flex items-center gap-2 text-primary font-bold text-sm">
+                            <Receipt className="size-4.5" />
+                            <span>Calculated Delivery Fee Breakdown</span>
+                          </div>
+
+                          <div className="rounded-2xl border border-border/60 bg-card/80 p-5 space-y-3 text-xs">
+                            <div className="flex justify-between items-center text-muted-foreground">
+                              <span>Base Delivery Handling Fee</span>
+                              <span className="font-semibold text-foreground">৳{stagePricing.baseFee}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-muted-foreground">
+                              <span>
+                                Weight Charge ({weight} kg × ৳{stagePricing.perKgRate}/kg)
+                              </span>
+                              <span className="font-semibold text-foreground">
+                                ৳{weight * stagePricing.perKgRate}
+                              </span>
+                            </div>
+                            <div className="border-t border-border/60 pt-3 flex justify-between items-center text-sm font-bold text-foreground">
+                              <span>Total Shipment Cost</span>
+                              <span className="text-primary text-base font-black">
+                                ৳{stagePricing.totalAmount.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                            <Info className="size-4 text-primary shrink-0 mt-0.5" />
+                            <p className="leading-relaxed">
+                              {paymentType === "CASH" ? (
+                                <>
+                                  <strong className="text-foreground">Cash on Delivery:</strong> Our courier rider will collect exactly{" "}
+                                  <strong className="text-primary">৳{stagePricing.totalAmount}</strong> in cash upon handing over the parcel.
+                                </>
+                              ) : (
+                                <>
+                                  <strong className="text-foreground">Card Payment:</strong> You will be redirected to the secure Stripe portal to settle{" "}
+                                  <strong className="text-primary">৳{stagePricing.totalAmount}</strong> ($
+                                  {(stagePricing.amountInCents / 100).toFixed(2)} USD).
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* CONSIGNMENT ROUTE PREVIEW */}
+                        <div className="rounded-2xl border border-border/80 bg-muted/20 p-4 space-y-2 text-xs text-muted-foreground">
+                          <span className="font-semibold text-foreground">Summary Overview:</span>
+                          <p>
+                            From <strong className="text-foreground">{values.sender.district || "—"}</strong> ({values.sender.upazila || "—"}) to{" "}
+                            <strong className="text-foreground">{values.receiver.district || "—"}</strong> ({values.receiver.upazila || "—"}) for{" "}
+                            <strong className="text-foreground">{values.receiver.name || "—"}</strong>.
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }}
+                </form.Subscribe>
+              </div>
+            )}
+          </form.FormGroup>
+        )}
+
+        {/* BOTTOM NAVIGATION ACTIONS */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs">
+          <div>
+            {currentStage > 0 ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrevStage}
+                className="rounded-xl gap-2 font-medium w-full sm:w-auto cursor-pointer"
+              >
+                <ArrowLeft className="size-4" />
+                <span>Previous Stage</span>
+              </Button>
+            ) : (
+              <Link
+                href="/customer"
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "default" }),
+                  "rounded-xl gap-1.5 font-medium text-xs text-muted-foreground"
+                )}
+              >
+                Cancel and Return
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <Link
-              href="/customer"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "default" }),
-                "rounded-xl w-full sm:w-auto font-medium"
-              )}
-            >
-              Cancel
-            </Link>
-
-            <Button
-              type="submit"
-              size="default"
-              disabled={createShipmentMutation.isPending}
-              className="rounded-xl w-full sm:w-auto gap-2 font-bold px-6 shadow-xs cursor-pointer"
-            >
-              {createShipmentMutation.isPending ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  <span>Registering Consignment...</span>
-                </>
-              ) : (
-                <>
-                  <span>Book Consignment</span>
-                  <ArrowRight className="size-4" />
-                </>
-              )}
-            </Button>
+            {currentStage < 3 ? (
+              <Button
+                type="button"
+                onClick={handleNextStage}
+                className="rounded-xl gap-2 font-bold px-6 w-full sm:w-auto shadow-xs cursor-pointer"
+              >
+                <span>Continue to {STAGES[currentStage + 1]?.title}</span>
+                <ArrowRight className="size-4" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                disabled={createShipmentMutation.isPending}
+                className="rounded-xl gap-2 font-bold px-8 w-full sm:w-auto shadow-xs bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+              >
+                {createShipmentMutation.isPending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>Booking Consignment...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="size-4" />
+                    <span>Confirm & Book Consignment</span>
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </form>
@@ -653,10 +852,10 @@ export function BookingForm() {
               <CheckCircle2 className="size-8" />
             </div>
             <DialogTitle className="text-center text-xl sm:text-2xl font-black">
-              Consignment Registered!
+              Consignment Booked!
             </DialogTitle>
             <DialogDescription className="text-center text-xs sm:text-sm">
-              Your parcel booking has been logged into the Waypoint routing mesh.
+              Your parcel waybill has been generated into the Waypoint logistics network.
             </DialogDescription>
           </DialogHeader>
 
@@ -701,10 +900,10 @@ export function BookingForm() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Classification</span>
-                  <Badge variant="outline" className="text-[10px]">
-                    {createdShipment.deliveryType === "LOCAL" ? "Local" : "Inter-District"}
-                  </Badge>
+                  <span className="text-muted-foreground">Total Fee</span>
+                  <span className="font-bold text-foreground">
+                    ৳{calculateDeliveryCost(createdShipment.weightKg).totalAmount.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Payment Method</span>
@@ -722,11 +921,11 @@ export function BookingForm() {
                     <span>Payment Pending for this Consignment</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    Click the button below to open the secure Stripe checkout gateway and finalize your parcel.
+                    Click below to open the secure Stripe checkout gateway and authorize payment.
                   </p>
                   <PayNowButton
                     shipmentId={createdShipment.id}
-                    label="Pay Now with Stripe"
+                    label={`Pay ৳${calculateDeliveryCost(createdShipment.weightKg).totalAmount.toLocaleString()} with Stripe`}
                     size="lg"
                     className="w-full rounded-xl"
                   />
@@ -736,7 +935,7 @@ export function BookingForm() {
               {/* CASH PAYMENT CONFIRMATION */}
               {createdShipment.paymentType === "CASH" && (
                 <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-center text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                  Cash collection of ৳{createdShipment.codAmount?.toLocaleString()} will be handled by our courier at delivery.
+                  Cash collection of ৳{calculateDeliveryCost(createdShipment.weightKg).totalAmount.toLocaleString()} will be handled by our courier at delivery.
                 </div>
               )}
 
