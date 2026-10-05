@@ -1,58 +1,40 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
-import { ShipmentData, ShipmentStatus } from "../schemas/shipment.schemas";
+import { shipmentKeys } from "@/lib/query-keys";
+import type { Shipment, ShipmentDetail, ShipmentStatus, ApiResponse, PaginatedResult } from "@/types";
 
 /** Statuses that represent an active (in-progress) shipment */
 export const ACTIVE_STATUSES = new Set<ShipmentStatus>([
   "PENDING",
-  "BOOKED",
+  "ASSIGNED",
   "PICKED_UP",
+  "RECEIVED_AT_ORIGIN_HUB",
   "IN_TRANSIT",
+  "RECEIVED_AT_DEST_HUB",
   "OUT_FOR_DELIVERY",
 ]);
-
-/** Standard API response envelope from the Waypoint backend */
-interface ApiResponse<T> {
-  success: boolean;
-  statusCode: number;
-  message: string;
-  data: T;
-}
-
-/**
- * Extracts the `data` payload from the standard API response envelope.
- * Falls back to the raw response if it doesn't match the envelope shape.
- */
-function extractData<T>(response: { data: ApiResponse<T> | T }): T {
-  const body = response.data;
-
-  if (
-    body &&
-    typeof body === "object" &&
-    "success" in body &&
-    "data" in body
-  ) {
-    return (body as ApiResponse<T>).data;
-  }
-
-  return body as T;
-}
 
 /**
  * Fetches active shipments for the authenticated customer.
  * GET /shipments → filters client-side to active statuses only.
  */
-export async function fetchActiveShipments(): Promise<ShipmentData[]> {
-  const response = await api.get("/shipments", {
-    params: { limit: 50 },
-  });
+export async function fetchActiveShipments(): Promise<ShipmentDetail[]> {
+  const response = await api.get<ApiResponse<PaginatedResult<ShipmentDetail> | ShipmentDetail[]>>(
+    "/shipments",
+    { params: { limit: 50 } }
+  );
 
-  const shipments = extractData<ShipmentData[]>(response);
+  const payload = response.data?.data;
+  let list: ShipmentDetail[] = [];
 
-  if (!Array.isArray(shipments)) return [];
+  if (payload && typeof payload === "object" && "result" in payload && Array.isArray(payload.result)) {
+    list = payload.result;
+  } else if (Array.isArray(payload)) {
+    list = payload;
+  }
 
-  return shipments.filter((s) => ACTIVE_STATUSES.has(s.status));
+  return list.filter((s) => ACTIVE_STATUSES.has(s.status));
 }
 
 /**
@@ -61,30 +43,25 @@ export async function fetchActiveShipments(): Promise<ShipmentData[]> {
  */
 export async function fetchShipmentByTrackingNumber(
   trackingNumber: string
-): Promise<ShipmentData | null> {
+): Promise<ShipmentDetail | null> {
   if (!trackingNumber) return null;
 
-  const response = await api.get(
+  const response = await api.get<ApiResponse<ShipmentDetail>>(
     `/shipments/track/${encodeURIComponent(trackingNumber)}`
   );
 
-  return extractData<ShipmentData>(response) ?? null;
+  return response.data?.data ?? null;
 }
 
 /**
  * TanStack Query hook — active shipments for the logged-in CUSTOMER.
- * Query key: ['shipments', 'list', { scope: 'active', userId }]
  */
 export function useActiveShipments() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const isCustomer = isAuthenticated && user?.role === "CUSTOMER";
 
   return useQuery({
-    queryKey: [
-      "shipments",
-      "list",
-      { scope: "active", userId: user?.id ?? "guest" },
-    ],
+    queryKey: shipmentKeys.list({ scope: "active", userId: user?.id ?? "guest" }),
     queryFn: fetchActiveShipments,
     enabled: Boolean(!isAuthLoading && isCustomer),
     staleTime: 1000 * 30,
@@ -94,15 +71,12 @@ export function useActiveShipments() {
 
 /**
  * TanStack Query hook — single shipment detail by tracking number.
- * Query key: ['shipments', 'detail', trackingNumber]
  */
 export function useShipmentByTrackingNumber(trackingNumber?: string | null) {
   return useQuery({
-    queryKey: ["shipments", "detail", trackingNumber ?? ""],
+    queryKey: shipmentKeys.track(trackingNumber ?? ""),
     queryFn: () =>
-      trackingNumber
-        ? fetchShipmentByTrackingNumber(trackingNumber)
-        : null,
+      trackingNumber ? fetchShipmentByTrackingNumber(trackingNumber) : null,
     enabled: Boolean(trackingNumber),
     staleTime: 1000 * 30,
   });

@@ -1,90 +1,47 @@
 import { z } from "zod";
+import type {
+  Shipment,
+  ShipmentDetail,
+  ShipmentStatus,
+  PaymentStatus,
+  PaymentType,
+  DeliveryType,
+  ShipmentTrackingLog,
+  Hub,
+  User,
+} from "@/types";
 
 export const shipmentStatusEnum = z.enum([
   "PENDING",
-  "BOOKED",
+  "ASSIGNED",
   "PICKED_UP",
+  "RECEIVED_AT_ORIGIN_HUB",
   "IN_TRANSIT",
+  "RECEIVED_AT_DEST_HUB",
   "OUT_FOR_DELIVERY",
   "DELIVERED",
   "CANCELLED",
-  "RETURNED",
 ]);
-export type ShipmentStatus = z.infer<typeof shipmentStatusEnum>;
 
 export const paymentStatusEnum = z.enum([
-  "PAID",
   "UNPAID",
-  "COD_PENDING",
-  "COLLECTED",
+  "PENDING",
+  "PAID",
   "FAILED",
+  "EXPIRED",
 ]);
-export type PaymentStatus = z.infer<typeof paymentStatusEnum>;
 
-export const paymentTypeEnum = z.enum(["CARD", "COD", "MOBILE_BANKING"]);
-export type PaymentType = z.infer<typeof paymentTypeEnum>;
+export const paymentTypeEnum = z.enum(["CARD", "CASH"]);
 
-export const deliveryTypeEnum = z.enum(["LOCAL", "INTERCITY"]);
-export type DeliveryType = z.infer<typeof deliveryTypeEnum>;
+export const deliveryTypeEnum = z.enum(["LOCAL", "INTER_DISTRICT"]);
 
-/** Hub object shape when included in shipment response */
-export interface HubInfo {
-  id: string;
-  code: string;
-  name: string;
-  district: string;
-  division: string;
-  upazila: string;
-  address: string;
-}
-
-/** Courier (User) shape when included in shipment response */
-export interface CourierInfo {
-  id: string;
-  name: string;
-  phone?: string | null;
-  email?: string;
-}
-
-/** Tracking log entry from ShipmentTrackingLog model */
-export interface TrackingLog {
-  id: string;
-  fromStatus: ShipmentStatus | null;
-  toStatus: ShipmentStatus;
-  action: string;
-  actorId: string;
-  location: string | null;
-  notes: string | null;
-  createdAt: string;
-}
-
-/** Core shipment data shape matching the Prisma Shipment model */
-export interface ShipmentData {
-  id: string;
-  trackingNumber: string;
-  receiverName: string;
-  receiverPhone: string;
-  weightKg: number;
-  status: ShipmentStatus;
-  paymentType: PaymentType;
-  paymentStatus: PaymentStatus;
-  codAmount: number | null;
-  senderAddress: string | null;
-  senderDistrict: string | null;
-  senderUpazila: string | null;
-  receiverAddress: string | null;
-  receiverDistrict: string | null;
-  receiverUpazila: string | null;
-  deliveryType: DeliveryType;
-  customerId: string;
-  courierId: string | null;
-  originHubId: string | null;
-  destinationHubId: string | null;
-  // Populated relations (may be null if not included by backend)
-  originHub: HubInfo | null;
-  destinationHub: HubInfo | null;
-  courier: CourierInfo | null;
-  trackingLogs: TrackingLog[];
-  createdAt: string;
-  updatedAt: string;
-}
+export type {
+  ShipmentStatus,
+  PaymentStatus,
+  PaymentType,
+  DeliveryType,
+  ShipmentTrackingLog as TrackingLog,
+  ShipmentDetail as ShipmentData,
+  Hub as HubInfo,
+  User as CourierInfo,
+};
