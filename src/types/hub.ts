@@ -18,10 +18,15 @@ export interface Hub {
   phone: string;
   isGateway: boolean;
   status: HubStatus;
-  latitude: number | null;
-  longitude: number | null;
-  createdAt: string;
-  updatedAt: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+  _count?: {
+    originShipments?: number;
+    destinationShipments?: number;
+    couriers?: number;
+  };
 }
 
 export interface CreateHubBody {
