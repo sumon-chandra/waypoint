@@ -51,6 +51,7 @@ import {
 import { useCreateShipment } from "../api/useCreateShipment";
 import type { Shipment, DeliveryType, PaymentType, CreateShipmentBody } from "@/types";
 import { cn } from "@/lib/utils";
+import BookingConfirmationModal from "./BookingConfirmationModal";
 
 const STAGES = [
   { id: 0, title: "Origin", label: "Sender & Pickup", icon: MapPin },
@@ -69,7 +70,6 @@ export function BookingForm() {
   // Dialog state for post-booking success
   const [createdShipment, setCreatedShipment] = React.useState<Shipment | null>(null);
   const [successDialogOpen, setSuccessDialogOpen] = React.useState(false);
-  const [copiedTracking, setCopiedTracking] = React.useState(false);
 
   // Geographic district lists
   const allDistricts = React.useMemo(() => getAllDistricts(), []);
@@ -126,8 +126,11 @@ export function BookingForm() {
     },
   });
 
-  // Stage validation before advancing
-  const handleNextStage = () => {
+  // Stage validation before advancing to the next stage
+  const handleNextStage = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
     if (currentStage === 0) {
       const senderData = form.getFieldValue("sender");
       const validation = senderGroupSchema.safeParse(senderData);
@@ -151,18 +154,32 @@ export function BookingForm() {
       }
     }
 
-    setCurrentStage((prev) => Math.min(prev + 1, STAGES.length - 1));
+    if (currentStage < STAGES.length - 1) {
+      setCurrentStage((prev) => prev + 1);
+    }
   };
 
-  const handlePrevStage = () => {
+  // Only called when user explicitly clicks "Confirm & Book Consignment" on Stage 3 (Billing)
+  const handleConfirmAndBook = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    if (currentStage !== 3) return;
+
+    const billingData = form.getFieldValue("billing");
+    const validation = billingGroupSchema.safeParse(billingData);
+    if (!validation.success) {
+      toast.error(validation.error.issues[0]?.message || "Please select a valid payment method");
+      return;
+    }
+
+    await form.handleSubmit();
+  };
+
+  const handlePrevStage = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     setCurrentStage((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleCopyTracking = () => {
-    if (!createdShipment?.trackingNumber) return;
-    navigator.clipboard.writeText(createdShipment.trackingNumber);
-    setCopiedTracking(true);
-    setTimeout(() => setCopiedTracking(false), 2000);
   };
 
   return (
@@ -233,11 +250,6 @@ export function BookingForm() {
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (currentStage === 3) {
-            form.handleSubmit();
-          } else {
-            handleNextStage();
-          }
         }}
         className="space-y-8"
       >
@@ -814,6 +826,7 @@ export function BookingForm() {
           <div className="flex items-center gap-3 w-full sm:w-auto">
             {currentStage < 3 ? (
               <Button
+                key={`continue-btn-stage-${currentStage}`}
                 type="button"
                 onClick={handleNextStage}
                 className="rounded-xl gap-2 font-bold px-6 w-full sm:w-auto shadow-xs cursor-pointer"
@@ -823,8 +836,10 @@ export function BookingForm() {
               </Button>
             ) : (
               <Button
-                type="submit"
+                key="confirm-booking-btn"
+                type="button"
                 disabled={createShipmentMutation.isPending}
+                onClick={handleConfirmAndBook}
                 className="rounded-xl gap-2 font-bold px-8 w-full sm:w-auto shadow-xs bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
               >
                 {createShipmentMutation.isPending ? (
@@ -845,128 +860,13 @@ export function BookingForm() {
       </form>
 
       {/* POST-BOOKING SUCCESS CONFIRMATION MODAL */}
-      <Dialog open={successDialogOpen} onOpenChange={setSuccessDialogOpen}>
-        <DialogContent className="max-w-md sm:max-w-lg">
-          <DialogHeader>
-            <div className="mx-auto size-16 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/30 mb-2">
-              <CheckCircle2 className="size-8" />
-            </div>
-            <DialogTitle className="text-center text-xl sm:text-2xl font-black">
-              Consignment Booked!
-            </DialogTitle>
-            <DialogDescription className="text-center text-xs sm:text-sm">
-              Your parcel waybill has been generated into the Waypoint logistics network.
-            </DialogDescription>
-          </DialogHeader>
-
-          {createdShipment && (
-            <div className="space-y-4 py-2">
-              {/* Tracking Number Card */}
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-center space-y-1.5">
-                <span className="text-[11px] font-semibold text-primary uppercase tracking-wider">
-                  Waybill Tracking Number
-                </span>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-lg sm:text-xl font-black font-mono tracking-wider text-foreground">
-                    {createdShipment.trackingNumber}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyTracking}
-                    className="p-1 rounded-lg hover:bg-primary/10 text-primary transition-colors cursor-pointer"
-                    title="Copy tracking number"
-                  >
-                    {copiedTracking ? (
-                      <Check className="size-4 text-emerald-500" />
-                    ) : (
-                      <Copy className="size-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Booking Summary Attributes */}
-              <div className="rounded-2xl border border-border/80 bg-muted/20 p-4 space-y-2.5 text-xs">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Recipient</span>
-                  <span className="font-semibold text-foreground">
-                    {createdShipment.receiverName} ({createdShipment.receiverPhone})
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Route</span>
-                  <span className="font-semibold text-foreground">
-                    {createdShipment.senderDistrict} → {createdShipment.receiverDistrict}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Total Fee</span>
-                  <span className="font-bold text-foreground">
-                    ৳{calculateDeliveryCost(createdShipment.weightKg).totalAmount.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Payment Method</span>
-                  <span className="font-bold text-foreground">
-                    {createdShipment.paymentType === "CARD" ? "Card (Stripe)" : "Cash on Delivery"}
-                  </span>
-                </div>
-              </div>
-
-              {/* CARD PAYMENT CALL TO ACTION */}
-              {createdShipment.paymentType === "CARD" && (
-                <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center space-y-3">
-                  <div className="flex items-center justify-center gap-1.5 text-primary text-xs font-semibold">
-                    <ShieldCheck className="size-4" />
-                    <span>Payment Pending for this Consignment</span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Click below to open the secure Stripe checkout gateway and authorize payment.
-                  </p>
-                  <PayNowButton
-                    shipmentId={createdShipment.id}
-                    label={`Pay ৳${calculateDeliveryCost(createdShipment.weightKg).totalAmount.toLocaleString()} with Stripe`}
-                    size="lg"
-                    className="w-full rounded-xl"
-                  />
-                </div>
-              )}
-
-              {/* CASH PAYMENT CONFIRMATION */}
-              {createdShipment.paymentType === "CASH" && (
-                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-center text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                  Cash collection of ৳{calculateDeliveryCost(createdShipment.weightKg).totalAmount.toLocaleString()} will be handled by our courier at delivery.
-                </div>
-              )}
-
-              {/* Dialog Footer Actions */}
-              <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                <Link
-                  href={`/customer/tracking?id=${encodeURIComponent(createdShipment.trackingNumber)}`}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "default" }),
-                    "rounded-xl w-full gap-1.5 font-medium"
-                  )}
-                >
-                  <Truck className="size-4" />
-                  <span>Track Live</span>
-                </Link>
-
-                <Link
-                  href="/customer/shipments"
-                  className={cn(
-                    buttonVariants({ variant: "default", size: "default" }),
-                    "rounded-xl w-full gap-1.5 font-semibold"
-                  )}
-                >
-                  <Package className="size-4" />
-                  <span>Go to My Shipments</span>
-                </Link>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {createdShipment && (
+        <BookingConfirmationModal
+          createdShipment={createdShipment}
+          successDialogOpen={successDialogOpen}
+          setSuccessDialogOpen={setSuccessDialogOpen}
+        />
+      )}
     </div>
   );
 }
