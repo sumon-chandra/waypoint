@@ -153,7 +153,7 @@ const BookingConfirmationModal = ({
                 href={`/customer/tracking?id=${encodeURIComponent(createdShipment.trackingNumber)}`}
                 className={cn(
                   buttonVariants({ variant: "outline", size: "default" }),
-                  "rounded-xl w-full gap-1.5 font-medium",
+                  "rounded-xl gap-1.5 font-medium",
                 )}
               >
                 <Truck className="size-4" />
@@ -164,7 +164,7 @@ const BookingConfirmationModal = ({
                 href="/customer/shipments"
                 className={cn(
                   buttonVariants({ variant: "default", size: "default" }),
-                  "rounded-xl w-full gap-1.5 font-semibold",
+                  "rounded-x gap-1.5 font-semibold",
                 )}
               >
                 <Package className="size-4" />

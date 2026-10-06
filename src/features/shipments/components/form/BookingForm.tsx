@@ -673,8 +673,7 @@ export function BookingForm() {
                             </span>
                           </div>
                           <p className="text-[11px] text-muted-foreground">
-                            Rate is automatically calculated at ৳100 base + ৳100
-                            per kg.
+                            Rate: ৳100 base + ৳100 per kg.
                           </p>
                         </div>
                       )}
@@ -930,11 +929,7 @@ export function BookingForm() {
                                       <strong className="text-foreground">
                                         {values.sender.district}
                                       </strong>
-                                      ). Automatically calculated as{" "}
-                                      <strong className="text-emerald-600 dark:text-emerald-400">
-                                        Local Delivery
-                                      </strong>
-                                      .
+                                      ).
                                     </>
                                   ) : (
                                     <>
@@ -946,11 +941,7 @@ export function BookingForm() {
                                       <strong className="text-foreground">
                                         {values.receiver.district}
                                       </strong>
-                                      ). Automatically calculated as{" "}
-                                      <strong className="text-indigo-600 dark:text-indigo-400">
-                                        Inter-District
-                                      </strong>{" "}
-                                      (Intra-District cross-hub line-haul).
+                                      ).
                                     </>
                                   )}
                                 </p>
