@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Nationwide logistics monitoring, hub orchestration, and system telemetry.",
 };
 
-export default function AdminDashboardPage() {
+export default function AdminOverviewPage() {
   return (
     <div className="space-y-8 p-6 lg:p-8 max-w-7xl mx-auto">
       <AdminDashboardOverview />
