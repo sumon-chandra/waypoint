@@ -8,10 +8,13 @@ export type Role = z.infer<typeof roleEnum>;
 
 export const loginSchema = z.object({
   email: z
-    .string()
-    .min(1, "Email is required")
+    .string("Email address cannot be empty")
+    .trim()
+    .min(1, "Email address cannot be empty")
     .email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z
+    .string("Password cannot be empty")
+    .min(1, "Password cannot be empty"),
   rememberMe: z.boolean().default(false),
 });
 
@@ -20,23 +23,31 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 export const registerSchema = z
   .object({
     role: registerRoleEnum,
-    fullName: z.string().min(2, "Full name must be at least 2 characters"),
+    fullName: z
+      .string("Full name cannot be empty")
+      .trim()
+      .min(1, "Full name cannot be empty"),
     email: z
-      .string()
-      .min(1, "Email is required")
+      .string("Email address cannot be empty")
+      .trim()
+      .min(1, "Email address cannot be empty")
       .email("Please enter a valid email address"),
     phone: z
-      .string()
-      .min(1, "Phone number is required")
+      .string("Phone number cannot be empty")
+      .trim()
       .regex(
         /^01[3-9]\d{8}$/,
-        "Must be a valid 11-digit BD mobile number (e.g. 01712345678)",
+        "Please enter a valid 11-digit Bangladeshi mobile number (e.g. 017XXXXXXXX)",
       ),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
+    password: z
+      .string("Password cannot be empty")
+      .min(6, "Password must be at least 6 characters"),
+    confirmPassword: z
+      .string("Please confirm your password")
+      .min(1, "Please confirm your password"),
     terms: z
       .boolean()
-      .refine((val) => val === true, "You must agree to the Terms of Service"),
+      .refine((val) => val === true, "You must agree to the Terms of Service to continue"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

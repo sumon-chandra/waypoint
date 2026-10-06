@@ -47,15 +47,16 @@ export interface UserProfile {
  */
 export const updateProfileSchema = z.object({
   name: z
-    .string()
-    .min(2, "Full name must be at least 2 characters")
+    .string("Full name cannot be empty")
+    .trim()
+    .min(1, "Full name cannot be empty")
     .max(60, "Full name cannot exceed 60 characters"),
   username: z
     .string()
     .trim()
     .regex(
       /^[a-zA-Z0-9_]{3,30}$|^$/,
-      "Username must be 3-30 characters and can only contain letters, numbers, and underscores"
+      "Username can only contain letters, numbers, and underscores (3-30 characters)"
     )
     .optional()
     .or(z.literal("")),
@@ -84,13 +85,13 @@ export type UpdateProfileFormValues = z.infer<typeof updateProfileSchema>;
 export const changePasswordSchema = z
   .object({
     currentPassword: z
-      .string()
-      .min(1, "Current password is required to authorize changes"),
+      .string("Current password cannot be empty")
+      .min(1, "Please enter your current password"),
     newPassword: z
-      .string()
-      .min(8, "New password must be at least 8 characters"),
+      .string("New password cannot be empty")
+      .min(6, "New password must be at least 6 characters"),
     confirmPassword: z
-      .string()
+      .string("Please confirm your new password")
       .min(1, "Please confirm your new password"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

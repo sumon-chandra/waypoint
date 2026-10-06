@@ -148,7 +148,7 @@ const BookingConfirmationModal = ({
             )}
 
             {/* Dialog Footer Actions */}
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-2 justify-between items-center">
               <Link
                 href={`/customer/tracking?id=${encodeURIComponent(createdShipment.trackingNumber)}`}
                 className={cn(

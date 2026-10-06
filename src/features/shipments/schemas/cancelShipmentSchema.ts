@@ -6,9 +6,9 @@ import { z } from "zod";
  */
 export const cancelShipmentSchema = z.object({
   reason: z
-    .string()
+    .string("Please provide a reason for cancelling this consignment")
     .trim()
-    .min(10, "Cancellation reason must be at least 10 characters")
+    .min(1, "Please provide a reason for cancelling this consignment")
     .max(500, "Cancellation reason cannot exceed 500 characters"),
 });
 
