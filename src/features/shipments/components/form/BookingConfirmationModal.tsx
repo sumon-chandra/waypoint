@@ -15,7 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import { PayNowButton } from "@/features/payments/components/PayNowButton";
-import { calculateDeliveryCost } from "../schemas/createShipmentSchema";
+import { calculateDeliveryCost } from "../../schemas/createShipmentSchema";
 import type { Shipment, DeliveryType, PaymentType } from "@/types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";

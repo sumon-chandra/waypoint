@@ -63,9 +63,7 @@ export const parcelGroupSchema = z.object({
     .number({ error: "Please enter a valid consignment weight in kg" })
     .positive("Consignment weight must be greater than 0 kg")
     .max(100, "Maximum parcel weight is 100 kg"),
-  deliveryType: z.enum(["LOCAL", "INTER_DISTRICT"], {
-    message: "Please choose either local or inter-district delivery",
-  }),
+  deliveryType: z.enum(["LOCAL", "INTER_DISTRICT"]).optional().default("LOCAL"),
 });
 
 /** Stage 4: Billing */

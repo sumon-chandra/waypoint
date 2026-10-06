@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Sparkles, ArrowLeft, PackagePlus } from "lucide-react";
-import { BookingForm } from "@/features/shipments/components/BookingForm";
+import { BookingForm } from "@/features/shipments/components/form/BookingForm";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +29,9 @@ export default function CustomerBookPage() {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Register parcel details, select local or inter-district routing, and choose instant Stripe card checkout or Cash on Delivery across Bangladesh.
+              Register parcel details, select local or inter-district routing,
+              and choose instant Stripe card checkout or Cash on Delivery across
+              Bangladesh.
             </p>
           </div>
 
@@ -38,7 +40,7 @@ export default function CustomerBookPage() {
               href="/customer"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl gap-1.5 hover:bg-background/80 font-medium"
+                "rounded-xl gap-1.5 hover:bg-background/80 font-medium",
               )}
             >
               <ArrowLeft className="size-3.5" />
