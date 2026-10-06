@@ -5,7 +5,12 @@
 
 export type PaymentType = "CARD" | "CASH";
 
-export type PaymentStatus = "UNPAID" | "PENDING" | "PAID" | "FAILED" | "EXPIRED";
+export type PaymentStatus =
+  | "UNPAID"
+  | "PENDING"
+  | "PAID"
+  | "FAILED"
+  | "EXPIRED";
 
 export interface Payment {
   id: string;
@@ -23,5 +28,9 @@ export interface Payment {
 }
 
 export interface CreateCheckoutSessionResponse {
-  url: string;
+  paymentUrl: string;
+  sessionId: string;
+  paymentId: string;
+  amount: number;
+  currency: "bdt";
 }
