@@ -1,7 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { setCookie } from "@/lib/cookies";
+import { userKeys } from "@/lib/query-keys";
+import type { ApiResponse, User } from "@/types";
 import {
   RegisterPayload,
   LoginPayload,
@@ -79,5 +81,28 @@ export function useLoginMutation() {
         description: message,
       });
     },
+  });
+}
+
+/**
+ * Fetches the authenticated user's exact profile directly from the database: GET /auth/me
+ */
+export async function fetchLoggedInUserFromDB(): Promise<User> {
+  const response = await api.get<ApiResponse<User>>("/auth/me");
+  return response.data.data;
+}
+
+/**
+ * TanStack Query Hook to fetch and cache the current authenticated user's profile.
+ * - Deduplicates requests across components
+ * - Caches in memory with 5-minute staleTime (no calls on re-renders)
+ */
+export function useMeQuery(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: userKeys.me(),
+    queryFn: () => fetchLoggedInUserFromDB(),
+    enabled: options?.enabled ?? true,
+    staleTime: 1000 * 60 * 5, // 5 minutes fresh
+    refetchOnWindowFocus: true,
   });
 }

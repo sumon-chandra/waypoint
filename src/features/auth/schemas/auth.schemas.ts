@@ -81,6 +81,10 @@ export interface AuthUser {
   avatarUrl?: string;
   avatar?: string;
   phone?: string;
+  username?: string | null;
+  displayUsername?: string | null;
+  emailVerified?: boolean;
+  hubId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

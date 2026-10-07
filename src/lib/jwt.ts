@@ -30,13 +30,13 @@ export function decodeJwt<T = JwtPayload>(token: string): T | null {
 
     const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    
+
     // In Edge / Browser runtime, use atob and decode UTF-8 components
     const jsonPayload = decodeURIComponent(
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
 
     return JSON.parse(jsonPayload) as T;
@@ -70,9 +70,7 @@ export function getUserFromToken(token: string): AuthUser | null {
   const id = payload.id || payload.userId || payload._id || payload.sub || "";
   const email = payload.email || "";
   const name =
-    payload.name ||
-    payload.fullName ||
-    (email ? email.split("@")[0] : "User");
+    payload.name || payload.fullName || (email ? email.split("@")[0] : "User");
   const role: Role = (payload.role as Role) || "CUSTOMER";
   const status = payload.status || "ACTIVE";
 

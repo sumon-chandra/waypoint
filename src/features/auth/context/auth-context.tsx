@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { getCookie, setCookie, removeCookie } from "@/lib/cookies";
 import { getUserFromToken } from "@/lib/jwt";
-import { AuthUser } from "../schemas/auth.schemas";
+import { userKeys } from "@/lib/query-keys";
+import { fetchLoggedInUserFromDB } from "../api/auth.api";
+import type { AuthUser } from "../schemas/auth.schemas";
 
 export interface AuthContextType {
   user: AuthUser | null;
@@ -16,50 +18,115 @@ export interface AuthContextType {
   login: (authData: { accessToken: string; user?: AuthUser }) => void;
   logout: () => Promise<void>;
   updateUser: (updatedFields: Partial<AuthUser>) => void;
+  refetchUser: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [token, setToken] = React.useState<string | null>(null);
   const [user, setUser] = React.useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Hydrate user session purely from the accessToken JWT cookie
+  // 1. Initial Optimistic Hydration on mount from cookie
   React.useEffect(() => {
     try {
-      const token = getCookie("accessToken");
-      if (token) {
-        const decodedUser = getUserFromToken(token);
+      const cookieToken = getCookie("accessToken");
+      if (cookieToken) {
+        setToken(cookieToken);
+        const decodedUser = getUserFromToken(cookieToken);
         if (decodedUser) {
           setUser(decodedUser);
         } else {
-          // Token is expired or invalid
+          // Token is expired or malformed
           removeCookie("accessToken");
+          setToken(null);
           setUser(null);
         }
       } else {
+        setToken(null);
         setUser(null);
       }
     } catch {
       removeCookie("accessToken");
+      setToken(null);
       setUser(null);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  // 2. TanStack Query to fetch and cache fresh user profile from DB: GET /auth/me
+  const {
+    data: dbUser,
+    refetch: queryRefetch,
+    error: dbError,
+  } = useQuery({
+    queryKey: userKeys.me(),
+    queryFn: () => fetchLoggedInUserFromDB(),
+    enabled: Boolean(token),
+    staleTime: 1000 * 60 * 5, // 5 minutes cache (no extra calls on re-renders)
+    refetchOnWindowFocus: true,
+    retry: 1,
+  });
+
+  // 3. Reconcile fresh database profile with client auth state
+  React.useEffect(() => {
+    if (dbUser) {
+      setUser((prev) => {
+        const merged: AuthUser = {
+          id: dbUser.id || prev?.id || "",
+          name: dbUser.name || prev?.name || "User",
+          email: dbUser.email || prev?.email || "",
+          role: dbUser.role || prev?.role || "CUSTOMER",
+          status: dbUser.status || prev?.status || "ACTIVE",
+          avatar: dbUser.avatar ?? prev?.avatar,
+          avatarUrl: dbUser.avatar ?? prev?.avatarUrl,
+          phone: (dbUser as any).phone ?? prev?.phone,
+          username: dbUser.username ?? prev?.username,
+          displayUsername: dbUser.displayUsername ?? prev?.displayUsername,
+          emailVerified: dbUser.emailVerified ?? prev?.emailVerified,
+          hubId: dbUser.hubId ?? prev?.hubId,
+          createdAt:
+            dbUser.createdAt || prev?.createdAt || new Date().toISOString(),
+          updatedAt:
+            dbUser.updatedAt || prev?.updatedAt || new Date().toISOString(),
+        };
+        return merged;
+      });
+    }
+  }, [dbUser]);
+
+  // 4. Handle expired session or unauthorized API error
+  React.useEffect(() => {
+    if (dbError) {
+      const status = (dbError as any)?.response?.status;
+      if (status === 401 || status === 403) {
+        removeCookie("accessToken");
+        setToken(null);
+        setUser(null);
+        queryClient.removeQueries({ queryKey: userKeys.me() });
+      }
+    }
+  }, [dbError, queryClient]);
+
   const login = React.useCallback(
     (authData: { accessToken: string; user?: AuthUser }) => {
       // Set the JWT accessToken in browser cookie
       setCookie("accessToken", authData.accessToken, { days: 7 });
+      setToken(authData.accessToken);
 
       // Derive user data from the JWT payload, with fallback to provided user
-      const decodedUser = getUserFromToken(authData.accessToken) || authData.user || null;
+      const decodedUser =
+        getUserFromToken(authData.accessToken) || authData.user || null;
       setUser(decodedUser);
+
+      // Invalidate and trigger fresh DB fetch
+      queryClient.invalidateQueries({ queryKey: userKeys.me() });
     },
-    []
+    [queryClient],
   );
 
   const logout = React.useCallback(async () => {
@@ -69,28 +136,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore network/server errors during logout
     } finally {
-      // Clear accessToken cookie
+      // Clear accessToken cookie and state
       removeCookie("accessToken");
+      setToken(null);
+      setUser(null);
 
       // Reset client state and cache
-      setUser(null);
+      queryClient.removeQueries({ queryKey: userKeys.me() });
       queryClient.clear();
 
       toast.success("Signed out successfully", {
         description: "You have been logged out of your session.",
       });
 
-      // Only navigate to /login when user is signed out
+      // Navigate to /login
       router.push("/login");
     }
   }, [queryClient, router]);
 
   const updateUser = React.useCallback(
     (updatedFields: Partial<AuthUser>) => {
-      setUser((prevUser) => (prevUser ? { ...prevUser, ...updatedFields } : null));
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedFields } : null,
+      );
+
+      // Update TanStack Query cache
+      queryClient.setQueryData(userKeys.me(), (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          ...updatedFields,
+          avatar:
+            updatedFields.avatar !== undefined
+              ? updatedFields.avatar
+              : old.avatar,
+        };
+      });
     },
-    []
+    [queryClient],
   );
+
+  const refetchUser = React.useCallback(async () => {
+    await queryRefetch();
+  }, [queryRefetch]);
 
   const value = React.useMemo(
     () => ({
@@ -100,8 +188,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       updateUser,
+      refetchUser,
     }),
-    [user, isLoading, login, logout, updateUser]
+    [user, isLoading, login, logout, updateUser, refetchUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { userKeys } from "@/lib/query-keys";
 import { useAuth } from "@/hooks/use-auth";
 import {
   UserProfile,
@@ -166,6 +167,7 @@ export function useUpdateProfileMutation() {
       // Invalidate query keys
       queryClient.setQueryData(["users", "profile", "me"], updatedProfile);
       queryClient.invalidateQueries({ queryKey: ["users", "profile"] });
+      queryClient.invalidateQueries({ queryKey: userKeys.me() });
 
       // Sync global auth state so Navbar and Dropdown instantly update
       updateUser({

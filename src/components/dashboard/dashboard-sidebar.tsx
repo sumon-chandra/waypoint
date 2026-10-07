@@ -3,7 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, X, ChevronRight, Shield, Truck, UserCheck } from "lucide-react";
+import {
+  LogOut,
+  X,
+  ChevronRight,
+  Shield,
+  Truck,
+  UserCheck,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Logo } from "@/components/common/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,16 +29,22 @@ interface DashboardSidebarProps {
   isMobile?: boolean;
 }
 
-export function DashboardSidebar({ className, isMobile = false }: DashboardSidebarProps) {
+export function DashboardSidebar({
+  className,
+  isMobile = false,
+}: DashboardSidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { closeSidebar } = useDashboard();
 
   const role: Role = user?.role || "CUSTOMER";
-  const roleMeta = ROLE_DASHBOARD_METADATA[role] || ROLE_DASHBOARD_METADATA.CUSTOMER;
+  const roleMeta =
+    ROLE_DASHBOARD_METADATA[role] || ROLE_DASHBOARD_METADATA.CUSTOMER;
   const navSections = React.useMemo(() => getNavSectionsForRole(role), [role]);
 
-  const userInitial = user?.name ? user.name.trim().charAt(0).toUpperCase() : "U";
+  const userInitial = user?.name
+    ? user.name.trim().charAt(0).toUpperCase()
+    : "U";
   const avatarSrc = user?.avatarUrl || user?.avatar;
 
   const getRoleIcon = () => {
@@ -82,7 +95,7 @@ export function DashboardSidebar({ className, isMobile = false }: DashboardSideb
     <div
       className={cn(
         "flex flex-col h-full bg-card/95 border-r border-border/80 backdrop-blur-xl select-none",
-        className
+        className,
       )}
     >
       {/* Brand Header */}
@@ -107,7 +120,7 @@ export function DashboardSidebar({ className, isMobile = false }: DashboardSideb
           <div
             className={cn(
               "size-7 rounded-lg flex items-center justify-center shrink-0 border",
-              roleMeta.themeColor.badge
+              roleMeta.themeColor.badge,
             )}
           >
             <RoleIcon className="size-3.5" />
@@ -149,7 +162,7 @@ export function DashboardSidebar({ className, isMobile = false }: DashboardSideb
                       "group relative flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 outline-none",
                       active
                         ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/60",
                     )}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -158,7 +171,7 @@ export function DashboardSidebar({ className, isMobile = false }: DashboardSideb
                           "size-4 shrink-0 transition-transform duration-200 group-hover:scale-110",
                           active
                             ? "text-primary-foreground"
-                            : "text-muted-foreground group-hover:text-foreground"
+                            : "text-muted-foreground group-hover:text-foreground",
                         )}
                       />
                       <span className="truncate">{item.title}</span>
@@ -189,7 +202,9 @@ export function DashboardSidebar({ className, isMobile = false }: DashboardSideb
             className="flex items-center gap-2.5 min-w-0 flex-1"
           >
             <Avatar size="sm" className="border border-border/80 shrink-0">
-              {avatarSrc && <AvatarImage src={avatarSrc} alt={user?.name || "User"} />}
+              {avatarSrc && (
+                <AvatarImage src={avatarSrc} alt={user?.name || "User"} />
+              )}
               <AvatarFallback className="bg-primary/15 text-primary text-xs font-bold">
                 {userInitial}
               </AvatarFallback>
@@ -199,7 +214,10 @@ export function DashboardSidebar({ className, isMobile = false }: DashboardSideb
               <p className="text-xs font-semibold text-foreground truncate">
                 {user?.name || "Signed In"}
               </p>
-              <p className="text-[11px] text-muted-foreground truncate" title={user?.email}>
+              <p
+                className="text-[11px] text-muted-foreground truncate"
+                title={user?.email}
+              >
                 {user?.email || "Account"}
               </p>
             </div>
