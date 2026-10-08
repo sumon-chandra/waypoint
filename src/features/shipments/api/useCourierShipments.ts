@@ -31,7 +31,7 @@ export interface UseCourierShipmentsResult {
  * Backend auto-scopes this to the logged-in courier.
  */
 export async function fetchCourierShipments(
-  filters: CourierShipmentFilters = {}
+  filters: CourierShipmentFilters = {},
 ): Promise<UseCourierShipmentsResult> {
   const params: Record<string, unknown> = {
     page: filters.page ?? 1,
@@ -48,19 +48,14 @@ export async function fetchCourierShipments(
   // Use /shipments endpoint which is role-scoped to the active courier
   let response;
   try {
-    response = await api.get<ApiResponse<PaginatedResult<Shipment> | Shipment[]>>(
-      "/shipments",
-      { params }
-    );
+    response = await api.get<
+      ApiResponse<PaginatedResult<Shipment> | Shipment[]>
+    >("/shipments/assigned-shipments", { params });
   } catch {
-    // Graceful fallback to /shipments/my-shipments if endpoint alias is used
-    response = await api.get<ApiResponse<PaginatedResult<Shipment> | Shipment[]>>(
-      "/shipments/my-shipments",
-      { params }
-    );
+    throw new Error("Failed to fetch courier shipments");
   }
 
-  const payload = response.data?.data;
+  const payload = response?.data?.data;
 
   if (
     payload &&

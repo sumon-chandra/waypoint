@@ -20,7 +20,8 @@ export function useOutForDelivery() {
       shipmentId,
     }: UseOutForDeliveryParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
-        `/shipments/${shipmentId}/out-for-delivery`
+        `/shipments/${shipmentId}/out-for-delivery`,
+        {}
       );
       return response.data.data;
     },

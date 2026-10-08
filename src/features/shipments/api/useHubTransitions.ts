@@ -20,7 +20,8 @@ export function useOriginHubCheckin() {
       shipmentId,
     }: HubTransitionParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
-        `/shipments/${shipmentId}/origin-hub-checkin`
+        `/shipments/${shipmentId}/origin-hub-checkin`,
+        {}
       );
       return response.data.data;
     },
@@ -50,7 +51,8 @@ export function useDispatchTransit() {
       shipmentId,
     }: HubTransitionParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
-        `/shipments/${shipmentId}/dispatch-transit`
+        `/shipments/${shipmentId}/dispatch-transit`,
+        {}
       );
       return response.data.data;
     },
@@ -80,7 +82,8 @@ export function useDestHubCheckin() {
       shipmentId,
     }: HubTransitionParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
-        `/shipments/${shipmentId}/dest-hub-checkin`
+        `/shipments/${shipmentId}/dest-hub-checkin`,
+        {}
       );
       return response.data.data;
     },

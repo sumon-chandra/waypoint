@@ -18,7 +18,8 @@ export function usePickup() {
   return useMutation({
     mutationFn: async ({ shipmentId }: UsePickupParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
-        `/shipments/${shipmentId}/pickup`
+        `/shipments/${shipmentId}/pickup`,
+        {}
       );
       return response.data.data;
     },

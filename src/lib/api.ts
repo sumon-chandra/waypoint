@@ -32,6 +32,16 @@ api.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
+
+    // Ensure POST/PUT/PATCH send an empty object instead of undefined to satisfy backend Zod body validators
+    const method = config.method?.toLowerCase();
+    if (
+      (method === "post" || method === "put" || method === "patch") &&
+      config.data === undefined
+    ) {
+      config.data = {};
+    }
+
     return config;
   },
   (error) => Promise.reject(error),

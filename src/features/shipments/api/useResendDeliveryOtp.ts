@@ -15,7 +15,8 @@ export function useResendDeliveryOtp() {
   return useMutation({
     mutationFn: async ({ shipmentId }: UseResendOtpParams): Promise<null> => {
       const response = await api.post<ApiResponse<null>>(
-        `/shipments/${shipmentId}/resend-delivery-otp`
+        `/shipments/${shipmentId}/resend-delivery-otp`,
+        {}
       );
       return response.data.data;
     },
