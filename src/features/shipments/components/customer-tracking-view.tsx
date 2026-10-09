@@ -631,7 +631,7 @@ export function CustomerTrackingView() {
               </div>
 
               <p className="text-[11px] text-muted-foreground/80 leading-relaxed border-t border-border/40 pt-3">
-                The courier will verify your 4-digit SMS OTP prior to parcel handover.
+                The courier will verify your 4-digit OTP sent to your email address prior to parcel handover. Please check your inbox or spam folder.
               </p>
             </div>
           ) : (

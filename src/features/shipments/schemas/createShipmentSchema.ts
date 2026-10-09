@@ -43,6 +43,11 @@ export const receiverGroupSchema = z.object({
       BD_PHONE_REGEX,
       "Please enter a valid 11-digit Bangladeshi phone number (e.g. 01712345678)"
     ),
+  email: z
+    .string("Recipient email cannot be empty")
+    .trim()
+    .min(1, "Recipient email is required")
+    .email("Please enter a valid recipient email address"),
   address: z
     .string("Recipient delivery address cannot be empty")
     .trim()
@@ -89,6 +94,7 @@ export type CreateShipmentGroupedFormValues = z.infer<
 export const createShipmentSchema = z.object({
   receiverName: z.string("Recipient name cannot be empty").trim().min(1, "Recipient name cannot be empty"),
   receiverPhone: z.string("Recipient phone number cannot be empty").trim().regex(BD_PHONE_REGEX, "Please enter a valid 11-digit Bangladeshi phone number"),
+  receiverEmail: z.string("Recipient email cannot be empty").trim().min(1, "Recipient email is required").email("Please enter a valid recipient email address"),
   weightKg: z.number({ error: "Please enter a valid weight in kg" }).positive("Weight must be greater than 0 kg").max(100, "Maximum parcel weight is 100 kg"),
   deliveryType: z.enum(["LOCAL", "INTER_DISTRICT"], { message: "Please select a delivery routing method" }),
   paymentType: z.enum(["CARD", "CASH"], { message: "Please select a payment method" }),

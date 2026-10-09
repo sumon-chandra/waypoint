@@ -10,6 +10,7 @@ import {
   Loader2,
   Lock,
   AlertTriangle,
+  Mail,
 } from "lucide-react";
 import {
   Dialog,
@@ -45,6 +46,12 @@ export function CompleteDeliveryModal({
 }: CompleteDeliveryModalProps) {
   const completeMutation = useCompleteDelivery();
   const resendMutation = useResendDeliveryOtp();
+
+  // Destination email address for delivery OTP notification
+  const targetEmail =
+    shipment.receiverEmail ||
+    ("customer" in shipment && shipment.customer?.email) ||
+    null;
 
   // 4-digit OTP state
   const [digits, setDigits] = React.useState<string[]>(["", "", "", ""]);
@@ -342,8 +349,17 @@ export function CompleteDeliveryModal({
               ))}
             </div>
 
+            {targetEmail && (
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground bg-muted/40 py-1 px-3 rounded-full w-fit mx-auto">
+                <Mail className="size-3 text-primary shrink-0" />
+                <span>
+                  Dispatched to: <strong className="text-foreground">{targetEmail}</strong>
+                </span>
+              </div>
+            )}
+
             <p className="text-[11px] text-muted-foreground text-center">
-              Ask the recipient for the 4-digit code sent via SMS to verify physical delivery.
+              Ask the recipient for the 4-digit verification code sent to their email.
             </p>
           </div>
 

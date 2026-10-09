@@ -9,6 +9,7 @@ import {
   MapPin,
   User,
   Phone,
+  Mail,
   Truck,
   CreditCard,
   Banknote,
@@ -85,6 +86,7 @@ export function BookingForm() {
       receiver: {
         name: "",
         phone: "",
+        email: "",
         address: "",
         district: "Dhaka",
         upazila: "",
@@ -117,6 +119,7 @@ export function BookingForm() {
         senderUpazila: value.sender.upazila,
         receiverName: value.receiver.name,
         receiverPhone: value.receiver.phone,
+        receiverEmail: value.receiver.email.trim(),
         receiverAddress: value.receiver.address,
         receiverDistrict: value.receiver.district,
         receiverUpazila: value.receiver.upazila,
@@ -438,12 +441,41 @@ export function BookingForm() {
                           <Phone className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                         </div>
                         <p className="text-[11px] text-muted-foreground">
-                          11-digit Bangladeshi mobile number for handover OTP
-                          verification.
+                          11-digit Bangladeshi mobile number for courier arrival calls.
                         </p>
                       </div>
                     )}
                   </form.Field>
+
+                  {/* Receiver Email (Mandatory) */}
+                  <div className="col-span-1 md:col-span-2">
+                    <form.Field name="receiver.email">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="receiverEmail"
+                            className="text-xs font-semibold"
+                          >
+                            Recipient Email Address{" "}
+                            <span className="text-destructive">*</span>
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id="receiverEmail"
+                              type="email"
+                              placeholder="e.g. recipient@example.com"
+                              value={field.state.value}
+                              onChange={(e) => field.handleChange(e.target.value)}
+                            />
+                            <Mail className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">
+                            Mandatory for receiving 4-digit delivery OTP and parcel handover verification.
+                          </p>
+                        </div>
+                      )}
+                    </form.Field>
+                  </div>
 
                   {/* Receiver District */}
                   <form.Field name="receiver.district">

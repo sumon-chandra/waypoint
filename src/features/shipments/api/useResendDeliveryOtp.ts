@@ -21,7 +21,9 @@ export function useResendDeliveryOtp() {
       return response.data.data;
     },
     onSuccess: () => {
-      toast.success("A fresh 4-digit verification OTP has been sent to the recipient.");
+      toast.success(
+        "A fresh 4-digit verification OTP has been dispatched to the recipient's email address."
+      );
     },
     onError: (error: Error) => {
       toast.error(

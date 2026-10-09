@@ -36,6 +36,8 @@ export interface Shipment {
   receiverAddress: string | null;
   receiverDistrict: string | null;
   receiverUpazila: string | null;
+  receiverEmail?: string | null;
+  deliveryOtpExpiresAt?: string | null;
   deliveryType: DeliveryType;
   customerId: string;
   courierId: string | null;
@@ -69,6 +71,7 @@ export interface ShipmentDetail extends Shipment {
 export interface CreateShipmentBody {
   receiverName: string;
   receiverPhone: string;
+  receiverEmail: string;
   weightKg: number;
   deliveryType: DeliveryType;
   paymentType: PaymentType;
