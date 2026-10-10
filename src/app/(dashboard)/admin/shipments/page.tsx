@@ -1,3 +1,4 @@
+import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Boxes, ArrowLeft } from "lucide-react";
@@ -7,7 +8,8 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Global Shipments & Dispatch Terminal",
-  description: "Monitor nationwide deliveries, re-route parcels, and override courier assignments.",
+  description:
+    "Monitor nationwide deliveries, re-route parcels, and override courier assignments.",
 };
 
 export default function AdminShipmentsPage() {
@@ -28,7 +30,8 @@ export default function AdminShipmentsPage() {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Nationwide consignment monitoring, manual courier rider assignments, and sorting hub transit operations.
+              Nationwide consignment monitoring, manual courier rider
+              assignments, and sorting hub transit operations.
             </p>
           </div>
 
@@ -37,7 +40,7 @@ export default function AdminShipmentsPage() {
               href="/admin"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl gap-1.5 hover:bg-background/80 font-medium"
+                "rounded-xl gap-1.5 hover:bg-background/80 font-medium",
               )}
             >
               <ArrowLeft className="size-3.5" />

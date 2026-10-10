@@ -1,3 +1,4 @@
+import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Users, ArrowLeft } from "lucide-react";
@@ -7,7 +8,8 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "User Directory & Account Governance",
-  description: "Manage system administrators, courier riders, and customer accounts across the Waypoint platform.",
+  description:
+    "Manage system administrators, courier riders, and customer accounts across the Waypoint platform.",
 };
 
 export default function AdminUsersPage() {
@@ -28,7 +30,8 @@ export default function AdminUsersPage() {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Supervise platform users, manage courier accounts, inspect email verification states, and enforce access restrictions.
+              Supervise platform users, manage courier accounts, inspect email
+              verification states, and enforce access restrictions.
             </p>
           </div>
 
@@ -37,7 +40,7 @@ export default function AdminUsersPage() {
               href="/admin"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl gap-1.5 hover:bg-background/80 font-medium"
+                "rounded-xl gap-1.5 hover:bg-background/80 font-medium",
               )}
             >
               <ArrowLeft className="size-3.5" />

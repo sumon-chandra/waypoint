@@ -1,3 +1,4 @@
+import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, ArrowLeft } from "lucide-react";
@@ -7,7 +8,8 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Hub Network Infrastructure",
-  description: "Manage sorting hubs, capacity thresholds, cutoff times, and divisional gateway facilities.",
+  description:
+    "Manage sorting hubs, capacity thresholds, cutoff times, and divisional gateway facilities.",
 };
 
 export default function AdminHubsPage() {
@@ -28,7 +30,8 @@ export default function AdminHubsPage() {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Register sorting facilities across 64 districts, adjust daily dispatch cutoffs, and monitor package throughput limits.
+              Register sorting facilities across 64 districts, adjust daily
+              dispatch cutoffs, and monitor package throughput limits.
             </p>
           </div>
 
@@ -37,7 +40,7 @@ export default function AdminHubsPage() {
               href="/admin"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl gap-1.5 hover:bg-background/80 font-medium"
+                "rounded-xl gap-1.5 hover:bg-background/80 font-medium",
               )}
             >
               <ArrowLeft className="size-3.5" />
