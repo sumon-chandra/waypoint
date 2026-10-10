@@ -142,6 +142,46 @@ function LoginFormContent() {
             </span>
           </div>
 
+          {/* Demo Accounts - One Click Login */}
+          <div className="grid grid-cols-3 gap-2 pb-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs h-8 bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 hover:bg-purple-500/20 cursor-pointer"
+              onClick={() => {
+                form.setFieldValue("email", "admin@gmail.com");
+                form.setFieldValue("password", "admin123456");
+              }}
+            >
+              Admin
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs h-8 bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 hover:bg-sky-500/20 cursor-pointer"
+              onClick={() => {
+                form.setFieldValue("email", "saif@waypoint.com");
+                form.setFieldValue("password", "Waypoint123");
+              }}
+            >
+              Courier
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs h-8 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 cursor-pointer"
+              onClick={() => {
+                form.setFieldValue("email", "fahim@waypoint.com");
+                form.setFieldValue("password", "Waypoint123");
+              }}
+            >
+              Customer
+            </Button>
+          </div>
+
           {/* TanStack Form */}
           <form
             onSubmit={(e) => {
