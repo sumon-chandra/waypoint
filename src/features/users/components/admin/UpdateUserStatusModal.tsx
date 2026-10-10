@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ShieldAlert, UserCheck, Loader2, ShieldCheck, UserCog } from "lucide-react";
+import {
+  ShieldAlert,
+  UserCheck,
+  Loader2,
+  ShieldCheck,
+  UserCog,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
-import { useUpdateUserStatus } from "../../api/useUpdateUserStatus";
-import { useUpdateUserRole } from "../../api/useUpdateUserRole";
+import { useUpdateUser } from "../../api/useUpdateUser";
 import type { User, UserStatus, Role } from "@/types";
 
 interface UpdateUserStatusModalProps {
@@ -34,10 +39,7 @@ export function UpdateUserStatusModal({
   const [status, setStatus] = React.useState<UserStatus>("ACTIVE");
   const [banReason, setBanReason] = React.useState<string>("");
 
-  const updateStatusMutation = useUpdateUserStatus();
-  const updateRoleMutation = useUpdateUserRole();
-
-  const isPending = updateStatusMutation.isPending || updateRoleMutation.isPending;
+  const { mutate, isPending } = useUpdateUser();
 
   React.useEffect(() => {
     if (open && user) {
@@ -47,47 +49,33 @@ export function UpdateUserStatusModal({
     }
   }, [open, user]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    const roleChanged = user.role !== "ADMIN" && role !== user.role;
-    const statusChanged =
-      status !== user.status ||
-      (status === "BANNED" && banReason.trim() !== (user.banReason || "").trim());
+    const payload: Record<string, unknown> = {};
 
-    if (!roleChanged && !statusChanged) {
+    // Only include changed fields
+    if (role !== user.role) payload.role = role;
+    if (status !== user.status) payload.status = status;
+    if (status === "BANNED" && banReason.trim()) {
+      payload.banReason = banReason.trim();
+    }
+
+    if (Object.keys(payload).length === 0) {
       onOpenChange(false);
       return;
     }
 
-    try {
-      // 1. If role changed, execute role update first
-      if (roleChanged) {
-        await updateRoleMutation.mutateAsync({
-          userId: user.id,
-          role,
-          userName: user.name,
-        });
+    mutate(
+      { userId: user.id, payload },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+          onSuccess?.();
+        },
       }
-
-      // 2. If status or ban reason changed, execute status update
-      if (statusChanged) {
-        await updateStatusMutation.mutateAsync({
-          userId: user.id,
-          userName: user.name,
-          payload: {
-            status,
-            banReason: status === "BANNED" ? banReason.trim() : undefined,
-          },
-        });
-      }
-
-      onOpenChange(false);
-      onSuccess?.();
-    } catch {
-      // Errors handled by individual mutation onError toasts
-    }
+    );
   };
 
   if (!user) return null;
@@ -120,7 +108,10 @@ export function UpdateUserStatusModal({
             {user.role === "ADMIN" ? (
               <div className="flex items-center gap-2 p-3 rounded-2xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-semibold">
                 <ShieldCheck className="size-4 shrink-0" />
-                <span>ADMIN — System Administrator (Role is protected against accidental changes)</span>
+                <span>
+                  ADMIN — System Administrator (Role is protected against
+                  accidental changes)
+                </span>
               </div>
             ) : (
               <Select
@@ -129,8 +120,12 @@ export function UpdateUserStatusModal({
                 onChange={(e) => setRole(e.target.value as Role)}
                 className="text-xs rounded-xl"
               >
-                <option value="CUSTOMER">CUSTOMER — Standard Merchant / Shipper</option>
-                <option value="COURIER">COURIER — Assigned Delivery Rider</option>
+                <option value="CUSTOMER">
+                  CUSTOMER — Standard Merchant / Shipper
+                </option>
+                <option value="COURIER">
+                  COURIER — Assigned Delivery Rider
+                </option>
               </Select>
             )}
             <p className="text-[11px] text-muted-foreground">
@@ -152,7 +147,9 @@ export function UpdateUserStatusModal({
               className="text-xs rounded-xl"
             >
               <option value="ACTIVE">ACTIVE — Normal System Access</option>
-              <option value="INACTIVE">INACTIVE — Temporary Deactivation</option>
+              <option value="INACTIVE">
+                INACTIVE — Temporary Deactivation
+              </option>
               <option value="BANNED">BANNED — Platform Restriction</option>
             </Select>
           </div>
@@ -161,7 +158,8 @@ export function UpdateUserStatusModal({
           {status === "BANNED" && (
             <div className="space-y-1.5 animate-in fade-in-0">
               <Label htmlFor="banReason" className="text-xs font-semibold">
-                Reason for Ban / Suspension <span className="text-destructive">*</span>
+                Reason for Ban / Suspension{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="banReason"

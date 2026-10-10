@@ -6,12 +6,6 @@ import {
   CreditCard,
   TrendingUp,
   AlertTriangle,
-  ShieldCheck,
-  Scale,
-  DollarSign,
-  ArrowUpRight,
-  ArrowDownRight,
-  CheckCircle2,
   Building2,
   Lock,
 } from "lucide-react";
@@ -24,10 +18,29 @@ interface RevenueMetricCardsProps {
   isLoading?: boolean;
 }
 
-export function RevenueMetricCards({ data, isLoading }: RevenueMetricCardsProps) {
-  const { summary, codCashFlow } = data;
+export function RevenueMetricCards({
+  data,
+  isLoading,
+}: RevenueMetricCardsProps) {
+  const summary = data?.summary || {
+    totalRevenue: 0,
+    cardEarnings: 0,
+    codEarnings: 0,
+    cardPercentage: 50,
+    codPercentage: 50,
+    gatewayFees: 0,
+    netMargin: 93,
+  };
 
-  const hasCourierRisk = codCashFlow.courierCashInHand > 0;
+  const codCashFlow = data?.codCashFlow || {
+    grossCodCollected: 0,
+    courierCashInHand: 0,
+    remittedToHubs: 0,
+    pendingMerchantPayables: 0,
+    settledToMerchants: 0,
+  };
+
+  const hasCourierRisk = (codCashFlow.courierCashInHand ?? 0) > 0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -44,12 +57,12 @@ export function RevenueMetricCards({ data, isLoading }: RevenueMetricCardsProps)
 
         <div>
           <p className="text-2xl font-black text-foreground font-mono tracking-tight">
-            {isLoading ? "—" : `৳${summary.totalRevenue.toLocaleString()}`}
+            {isLoading ? "—" : `৳${(summary.totalRevenue ?? 0).toLocaleString()}`}
           </p>
           <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Card: ৳{summary.cardEarnings.toLocaleString()}</span>
+            <span>Card: ৳{(summary.cardEarnings ?? 0).toLocaleString()}</span>
             <span>•</span>
-            <span>COD: ৳{summary.codEarnings.toLocaleString()}</span>
+            <span>COD: ৳{(summary.codEarnings ?? 0).toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -68,17 +81,17 @@ export function RevenueMetricCards({ data, isLoading }: RevenueMetricCardsProps)
         <div>
           <div className="flex items-center gap-2">
             <p className="text-2xl font-black text-foreground font-mono tracking-tight">
-              {isLoading ? "—" : `৳${summary.cardEarnings.toLocaleString()}`}
+              {isLoading ? "—" : `৳${(summary.cardEarnings ?? 0).toLocaleString()}`}
             </p>
             <Badge
               variant="outline"
               className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
             >
-              {summary.cardPercentage}%
+              {summary.cardPercentage ?? 50}%
             </Badge>
           </div>
           <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Gateway Fees: ৳{summary.gatewayFees.toLocaleString()}</span>
+            <span>Gateway Fees: ৳{(summary.gatewayFees ?? 0).toLocaleString()}</span>
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
               Instant Escrow
             </span>
@@ -100,17 +113,20 @@ export function RevenueMetricCards({ data, isLoading }: RevenueMetricCardsProps)
         <div>
           <div className="flex items-center gap-2">
             <p className="text-2xl font-black text-foreground font-mono tracking-tight">
-              {isLoading ? "—" : `৳${summary.codEarnings.toLocaleString()}`}
+              {isLoading ? "—" : `৳${(summary.codEarnings ?? 0).toLocaleString()}`}
             </p>
             <Badge
               variant="outline"
               className="text-[10px] font-bold text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-500/10"
             >
-              {summary.codPercentage}%
+              {summary.codPercentage ?? 50}%
             </Badge>
           </div>
           <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Shipping Fees + 1% Commission</span>
+            <span>Delivery Fees + 1% Comm.</span>
+            <span className="font-mono text-amber-600 dark:text-amber-400 font-bold">
+              Post-Delivery
+            </span>
           </div>
         </div>
       </div>
@@ -143,22 +159,30 @@ export function RevenueMetricCards({ data, isLoading }: RevenueMetricCardsProps)
         <div>
           <div className="flex items-center gap-2">
             <p className="text-2xl font-black text-foreground font-mono tracking-tight">
-              {isLoading ? "—" : `৳${codCashFlow.courierCashInHand.toLocaleString()}`}
+              {isLoading
+                ? "—"
+                : `৳${(codCashFlow.courierCashInHand ?? 0).toLocaleString()}`}
             </p>
             {hasCourierRisk && (
               <Badge
                 variant="outline"
-                className="text-[10px] font-bold text-amber-600 dark:text-amber-400 border-amber-500/40 bg-amber-500/15"
+                className="text-[10px] font-bold text-amber-600 dark:text-amber-400 border-amber-500/40 bg-amber-500/15 animate-pulse"
               >
-                Unremitted Float
+                Risk Float
               </Badge>
             )}
           </div>
           <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>
-              {hasCourierRisk
-                ? "Active courier street liability"
-                : "All courier cash remitted to hubs"}
+            <span>Door Cash with Riders</span>
+            <span
+              className={cn(
+                "font-semibold",
+                hasCourierRisk
+                  ? "text-amber-600 dark:text-amber-400"
+                  : "text-emerald-600 dark:text-emerald-400"
+              )}
+            >
+              {hasCourierRisk ? "Pending Hub Deposit" : "All Remitted"}
             </span>
           </div>
         </div>
@@ -168,28 +192,30 @@ export function RevenueMetricCards({ data, isLoading }: RevenueMetricCardsProps)
       <div className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs space-y-3 transition-all hover:border-border hover:shadow-md">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Escrow Reconciliation
+            COD Cash Escrow
           </span>
-          <div className="size-9 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/20">
-            <Scale className="size-4" />
+          <div className="size-9 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
+            <Building2 className="size-4" />
           </div>
         </div>
 
         <div>
           <p className="text-2xl font-black text-foreground font-mono tracking-tight">
-            {isLoading ? "—" : `৳${codCashFlow.grossCodCollected.toLocaleString()}`}
+            {isLoading
+              ? "—"
+              : `৳${(codCashFlow.grossCodCollected ?? 0).toLocaleString()}`}
           </p>
           <div className="mt-2 pt-2 border-t border-border/50 space-y-1 text-[11px] text-muted-foreground">
             <div className="flex items-center justify-between">
               <span>Remitted to Hubs:</span>
               <span className="font-mono font-semibold text-foreground">
-                ৳{codCashFlow.remittedToHubs.toLocaleString()}
+                ৳{(codCashFlow.remittedToHubs ?? 0).toLocaleString()}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span>Merchant Payables:</span>
-              <span className="font-mono font-semibold text-foreground">
-                ৳{codCashFlow.pendingMerchantPayables.toLocaleString()}
+              <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">
+                ৳{(codCashFlow.pendingMerchantPayables ?? 0).toLocaleString()}
               </span>
             </div>
           </div>

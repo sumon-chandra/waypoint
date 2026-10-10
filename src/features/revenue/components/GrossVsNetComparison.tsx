@@ -1,19 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { Scale, ArrowRight, ShieldCheck, Banknote, AlertTriangle } from "lucide-react";
+import { Scale } from "lucide-react";
 import type { CodCashFlow, RevenueSummary } from "@/types";
 import { Badge } from "@/components/ui/badge";
 
 interface GrossVsNetComparisonProps {
-  codCashFlow: CodCashFlow;
-  summary: RevenueSummary;
+  codCashFlow?: CodCashFlow;
+  summary?: RevenueSummary;
 }
 
-export function GrossVsNetComparison({ codCashFlow, summary }: GrossVsNetComparisonProps) {
-  const gross = codCashFlow.grossCodCollected || 1;
-  const netEarnings = summary.codEarnings;
+export function GrossVsNetComparison({
+  codCashFlow,
+  summary,
+}: GrossVsNetComparisonProps) {
+  const gross = codCashFlow?.grossCodCollected || 1;
+  const netEarnings = summary?.codEarnings ?? 0;
   const takeRate = ((netEarnings / gross) * 100).toFixed(1);
+
+  const remitted = codCashFlow?.remittedToHubs ?? 0;
+  const payables = codCashFlow?.pendingMerchantPayables ?? 0;
+  const settled = codCashFlow?.settledToMerchants ?? 0;
+  const grossDisplay = codCashFlow?.grossCodCollected ?? 0;
 
   return (
     <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs space-y-6">
@@ -32,7 +40,10 @@ export function GrossVsNetComparison({ codCashFlow, summary }: GrossVsNetCompari
           </div>
         </div>
 
-        <Badge variant="outline" className="text-xs font-mono font-bold text-primary border-primary/30 bg-primary/10">
+        <Badge
+          variant="outline"
+          className="text-xs font-mono font-bold text-primary border-primary/30 bg-primary/10"
+        >
           {takeRate}% Platform Take Rate
         </Badge>
       </div>
@@ -42,7 +53,7 @@ export function GrossVsNetComparison({ codCashFlow, summary }: GrossVsNetCompari
         <div className="flex items-center justify-between text-xs font-semibold">
           <span className="text-muted-foreground">Cash Flow Composition</span>
           <span className="font-mono text-foreground">
-            Total Handled: ৳{codCashFlow.grossCodCollected.toLocaleString()}
+            Total Handled: ৳{grossDisplay.toLocaleString()}
           </span>
         </div>
 
@@ -52,69 +63,56 @@ export function GrossVsNetComparison({ codCashFlow, summary }: GrossVsNetCompari
           <div
             className="bg-emerald-500 transition-all"
             style={{
-              width: `${(codCashFlow.remittedToHubs / gross) * 100}%`,
+              width: `${Math.min(100, (remitted / gross) * 100)}%`,
             }}
-            title={`Remitted to Hubs: ৳${codCashFlow.remittedToHubs.toLocaleString()}`}
+            title={`Remitted to Hubs: ৳${remitted.toLocaleString()}`}
           />
           {/* Merchant Payables */}
           <div
-            className="bg-indigo-500 transition-all"
+            className="bg-blue-500 transition-all"
             style={{
-              width: `${(codCashFlow.pendingMerchantPayables / gross) * 100}%`,
+              width: `${Math.min(100, (payables / gross) * 100)}%`,
             }}
-            title={`Merchant Payables: ৳${codCashFlow.pendingMerchantPayables.toLocaleString()}`}
+            title={`Pending Merchant Payables: ৳${payables.toLocaleString()}`}
           />
-          {/* Courier Float */}
+          {/* Real Platform Earning */}
           <div
             className="bg-amber-500 transition-all"
             style={{
-              width: `${(codCashFlow.courierCashInHand / gross) * 100}%`,
+              width: `${Math.min(100, (netEarnings / gross) * 100)}%`,
             }}
-            title={`Courier Float: ৳${codCashFlow.courierCashInHand.toLocaleString()}`}
+            title={`Captured Platform Margin: ৳${netEarnings.toLocaleString()}`}
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-emerald-500" />
-            <span>Remitted to Hubs (৳{codCashFlow.remittedToHubs.toLocaleString()})</span>
+            <span className="size-2.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>Remitted to Hubs (৳{remitted.toLocaleString()})</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-indigo-500" />
-            <span>Merchant Payables (৳{codCashFlow.pendingMerchantPayables.toLocaleString()})</span>
+            <span className="size-2.5 rounded-full bg-blue-500 shrink-0" />
+            <span>Merchant Escrow (৳{payables.toLocaleString()})</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-amber-500" />
-            <span>Courier Street Float (৳{codCashFlow.courierCashInHand.toLocaleString()})</span>
+            <span className="size-2.5 rounded-full bg-amber-500 shrink-0" />
+            <span>Platform Take (৳{netEarnings.toLocaleString()})</span>
           </div>
         </div>
       </div>
 
-      {/* Comparative Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-        <div className="p-4 rounded-2xl border border-border/80 bg-muted/20 space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Gross Physical Cash Handled
+      {/* Reconciliation Card Footnote */}
+      <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 space-y-1.5 text-xs">
+        <div className="flex items-center justify-between font-bold text-foreground">
+          <span>Total Merchant Settlements Released:</span>
+          <span className="font-mono text-emerald-600 dark:text-emerald-400">
+            ৳{settled.toLocaleString()}
           </span>
-          <p className="text-xl font-black font-mono text-foreground">
-            ৳{codCashFlow.grossCodCollected.toLocaleString()}
-          </p>
-          <p className="text-[11px] text-muted-foreground">
-            Recipient doorstep currency handled by couriers and sorting hubs.
-          </p>
         </div>
-
-        <div className="p-4 rounded-2xl border border-primary/20 bg-primary/5 space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-            Retained Platform Earnings
-          </span>
-          <p className="text-xl font-black font-mono text-primary">
-            ৳{summary.codEarnings.toLocaleString()}
-          </p>
-          <p className="text-[11px] text-muted-foreground">
-            Delivery fees + 1% COD handling commission retained after merchant escrow.
-          </p>
-        </div>
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          Recipients pay full COD amounts at the door, which are held in escrow
+          at sorting hubs until reconciled and disbursed directly to merchants.
+        </p>
       </div>
     </div>
   );

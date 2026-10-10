@@ -1,17 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { CreditCard, Banknote, PieChart, ShieldCheck } from "lucide-react";
+import { CreditCard, Banknote, PieChart } from "lucide-react";
 import type { RevenueSummary } from "@/types";
-import { cn } from "@/lib/utils";
 
 interface RevenueCompositionChartProps {
-  summary: RevenueSummary;
+  summary?: RevenueSummary;
 }
 
-export function RevenueCompositionChart({ summary }: RevenueCompositionChartProps) {
-  const cardPct = summary.cardPercentage;
-  const codPct = summary.codPercentage;
+export function RevenueCompositionChart({
+  summary,
+}: RevenueCompositionChartProps) {
+  const cardPct = summary?.cardPercentage ?? 50;
+  const codPct = summary?.codPercentage ?? 50;
 
   // Donut geometry constants
   const size = 180;
@@ -24,6 +25,11 @@ export function RevenueCompositionChart({ summary }: RevenueCompositionChartProp
 
   const codDash = (codPct / 100) * circumference;
   const codOffset = -cardDash;
+
+  const totalRevenue = summary?.totalRevenue ?? 0;
+  const netMargin = summary?.netMargin ?? 94;
+  const cardEarnings = summary?.cardEarnings ?? 0;
+  const codEarnings = summary?.codEarnings ?? 0;
 
   return (
     <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs flex flex-col justify-between space-y-6">
@@ -83,10 +89,10 @@ export function RevenueCompositionChart({ summary }: RevenueCompositionChartProp
               Net Total
             </span>
             <span className="text-lg font-black font-mono text-foreground">
-              ৳{(summary.totalRevenue / 1000).toFixed(1)}k
+              ৳{(totalRevenue / 1000).toFixed(1)}k
             </span>
             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-              {summary.netMargin}% Margin
+              {netMargin}% Margin
             </span>
           </div>
         </div>
@@ -103,7 +109,7 @@ export function RevenueCompositionChart({ summary }: RevenueCompositionChartProp
               <span className="font-mono text-foreground font-black">{cardPct}%</span>
             </div>
             <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>Earnings: ৳{summary.cardEarnings.toLocaleString()}</span>
+              <span>Earnings: ৳{cardEarnings.toLocaleString()}</span>
               <span>Online Escrow</span>
             </div>
           </div>
@@ -118,7 +124,7 @@ export function RevenueCompositionChart({ summary }: RevenueCompositionChartProp
               <span className="font-mono text-foreground font-black">{codPct}%</span>
             </div>
             <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>Earnings: ৳{summary.codEarnings.toLocaleString()}</span>
+              <span>Earnings: ৳{codEarnings.toLocaleString()}</span>
               <span>1% Fee + Delivery</span>
             </div>
           </div>

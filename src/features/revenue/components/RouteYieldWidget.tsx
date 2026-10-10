@@ -1,16 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { Navigation, MapPin, Layers, ArrowUpRight, Boxes } from "lucide-react";
+import { MapPin, Layers } from "lucide-react";
 import type { BreakdownByDeliveryType } from "@/types";
 import { Badge } from "@/components/ui/badge";
 
 interface RouteYieldWidgetProps {
-  breakdown: BreakdownByDeliveryType;
+  breakdown?: BreakdownByDeliveryType;
 }
 
 export function RouteYieldWidget({ breakdown }: RouteYieldWidgetProps) {
-  const { local, interDistrict } = breakdown;
+  const local = breakdown?.local || {
+    volume: 0,
+    earnings: 0,
+    averageYield: 125,
+  };
+  const interDistrict = breakdown?.interDistrict || {
+    volume: 0,
+    earnings: 0,
+    averageYield: 185,
+  };
+
   const totalVolume = (local.volume + interDistrict.volume) || 1;
 
   const localVolumePct = Math.round((local.volume / totalVolume) * 100);
@@ -24,8 +34,12 @@ export function RouteYieldWidget({ breakdown }: RouteYieldWidgetProps) {
             <Layers className="size-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-foreground">Route Yield & Delivery Type Split</h3>
-            <p className="text-xs text-muted-foreground">Local intra-hub versus nationwide line-haul economics</p>
+            <h3 className="text-sm font-bold text-foreground">
+              Route Yield & Delivery Type Split
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Local intra-hub versus nationwide line-haul economics
+            </p>
           </div>
         </div>
       </div>
@@ -38,23 +52,30 @@ export function RouteYieldWidget({ breakdown }: RouteYieldWidgetProps) {
               <MapPin className="size-3.5" />
               <span>Intra-Hub Local</span>
             </div>
-            <Badge variant="outline" className="text-[10px] font-bold border-blue-500/30 text-blue-600 dark:text-blue-400">
+            <Badge
+              variant="outline"
+              className="text-[10px] font-bold border-blue-500/30 text-blue-600 dark:text-blue-400"
+            >
               {localVolumePct}% Volume
             </Badge>
           </div>
 
           <div className="space-y-1">
             <p className="text-2xl font-black font-mono text-foreground">
-              ৳{local.earnings.toLocaleString()}
+              ৳{(local.earnings ?? 0).toLocaleString()}
             </p>
             <p className="text-[11px] text-muted-foreground">
-              {local.volume.toLocaleString()} delivered parcels
+              {(local.volume ?? 0).toLocaleString()} delivered parcels
             </p>
           </div>
 
           <div className="pt-2 border-t border-border/50 flex items-center justify-between text-xs font-semibold">
-            <span className="text-muted-foreground text-[11px]">Avg Platform Yield:</span>
-            <span className="font-mono text-foreground">৳{local.averageYield} / parcel</span>
+            <span className="text-muted-foreground text-[11px]">
+              Avg Platform Yield:
+            </span>
+            <span className="font-mono text-foreground">
+              ৳{local.averageYield ?? 125} / parcel
+            </span>
           </div>
         </div>
 
@@ -62,26 +83,33 @@ export function RouteYieldWidget({ breakdown }: RouteYieldWidgetProps) {
         <div className="p-4 rounded-2xl border border-purple-500/20 bg-purple-500/5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-purple-600 dark:text-purple-400 text-xs">
-              <Navigation className="size-3.5" />
-              <span>Inter-District Line-Haul</span>
+              <MapPin className="size-3.5" />
+              <span>Inter-District</span>
             </div>
-            <Badge variant="outline" className="text-[10px] font-bold border-purple-500/30 text-purple-600 dark:text-purple-400">
+            <Badge
+              variant="outline"
+              className="text-[10px] font-bold border-purple-500/30 text-purple-600 dark:text-purple-400"
+            >
               {interVolumePct}% Volume
             </Badge>
           </div>
 
           <div className="space-y-1">
             <p className="text-2xl font-black font-mono text-foreground">
-              ৳{interDistrict.earnings.toLocaleString()}
+              ৳{(interDistrict.earnings ?? 0).toLocaleString()}
             </p>
             <p className="text-[11px] text-muted-foreground">
-              {interDistrict.volume.toLocaleString()} delivered parcels
+              {(interDistrict.volume ?? 0).toLocaleString()} delivered parcels
             </p>
           </div>
 
           <div className="pt-2 border-t border-border/50 flex items-center justify-between text-xs font-semibold">
-            <span className="text-muted-foreground text-[11px]">Avg Platform Yield:</span>
-            <span className="font-mono text-foreground">৳{interDistrict.averageYield} / parcel</span>
+            <span className="text-muted-foreground text-[11px]">
+              Avg Platform Yield:
+            </span>
+            <span className="font-mono text-foreground">
+              ৳{interDistrict.averageYield ?? 185} / parcel
+            </span>
           </div>
         </div>
       </div>

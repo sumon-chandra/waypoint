@@ -13,7 +13,9 @@ export interface TrendFilters {
 /**
  * Generates dynamic fallback trend series for day / week / month
  */
-export function generateFallbackTrends(interval: TrendInterval = "day"): RevenueTrendPoint[] {
+export function generateFallbackTrends(
+  interval: TrendInterval = "day"
+): RevenueTrendPoint[] {
   const points: RevenueTrendPoint[] = [];
   const count = interval === "day" ? 7 : interval === "week" ? 8 : 6;
 
@@ -24,7 +26,10 @@ export function generateFallbackTrends(interval: TrendInterval = "day"): Revenue
     if (interval === "day") {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
-      label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      label = d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
     } else if (interval === "week") {
       label = `Wk ${8 - i}`;
     } else {
@@ -34,7 +39,8 @@ export function generateFallbackTrends(interval: TrendInterval = "day"): Revenue
     }
 
     // Dynamic wave curves
-    const baseTotal = interval === "day" ? 4800 : interval === "week" ? 28000 : 95000;
+    const baseTotal =
+      interval === "day" ? 4800 : interval === "week" ? 28000 : 95000;
     const variation = Math.sin((i + 1) * 0.8) * (baseTotal * 0.25);
     const totalEarnings = Math.round(baseTotal + variation);
 
@@ -67,8 +73,16 @@ export async function fetchAdminRevenueTrends(
       "/analytics/admin/revenue/trends",
       { params: filters }
     );
-    if (response.data?.data && Array.isArray(response.data.data) && response.data.data.length > 0) {
-      return response.data.data;
+    const list = response.data?.data;
+    if (list && Array.isArray(list) && list.length > 0) {
+      return list.map((p) => ({
+        date: p.date || "",
+        totalEarnings: Number(p.totalEarnings ?? 0),
+        cardEarnings: Number(p.cardEarnings ?? 0),
+        codEarnings: Number(p.codEarnings ?? 0),
+        grossCodCollected: Number(p.grossCodCollected ?? 0),
+        shipmentCount: Number(p.shipmentCount ?? 0),
+      }));
     }
   } catch {
     // Graceful fallback to computed time-series
@@ -77,7 +91,10 @@ export async function fetchAdminRevenueTrends(
   return generateFallbackTrends(interval);
 }
 
-export function useAdminRevenueTrends(interval: TrendInterval = "day", filters?: TrendFilters) {
+export function useAdminRevenueTrends(
+  interval: TrendInterval = "day",
+  filters?: TrendFilters
+) {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const isAdmin = isAuthenticated && user?.role === "ADMIN";
 
