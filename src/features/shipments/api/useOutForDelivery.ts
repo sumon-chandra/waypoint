@@ -6,6 +6,7 @@ import type { ApiResponse, Shipment } from "@/types";
 
 interface UseOutForDeliveryParams {
   shipmentId: string;
+  notes?: string;
 }
 
 /**
@@ -18,10 +19,11 @@ export function useOutForDelivery() {
   return useMutation({
     mutationFn: async ({
       shipmentId,
+      notes,
     }: UseOutForDeliveryParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
         `/shipments/${shipmentId}/out-for-delivery`,
-        {}
+        notes ? { notes } : {}
       );
       return response.data.data;
     },
@@ -29,7 +31,7 @@ export function useOutForDelivery() {
       toast.success(
         `Shipment #${shipment.trackingNumber} is now Out for Delivery.`
       );
-      queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["shipments"] });
     },
     onError: (error: Error) => {
       toast.error(

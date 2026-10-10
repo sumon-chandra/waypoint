@@ -36,7 +36,7 @@ export function useCompleteDelivery() {
       toast.success(
         `Consignment #${shipment.trackingNumber} successfully delivered!`
       );
-      queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["shipments"] });
     },
     onError: (error: Error) => {
       toast.error(

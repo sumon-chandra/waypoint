@@ -6,6 +6,7 @@ import type { ApiResponse, Shipment } from "@/types";
 
 interface UsePickupParams {
   shipmentId: string;
+  notes?: string;
 }
 
 /**
@@ -16,10 +17,13 @@ export function usePickup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ shipmentId }: UsePickupParams): Promise<Shipment> => {
+    mutationFn: async ({
+      shipmentId,
+      notes,
+    }: UsePickupParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
         `/shipments/${shipmentId}/pickup`,
-        {}
+        notes ? { notes } : {}
       );
       return response.data.data;
     },
@@ -27,7 +31,7 @@ export function usePickup() {
       toast.success(
         `Parcel #${shipment.trackingNumber} collected and marked as Picked Up.`
       );
-      queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["shipments"] });
     },
     onError: (error: Error) => {
       toast.error(

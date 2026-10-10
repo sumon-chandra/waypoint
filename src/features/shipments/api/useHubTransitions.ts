@@ -6,10 +6,11 @@ import type { ApiResponse, Shipment } from "@/types";
 
 interface HubTransitionParams {
   shipmentId: string;
+  notes?: string;
 }
 
 /**
- * Admin mutation: Check-in parcel at Origin Hub.
+ * Hub mutation: Check-in parcel at Origin Hub.
  * POST /shipments/:id/origin-hub-checkin
  */
 export function useOriginHubCheckin() {
@@ -18,10 +19,11 @@ export function useOriginHubCheckin() {
   return useMutation({
     mutationFn: async ({
       shipmentId,
+      notes,
     }: HubTransitionParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
         `/shipments/${shipmentId}/origin-hub-checkin`,
-        {}
+        notes ? { notes } : {}
       );
       return response.data.data;
     },
@@ -29,7 +31,7 @@ export function useOriginHubCheckin() {
       toast.success(
         `Shipment #${shipment.trackingNumber} successfully checked in at Origin Hub.`
       );
-      queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["shipments"] });
     },
     onError: (error: Error) => {
       toast.error(
@@ -40,7 +42,7 @@ export function useOriginHubCheckin() {
 }
 
 /**
- * Admin mutation: Dispatch line-haul highway transit between hubs.
+ * Hub/Courier mutation: Dispatch line-haul highway transit between hubs.
  * POST /shipments/:id/dispatch-transit
  */
 export function useDispatchTransit() {
@@ -49,10 +51,11 @@ export function useDispatchTransit() {
   return useMutation({
     mutationFn: async ({
       shipmentId,
+      notes,
     }: HubTransitionParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
         `/shipments/${shipmentId}/dispatch-transit`,
-        {}
+        notes ? { notes } : {}
       );
       return response.data.data;
     },
@@ -60,7 +63,7 @@ export function useDispatchTransit() {
       toast.success(
         `Shipment #${shipment.trackingNumber} dispatched for Line-Haul Transit.`
       );
-      queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["shipments"] });
     },
     onError: (error: Error) => {
       toast.error(
@@ -71,7 +74,7 @@ export function useDispatchTransit() {
 }
 
 /**
- * Admin mutation: Check-in parcel at Destination Hub.
+ * Hub/Courier mutation: Check-in parcel at Destination Hub.
  * POST /shipments/:id/dest-hub-checkin
  */
 export function useDestHubCheckin() {
@@ -80,10 +83,11 @@ export function useDestHubCheckin() {
   return useMutation({
     mutationFn: async ({
       shipmentId,
+      notes,
     }: HubTransitionParams): Promise<Shipment> => {
       const response = await api.post<ApiResponse<Shipment>>(
         `/shipments/${shipmentId}/dest-hub-checkin`,
-        {}
+        notes ? { notes } : {}
       );
       return response.data.data;
     },
@@ -91,7 +95,7 @@ export function useDestHubCheckin() {
       toast.success(
         `Shipment #${shipment.trackingNumber} arrived and checked in at Destination Hub.`
       );
-      queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["shipments"] });
     },
     onError: (error: Error) => {
       toast.error(
