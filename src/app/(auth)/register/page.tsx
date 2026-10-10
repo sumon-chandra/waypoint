@@ -166,12 +166,17 @@ export default function RegisterPage() {
               </form.Field>
 
               {/* Google Sign Up Option */}
-              <div className="pt-1">
-                <GoogleButton
-                  label="Sign up with Google"
-                  disabled={isSubmitting}
-                />
-              </div>
+              <form.Subscribe selector={(state) => state.values.role}>
+                {(role) => (
+                  <div className="pt-1">
+                    <GoogleButton
+                      label="Sign up with Google"
+                      role={role}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                )}
+              </form.Subscribe>
 
               {/* Visual Divider */}
               <div className="relative flex items-center justify-center py-1">

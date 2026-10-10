@@ -8,12 +8,16 @@ import {
   RegisterPayload,
   LoginPayload,
   AuthResponse,
+  GoogleAuthPayload,
+  GoogleAuthUrlData,
 } from "../schemas/auth.schemas";
 
 /**
  * Calls backend registration endpoint: POST /auth/register
  */
-export async function registerUser(payload: RegisterPayload): Promise<AuthResponse> {
+export async function registerUser(
+  payload: RegisterPayload,
+): Promise<AuthResponse> {
   const response = await api.post<AuthResponse>("/auth/register", payload);
   return response.data;
 }
@@ -104,5 +108,61 @@ export function useMeQuery(options?: { enabled?: boolean }) {
     enabled: options?.enabled ?? true,
     staleTime: 1000 * 60 * 5, // 5 minutes fresh
     refetchOnWindowFocus: true,
+  });
+}
+
+/**
+ * Calls backend endpoint to generate Google OAuth consent URL: GET /auth/google
+ */
+export async function getGoogleAuthUrl(): Promise<string> {
+  const response =
+    await api.get<ApiResponse<GoogleAuthUrlData | string>>("/auth/google");
+  console.log("response", response);
+  const data = response.data?.data;
+  if (typeof data === "string") {
+    return data;
+  }
+  if (data && typeof data === "object") {
+    return data.url || data.redirectUrl || "";
+  }
+  return "";
+}
+
+/**
+ * Calls backend to verify Google OAuth code or ID token: POST /auth/google
+ */
+export async function verifyGoogleAuth(
+  payload: GoogleAuthPayload,
+): Promise<AuthResponse> {
+  const response = await api.post<AuthResponse>("/auth/google", payload);
+  return response.data;
+}
+
+/**
+ * TanStack Mutation Hook for verifying Google OAuth
+ */
+export function useGoogleAuthMutation() {
+  return useMutation({
+    mutationFn: verifyGoogleAuth,
+    onSuccess: (data) => {
+      // Store accessToken in browser cookies
+      if (data?.data?.accessToken) {
+        setCookie("accessToken", data.data.accessToken, { days: 7 });
+      }
+
+      toast.success("Signed in with Google successfully!", {
+        description: `Welcome to Waypoint, ${data?.data?.user?.name || "User"}.`,
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.message ||
+        error?.response?.data?.message ||
+        "Google authentication failed. Please try again.";
+
+      toast.error("Google sign-in failed", {
+        description: message,
+      });
+    },
   });
 }

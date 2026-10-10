@@ -123,7 +123,7 @@ export function CompleteDeliveryModal({
 
   const handleKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === "Backspace" && !digits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
@@ -152,7 +152,7 @@ export function CompleteDeliveryModal({
       const requiredAmount = shipment.codAmount ?? 0;
       if (cashCollected < requiredAmount) {
         setCashError(
-          `Collected cash cannot be less than the COD amount of ৳${requiredAmount}`
+          `Collected cash cannot be less than the COD amount of ৳${requiredAmount}`,
         );
         return;
       }
@@ -206,7 +206,8 @@ export function CompleteDeliveryModal({
               </div>
               <p className="text-xs leading-relaxed">
                 Maximum 5 failed OTP attempts reached. Handover is locked.
-                Please contact dispatch supervisor to re-issue delivery credentials.
+                Please contact dispatch supervisor to re-issue delivery
+                credentials.
               </p>
             </div>
           ) : failedAttempts > 0 ? (
@@ -239,7 +240,10 @@ export function CompleteDeliveryModal({
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="cashCollected" className="text-xs font-semibold">
+                <Label
+                  htmlFor="cashCollected"
+                  className="text-xs font-semibold"
+                >
                   Cash Collected from Recipient (৳){" "}
                   <span className="text-destructive">*</span>
                 </Label>
@@ -268,7 +272,8 @@ export function CompleteDeliveryModal({
                   </p>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">
-                    Must collect exactly or greater than ৳{shipment.codAmount ?? 0}.
+                    Must collect exactly or greater than ৳
+                    {shipment.codAmount ?? 0}.
                   </p>
                 )}
               </div>
@@ -308,7 +313,7 @@ export function CompleteDeliveryModal({
                   "inline-flex items-center gap-1 text-[11px] font-semibold transition-colors cursor-pointer",
                   cooldown > 0 || isLocked
                     ? "text-muted-foreground opacity-60 cursor-not-allowed"
-                    : "text-primary hover:underline"
+                    : "text-primary hover:underline",
                 )}
               >
                 <RotateCcw className="size-3" />
@@ -316,8 +321,8 @@ export function CompleteDeliveryModal({
                   {resendMutation.isPending
                     ? "Sending..."
                     : cooldown > 0
-                    ? `Resend in ${cooldown}s`
-                    : "Resend OTP"}
+                      ? `Resend in ${cooldown}s`
+                      : "Resend OTP"}
                 </span>
               </button>
             </div>
@@ -343,7 +348,7 @@ export function CompleteDeliveryModal({
                       ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary"
                       : "border-border/80 bg-muted/20 text-muted-foreground",
                     "focus:border-primary focus:ring-2 focus:ring-primary/20",
-                    isLocked && "opacity-50 cursor-not-allowed bg-muted"
+                    isLocked && "opacity-50 cursor-not-allowed bg-muted",
                   )}
                 />
               ))}
@@ -353,13 +358,15 @@ export function CompleteDeliveryModal({
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground bg-muted/40 py-1 px-3 rounded-full w-fit mx-auto">
                 <Mail className="size-3 text-primary shrink-0" />
                 <span>
-                  Dispatched to: <strong className="text-foreground">{targetEmail}</strong>
+                  Dispatched to:{" "}
+                  <strong className="text-foreground">{targetEmail}</strong>
                 </span>
               </div>
             )}
 
             <p className="text-[11px] text-muted-foreground text-center">
-              Ask the recipient for the 4-digit verification code sent to their email.
+              Ask the recipient for the 4-digit verification code sent to their
+              email.
             </p>
           </div>
 
@@ -378,9 +385,7 @@ export function CompleteDeliveryModal({
             <Button
               type="submit"
               disabled={
-                isLocked ||
-                !isOtpComplete ||
-                completeMutation.isPending
+                isLocked || !isOtpComplete || completeMutation.isPending
               }
               className="flex-1 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs"
             >

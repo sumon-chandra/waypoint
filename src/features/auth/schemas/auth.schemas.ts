@@ -89,6 +89,17 @@ export interface AuthUser {
   updatedAt: string;
 }
 
+export interface GoogleAuthPayload {
+  code?: string;
+  idToken?: string;
+  role?: RegisterRole;
+}
+
+export interface GoogleAuthUrlData {
+  url?: string;
+  redirectUrl?: string;
+}
+
 export interface AuthResponse {
   success: boolean;
   statusCode: number;

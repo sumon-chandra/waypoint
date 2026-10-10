@@ -30,9 +30,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // 1. Initial Optimistic Hydration on mount from cookie
+  // 1. Initial Optimistic Hydration on mount from cookie or OAuth URL callback params
   React.useEffect(() => {
     try {
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get("accessToken") || urlParams.get("token");
+        if (urlToken) {
+          setCookie("accessToken", urlToken, { days: 7 });
+          // Strip token from address bar without page reload
+          urlParams.delete("accessToken");
+          urlParams.delete("token");
+          const newSearch = urlParams.toString();
+          const cleanUrl =
+            window.location.pathname +
+            (newSearch ? `?${newSearch}` : "") +
+            window.location.hash;
+          window.history.replaceState({}, document.title, cleanUrl);
+        }
+      }
+
       const cookieToken = getCookie("accessToken");
       if (cookieToken) {
         setToken(cookieToken);
