@@ -71,10 +71,13 @@ function DashboardLayoutContent({ children }: DashboardShellProps) {
   }
 
   // Redirect unauthenticated users as a safeguard (in addition to edge middleware)
-  if (!isAuthenticated) {
-    if (typeof window !== "undefined") {
+  React.useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
+  }, [isLoading, isAuthenticated, router, pathname]);
+
+  if (!isAuthenticated) {
     return null;
   }
 

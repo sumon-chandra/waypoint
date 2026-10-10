@@ -1,11 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  ShieldCheck,
-  MapPin,
-  Truck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, MapPin, Truck, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -156,6 +150,163 @@ export default function Home() {
                 notifications, and transparent payment reconciliation.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works Section */}
+      <section className="w-full py-16 sm:py-24 bg-background relative overflow-hidden">
+        {/* Ambient background blob */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/3 size-96 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Seamless Delivery Workflow
+            </h2>
+            <p className="mt-4 text-sm sm:text-base text-muted-foreground">
+              From order creation to final drop-off, our platform ensures
+              complete transparency and efficiency every step of the way.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              {
+                step: "01",
+                title: "Book Parcel",
+                desc: "Merchants create a shipment request via the intuitive dashboard.",
+              },
+              {
+                step: "02",
+                title: "Hub Processing",
+                desc: "Parcels are collected, scanned, and routed through our smart hubs.",
+              },
+              {
+                step: "03",
+                title: "Live Transit",
+                desc: "Real-time GPS tracking keeps both sender and receiver informed.",
+              },
+              {
+                step: "04",
+                title: "Secure Delivery",
+                desc: "OTP-verified handoffs and instant COD settlement.",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="relative flex flex-col items-center text-center space-y-4"
+              >
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-xl font-bold text-primary shadow-sm border border-primary/20 relative z-10">
+                  {item.step}
+                </div>
+                {/* Connecting Line (hidden on mobile) */}
+                {i < 3 && (
+                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] border-t-2 border-dashed border-border/70 -z-10" />
+                )}
+                <h3 className="text-lg font-bold text-foreground">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed px-4">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="w-full py-16 sm:py-24 bg-muted/30 border-y border-border/60">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Trusted by Top Merchants
+            </h2>
+            <p className="mt-4 text-sm text-muted-foreground">
+              See what our partners are saying about the Waypoint experience.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              {
+                quote:
+                  "Waypoint completely transformed our e-commerce fulfillment. The live tracking gives our customers peace of mind, and the COD settlements are lightning fast.",
+                name: "Sarah Ahmed",
+                role: "Founder, TechGear BD",
+              },
+              {
+                quote:
+                  "As a courier, the app makes my day so much easier. The routed lists and easy OTP verification mean I spend less time waiting and more time delivering.",
+                name: "Rafiqul Islam",
+                role: "Top Tier Rider",
+              },
+              {
+                quote:
+                  "The hub infrastructure is incredibly robust. Even during peak Eid seasons, we rarely see any bottlenecks or lost parcels. A true game changer.",
+                name: "Tanzim Hasan",
+                role: "Operations Manager, FashioNova",
+              },
+            ].map((testimonial, i) => (
+              <div
+                key={i}
+                className="flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-xs relative"
+              >
+                <div className="text-4xl text-primary/20 font-serif absolute top-4 left-4">
+                  "
+                </div>
+                <p className="text-sm text-foreground leading-relaxed relative z-10 mt-4 italic">
+                  {testimonial.quote}
+                </p>
+                <div className="mt-6 pt-4 border-t border-border/50">
+                  <p className="text-sm font-bold text-foreground">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {testimonial.role}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="w-full py-20 relative overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-background to-primary/5 -z-10" />
+
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center space-y-8">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+            Ready to upgrade your logistics?
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Join thousands of businesses and independent riders who rely on
+            Waypoint for seamless, secure, and rapid deliveries every single
+            day.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <Link
+              href="/register"
+              className={cn(
+                buttonVariants({ variant: "default", size: "lg" }),
+                "rounded-xl font-bold shadow-lg gap-2 w-full sm:w-auto px-8",
+              )}
+            >
+              <span>Create an Account</span>
+              <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href="/contact"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "rounded-xl font-semibold w-full sm:w-auto px-8 bg-background/50 backdrop-blur-sm",
+              )}
+            >
+              Contact Sales
+            </Link>
           </div>
         </div>
       </section>
