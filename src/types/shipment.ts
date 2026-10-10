@@ -20,6 +20,13 @@ export type ShipmentStatus =
   | "DELIVERED"
   | "CANCELLED";
 
+export type RemittanceStatus =
+  | "NOT_APPLICABLE"
+  | "PENDING_COLLECTION"
+  | "COLLECTED_BY_COURIER"
+  | "REMITTED_TO_HUB"
+  | "SETTLED_TO_MERCHANT";
+
 export interface Shipment {
   id: string;
   trackingNumber: string;
@@ -30,6 +37,9 @@ export interface Shipment {
   paymentType: PaymentType;
   paymentStatus: PaymentStatus;
   codAmount: number | null;
+  deliveryFee?: number;
+  codCommissionFee?: number;
+  remittanceStatus?: RemittanceStatus;
   senderAddress: string | null;
   senderDistrict: string | null;
   senderUpazila: string | null;
@@ -95,4 +105,12 @@ export interface AssignCourierBody {
 export interface CompleteDeliveryBody {
   otp: string;
   cashCollected?: number;
+}
+
+export interface RemitCodBody {
+  shipmentIds?: string[];
+  shipmentId?: string;
+  amount?: number;
+  notes?: string;
+  hubId?: string;
 }

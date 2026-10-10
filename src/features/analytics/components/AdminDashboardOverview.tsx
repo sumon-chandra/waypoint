@@ -277,6 +277,16 @@ export function AdminDashboardOverview() {
               <span>{isRefreshingAll ? "Syncing..." : "Sync Telemetry"}</span>
             </Button>
             <Link
+              href="/admin/revenue"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "rounded-xl gap-1.5 font-semibold border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10",
+              )}
+            >
+              <TrendingUp className="size-4" />
+              <span>Platform Revenue</span>
+            </Link>
+            <Link
               href="/admin/hubs"
               className={cn(
                 buttonVariants({ variant: "default", size: "sm" }),
@@ -388,6 +398,15 @@ export function AdminDashboardOverview() {
               </span>
               <span>•</span>
               <span>Cash Flow</span>
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-border/60">
+              <Link
+                href="/admin/revenue"
+                className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1"
+              >
+                <span>Revenue Dashboard</span>
+                <ArrowRight className="size-3" />
+              </Link>
             </div>
           </div>
         </div>

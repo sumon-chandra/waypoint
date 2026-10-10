@@ -8,3 +8,4 @@ export * from "./user";
 export * from "./hub";
 export * from "./payment";
 export * from "./shipment";
+export * from "./revenue";

@@ -37,35 +37,43 @@ const STATUS_CONFIG: Record<
 > = {
   PENDING: {
     label: "Order Placed",
-    badgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    badgeClass:
+      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
   },
   ASSIGNED: {
     label: "Courier Assigned",
-    badgeClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    badgeClass:
+      "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
   },
   PICKED_UP: {
     label: "Parcel Collected",
-    badgeClass: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+    badgeClass:
+      "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
   },
   RECEIVED_AT_ORIGIN_HUB: {
     label: "In Origin Hub",
-    badgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    badgeClass:
+      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
   },
   IN_TRANSIT: {
     label: "Line-Haul Transit",
-    badgeClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+    badgeClass:
+      "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
   },
   RECEIVED_AT_DEST_HUB: {
     label: "At Destination Hub",
-    badgeClass: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+    badgeClass:
+      "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
   },
   OUT_FOR_DELIVERY: {
     label: "Out for Delivery",
-    badgeClass: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+    badgeClass:
+      "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
   },
   DELIVERED: {
     label: "Delivered",
-    badgeClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    badgeClass:
+      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   },
   CANCELLED: {
     label: "Cancelled",
@@ -80,21 +88,22 @@ export function AdminShipmentTable() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const currentPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+  const currentPage = Math.max(
+    1,
+    parseInt(searchParams.get("page") || "1", 10) || 1,
+  );
 
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("ALL");
-  const [deliveryTypeFilter, setDeliveryTypeFilter] = React.useState<string>("ALL");
+  const [deliveryTypeFilter, setDeliveryTypeFilter] =
+    React.useState<string>("ALL");
 
   // Assignment modal state
-  const [assignShipment, setAssignShipment] = React.useState<Shipment | null>(null);
+  const [assignShipment, setAssignShipment] = React.useState<Shipment | null>(
+    null,
+  );
 
-  const {
-    data,
-    isLoading,
-    isRefetching,
-    refetch,
-  } = useAdminShipments({
+  const { data, isLoading, isRefetching, refetch } = useAdminShipments({
     status: statusFilter === "ALL" ? undefined : statusFilter,
     deliveryType: deliveryTypeFilter === "ALL" ? undefined : deliveryTypeFilter,
     limit: 100,
@@ -128,7 +137,7 @@ export function AdminShipmentTable() {
           s.receiverPhone.includes(q) ||
           (s.receiverEmail && s.receiverEmail.toLowerCase().includes(q)) ||
           s.receiverDistrict?.toLowerCase().includes(q) ||
-          s.senderDistrict?.toLowerCase().includes(q)
+          s.senderDistrict?.toLowerCase().includes(q),
       );
     }
     return list;
@@ -228,7 +237,10 @@ export function AdminShipmentTable() {
             title="Refresh shipments"
           >
             <RotateCw
-              className={cn("size-4", isRefetching && "animate-spin text-primary")}
+              className={cn(
+                "size-4",
+                isRefetching && "animate-spin text-primary",
+              )}
             />
           </Button>
         </div>
@@ -279,7 +291,9 @@ export function AdminShipmentTable() {
                   <th className="py-3.5 px-4">Status & Route</th>
                   <th className="py-3.5 px-4">Assigned Courier</th>
                   <th className="py-3.5 px-4">Settlement</th>
-                  <th className="py-3.5 px-4 sm:px-6 text-right">Dispatch Actions</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-right">
+                    Dispatch Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50 text-foreground">
@@ -303,18 +317,22 @@ export function AdminShipmentTable() {
                           </span>
                         </div>
                         <p className="text-[10px] text-muted-foreground font-sans pt-0.5">
-                          {new Date(shipment.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          {new Date(shipment.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            },
+                          )}
                         </p>
                       </td>
 
                       {/* Origin & Destination */}
                       <td className="py-4 px-4">
                         <p className="font-semibold text-foreground">
-                          {shipment.senderDistrict || "—"} → {shipment.receiverDistrict || "—"}
+                          {shipment.senderDistrict || "—"} →{" "}
+                          {shipment.receiverDistrict || "—"}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
                           Weight: {shipment.weightKg} kg
@@ -330,7 +348,10 @@ export function AdminShipmentTable() {
                           {shipment.receiverPhone}
                         </p>
                         {shipment.receiverEmail && (
-                          <p className="text-[11px] text-muted-foreground/80 truncate max-w-[170px]" title={shipment.receiverEmail}>
+                          <p
+                            className="text-[11px] text-muted-foreground/80 truncate max-w-44"
+                            title={shipment.receiverEmail}
+                          >
                             {shipment.receiverEmail}
                           </p>
                         )}
@@ -343,14 +364,19 @@ export function AdminShipmentTable() {
                             variant="outline"
                             className={cn(
                               "text-[10px] font-bold py-0.5",
-                              statusInfo.badgeClass
+                              statusInfo.badgeClass,
                             )}
                           >
                             {statusInfo.label}
                           </Badge>
                           <div>
-                            <Badge variant="outline" className="text-[9px] py-0">
-                              {shipment.deliveryType === "LOCAL" ? "Local" : "Inter-District"}
+                            <Badge
+                              variant="outline"
+                              className="text-[9px] py-0"
+                            >
+                              {shipment.deliveryType === "LOCAL"
+                                ? "Local"
+                                : "Inter-District"}
                             </Badge>
                           </div>
                         </div>
@@ -358,37 +384,46 @@ export function AdminShipmentTable() {
 
                       {/* Courier Rider */}
                       <td className="py-4 px-4">
-                        {shipment.courierId ? (() => {
-                          const courier = (shipment as any).courier || courierMap.get(shipment.courierId);
-                          return (
-                            <div className="space-y-1 min-w-[130px]">
-                              <div className="flex items-center gap-1.5 font-bold text-foreground text-xs">
-                                <UserCheck className="size-3.5 text-emerald-500 shrink-0" />
-                                <span className="truncate">{courier?.name ?? "Assigned Rider"}</span>
+                        {shipment.courierId ? (
+                          (() => {
+                            const courier =
+                              (shipment as any).courier ||
+                              courierMap.get(shipment.courierId);
+                            return (
+                              <div className="space-y-1 min-w-32">
+                                <div className="flex items-center gap-1.5 font-bold text-foreground text-xs">
+                                  <UserCheck className="size-3.5 text-emerald-500 shrink-0" />
+                                  <span className="truncate">
+                                    {courier?.name ?? "Assigned Rider"}
+                                  </span>
+                                </div>
+                                {courier?.email && (
+                                  <p
+                                    className="text-[11px] text-muted-foreground truncate max-w-40"
+                                    title={courier.email}
+                                  >
+                                    {courier.email}
+                                  </p>
+                                )}
+                                {courier?.phone ? (
+                                  <p className="text-[11px] text-muted-foreground/90 flex items-center gap-1 font-mono">
+                                    <Phone className="size-2.5 shrink-0" />
+                                    <span>{courier.phone}</span>
+                                  </p>
+                                ) : null}
+                                <div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setAssignShipment(shipment)}
+                                    className="text-[10px] text-primary hover:underline cursor-pointer font-medium block pt-0.5"
+                                  >
+                                    Re-assign Rider
+                                  </button>
+                                </div>
                               </div>
-                              {courier?.email && (
-                                <p className="text-[11px] text-muted-foreground truncate max-w-[160px]" title={courier.email}>
-                                  {courier.email}
-                                </p>
-                              )}
-                              {courier?.phone ? (
-                                <p className="text-[11px] text-muted-foreground/90 flex items-center gap-1 font-mono">
-                                  <Phone className="size-2.5 shrink-0" />
-                                  <span>{courier.phone}</span>
-                                </p>
-                              ) : null}
-                              <div>
-                                <button
-                                  type="button"
-                                  onClick={() => setAssignShipment(shipment)}
-                                  className="text-[10px] text-primary hover:underline cursor-pointer font-medium block pt-0.5"
-                                >
-                                  Re-assign Rider
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })() : (
+                            );
+                          })()
+                        ) : (
                           <Button
                             type="button"
                             variant="outline"
@@ -405,14 +440,66 @@ export function AdminShipmentTable() {
                       {/* Settlement */}
                       <td className="py-4 px-4 font-mono">
                         {shipment.paymentType === "CASH" ? (
-                          <div className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
-                            <Banknote className="size-3.5" />
-                            <span>COD: ৳{shipment.codAmount ?? 0}</span>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
+                              <Banknote className="size-3.5" />
+                              <span>COD: ৳{shipment.codAmount ?? 0}</span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground font-sans">
+                              Fee: ৳{shipment.deliveryFee ?? (shipment.deliveryType === "LOCAL" ? 120 : 180)}
+                            </p>
+                            <div>
+                              {shipment.remittanceStatus === "COLLECTED_BY_COURIER" && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[9px] px-1.5 py-0 font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                                >
+                                  Cash with Courier
+                                </Badge>
+                              )}
+                              {shipment.remittanceStatus === "REMITTED_TO_HUB" && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[9px] px-1.5 py-0 font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                                >
+                                  Remitted to Hub
+                                </Badge>
+                              )}
+                              {shipment.remittanceStatus === "SETTLED_TO_MERCHANT" && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[9px] px-1.5 py-0 font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                >
+                                  Settled
+                                </Badge>
+                              )}
+                              {(!shipment.remittanceStatus || shipment.remittanceStatus === "PENDING_COLLECTION") && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[9px] px-1.5 py-0 font-medium text-muted-foreground"
+                                >
+                                  Pending Collection
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
-                            <ShieldCheck className="size-3.5" />
-                            <span>Prepaid Card</span>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
+                              <ShieldCheck className="size-3.5" />
+                              <span>Prepaid Card</span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground font-sans">
+                              Fee: ৳{shipment.deliveryFee ?? (shipment.deliveryType === "LOCAL" ? 120 : 180)}
+                            </p>
+                            <div>
+                              <Badge
+                                variant="outline"
+                                className="text-[9px] px-1.5 py-0 font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                              >
+                                Paid Online
+                              </Badge>
+                            </div>
                           </div>
                         )}
                       </td>
@@ -453,19 +540,15 @@ export function AdminShipmentTable() {
             </table>
           </div>
         </div>
+      )}
+      <TablePagination
+        totalItems={totalItems}
+        itemsPerPage={ITEMS_PER_PAGE}
+        currentPage={safeCurrentPage}
+        onPageChange={handlePageChange}
+        entityLabel="shipments"
+      />
 
-        {/* Table Pagination (15 items per page) */}
-        <TablePagination
-          totalItems={totalItems}
-          itemsPerPage={ITEMS_PER_PAGE}
-          currentPage={safeCurrentPage}
-          onPageChange={handlePageChange}
-          entityLabel="shipments"
-        />
-      </div>
-    )}
-
-      {/* Courier Assignment Dialog */}
       {assignShipment && (
         <AssignCourierModal
           shipment={assignShipment}

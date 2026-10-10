@@ -40,3 +40,12 @@ export const paymentKeys = {
     [...paymentKeys.lists(), filters ?? {}] as const,
   detail: (id: string) => [...paymentKeys.all, "detail", id] as const,
 };
+
+export const revenueKeys = {
+  all: ["revenue"] as const,
+  overview: () => [...revenueKeys.all, "overview"] as const,
+  detail: (filters?: Record<string, unknown>) =>
+    [...revenueKeys.all, "detail", filters ?? {}] as const,
+  trends: (interval: string, filters?: Record<string, unknown>) =>
+    [...revenueKeys.all, "trends", interval, filters ?? {}] as const,
+};

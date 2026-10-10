@@ -1,7 +1,8 @@
+import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BarChart3, ArrowLeft } from "lucide-react";
-import { AdminDashboardOverview } from "@/features/analytics";
+import { AdminRevenueDashboard } from "@/features/revenue";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +29,7 @@ export default function AdminRevenuePage() {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Consolidated transaction volume, prepaid card receipts via Stripe, and pending cash-on-delivery reconciliations.
+              Consolidated multi-stream earnings, prepaid card volume via Stripe, and pending cash-on-delivery reconciliations.
             </p>
           </div>
 
@@ -47,7 +48,13 @@ export default function AdminRevenuePage() {
         </div>
       </div>
 
-      <AdminDashboardOverview />
+      <React.Suspense
+        fallback={
+          <div className="h-64 rounded-3xl bg-muted/40 animate-pulse border border-border/60" />
+        }
+      >
+        <AdminRevenueDashboard />
+      </React.Suspense>
     </div>
   );
 }

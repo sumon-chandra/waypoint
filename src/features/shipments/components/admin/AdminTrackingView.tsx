@@ -37,9 +37,6 @@ import { useShipmentByTrackingNumber } from "../../api/shipment.api";
 import { useUsers } from "@/features/users/api/useUsers";
 import { AssignCourierModal } from "./AssignCourierModal";
 import { HubCheckinActions } from "./HubCheckinActions";
-import { socket } from "@/lib/socket";
-import { useQueryClient } from "@tanstack/react-query";
-import { shipmentKeys } from "@/lib/query-keys";
 import type { Shipment, ShipmentStatus, ShipmentDetail, User as UserType } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -110,7 +107,6 @@ const STATUS_BADGES: Record<
 export function AdminTrackingView() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
 
   const queryTrackingNumber = searchParams.get("id")?.trim() || "";
   const [searchInput, setSearchInput] = React.useState(queryTrackingNumber);
@@ -145,33 +141,6 @@ export function AdminTrackingView() {
     couriersData?.users?.forEach((c) => map.set(c.id, c));
     return map;
   }, [couriersData]);
-
-  // Real-time socket room subscription for the active tracking number
-  React.useEffect(() => {
-    if (!activeTrackingNumber) return;
-
-    try {
-      socket.connect();
-      socket.emit("join_tracking_room", { trackingNumber: activeTrackingNumber });
-
-      const handleStatusChange = () => {
-        queryClient.invalidateQueries({
-          queryKey: shipmentKeys.track(activeTrackingNumber),
-        });
-        queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
-        toast.info(`Consignment ${activeTrackingNumber} status updated in real time!`);
-      };
-
-      socket.on("shipment:status_changed", handleStatusChange);
-
-      return () => {
-        socket.emit("leave_tracking_room", { trackingNumber: activeTrackingNumber });
-        socket.off("shipment:status_changed", handleStatusChange);
-      };
-    } catch {
-      // Graceful socket fallback
-    }
-  }, [activeTrackingNumber, queryClient]);
 
   // Sync search input if URL changes
   React.useEffect(() => {
@@ -397,7 +366,7 @@ export function AdminTrackingView() {
                       : "Inter-District Line-Haul"}
                   </Badge>
 
-                  {/* Real-time Socket Indicator */}
+                  {/* Telemetry Status Indicator */}
                   <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
                     <span className="relative flex size-2">
                       <span className="animate-ping absolute inline-flex size-full rounded-full bg-emerald-400 opacity-75" />
@@ -735,40 +704,115 @@ export function AdminTrackingView() {
                 </div>
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Settlement & Payment
+                    Settlement & Financial Telemetry
                   </h4>
                   <p className="text-sm font-bold text-foreground">
                     {activeShipment.paymentType === "CASH"
                       ? "Cash on Delivery (COD)"
-                      : "Prepaid Card"}
+                      : "Prepaid Card (Stripe)"}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs">
+              <div className="space-y-3 text-xs">
+                {/* Platform Delivery Fee */}
+                <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                  <span className="text-muted-foreground">Platform Delivery Fee:</span>
+                  <span className="font-mono font-bold text-foreground">
+                    ৳{activeShipment.deliveryFee ?? (activeShipment.deliveryType === "LOCAL" ? 120 : 180)}
+                  </span>
+                </div>
+
+                {/* COD Item Value or Card Total */}
                 {activeShipment.paymentType === "CASH" ? (
-                  <div className="space-y-1">
-                    <p className="text-lg font-black text-amber-600 dark:text-amber-400 font-mono">
-                      ৳{activeShipment.codAmount ?? 0}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      Courier will remit this collected cash amount to the sorting hub.
-                    </p>
-                  </div>
+                  <>
+                    <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                      <span className="text-muted-foreground">COD Item Value:</span>
+                      <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
+                        ৳{activeShipment.codAmount ?? 0}
+                      </span>
+                    </div>
+
+                    {/* Platform Commission */}
+                    <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                      <span className="text-muted-foreground">Platform COD Commission (1%):</span>
+                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        ৳{activeShipment.codCommissionFee ?? Math.round((activeShipment.codAmount ?? 0) * 0.01)}
+                      </span>
+                    </div>
+
+                    {/* Live Remittance Status */}
+                    <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                      <span className="text-muted-foreground">Courier Remittance Status:</span>
+                      <div>
+                        {activeShipment.remittanceStatus === "COLLECTED_BY_COURIER" && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-2 py-0.5 font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                          >
+                            Cash with Courier
+                          </Badge>
+                        )}
+                        {activeShipment.remittanceStatus === "REMITTED_TO_HUB" && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-2 py-0.5 font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                          >
+                            Remitted to Hub
+                          </Badge>
+                        )}
+                        {activeShipment.remittanceStatus === "SETTLED_TO_MERCHANT" && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-2 py-0.5 font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                          >
+                            Settled to Merchant
+                          </Badge>
+                        )}
+                        {(!activeShipment.remittanceStatus ||
+                          activeShipment.remittanceStatus === "PENDING_COLLECTION") && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-2 py-0.5 font-medium text-muted-foreground"
+                          >
+                            Pending Collection
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </>
                 ) : (
-                  <div className="space-y-1">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                      <ShieldCheck className="size-4" />
-                      <span>Prepaid via Stripe</span>
-                    </span>
-                    <p className="text-[11px] text-muted-foreground">
-                      Card payment verified. No cash to be collected upon handover.
-                    </p>
-                  </div>
+                  <>
+                    <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                      <span className="text-muted-foreground">Stripe Gateway Processing:</span>
+                      <span className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400 text-xs">
+                        <ShieldCheck className="size-3.5" />
+                        <span>Prepaid Online</span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                      <span className="text-muted-foreground">Estimated Gateway Cost:</span>
+                      <span className="font-mono text-muted-foreground text-xs">
+                        ৳{Math.round(((activeShipment.deliveryFee ?? (activeShipment.deliveryType === "LOCAL" ? 120 : 180)) * 0.029) + 3)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                      <span className="text-muted-foreground">Settlement Status:</span>
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] px-2 py-0.5 font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                      >
+                        Settled via Card
+                      </Badge>
+                    </div>
+                  </>
                 )}
 
-                <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
-                  <span className="text-muted-foreground">Payment Status:</span>
+                {/* Overall Payment Status */}
+                <div className="pt-1 flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Invoice Status:</span>
                   <Badge variant="outline" className="font-mono text-[10px]">
                     {activeShipment.paymentStatus}
                   </Badge>
