@@ -47,8 +47,16 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* User Directory Table */}
-      <UserManagementTable />
+      {/* User Directory Table with Suspense */}
+      <React.Suspense
+        fallback={
+          <div className="rounded-3xl border border-border/80 bg-card p-12 text-center text-xs text-muted-foreground animate-pulse">
+            Loading user accounts directory...
+          </div>
+        }
+      >
+        <UserManagementTable />
+      </React.Suspense>
     </div>
   );
 }

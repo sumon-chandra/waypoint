@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   Users,
   Search,
@@ -17,10 +18,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TablePagination } from "@/components/common/TablePagination";
 import { useUsers } from "../../api/useUsers";
 import { UpdateUserStatusModal } from "./UpdateUserStatusModal";
 import type { User, Role, UserStatus } from "@/types";
 import { cn } from "@/lib/utils";
+
+const ITEMS_PER_PAGE = 15;
 
 const ROLE_BADGES: Record<Role, { label: string; className: string }> = {
   ADMIN: {
@@ -53,11 +57,17 @@ const STATUS_BADGES: Record<UserStatus, { label: string; className: string }> = 
 };
 
 export function UserManagementTable() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+
   const [searchQuery, setSearchQuery] = React.useState("");
   const [roleFilter, setRoleFilter] = React.useState<string>("ALL");
   const [statusFilter, setStatusFilter] = React.useState<string>("ALL");
 
-  // Status modal state
+  // Status & Role modal state
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
 
   const {
@@ -73,9 +83,21 @@ export function UserManagementTable() {
 
   const users = data?.users ?? [];
 
-  // Client-side search
+  // Robust Client-side filtering across search, role, and status
   const filteredUsers = React.useMemo(() => {
     let list = users;
+
+    // 1. Role filtering
+    if (roleFilter !== "ALL") {
+      list = list.filter((u) => u.role === roleFilter);
+    }
+
+    // 2. Status filtering
+    if (statusFilter !== "ALL") {
+      list = list.filter((u) => u.status === statusFilter);
+    }
+
+    // 3. Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(
@@ -86,7 +108,35 @@ export function UserManagementTable() {
       );
     }
     return list;
-  }, [users, searchQuery]);
+  }, [users, roleFilter, statusFilter, searchQuery]);
+
+  // Pagination calculation
+  const totalItems = filteredUsers.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleRoleFilterChange = (newRole: string) => {
+    setRoleFilter(newRole);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleStatusFilterChange = (newStatus: string) => {
+    setStatusFilter(newStatus);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -99,7 +149,14 @@ export function UserManagementTable() {
             type="text"
             placeholder="Search accounts by name, email, or username..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (currentPage !== 1) {
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("page", "1");
+                router.push(`${pathname}?${params.toString()}`);
+              }
+            }}
             className="pl-9 rounded-2xl h-11 text-xs sm:text-sm"
           />
         </div>
@@ -109,7 +166,7 @@ export function UserManagementTable() {
           <div className="w-36">
             <Select
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              onChange={(e) => handleRoleFilterChange(e.target.value)}
               className="rounded-2xl h-11 text-xs"
             >
               <option value="ALL">All Roles</option>
@@ -122,7 +179,7 @@ export function UserManagementTable() {
           <div className="w-36">
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => handleStatusFilterChange(e.target.value)}
               className="rounded-2xl h-11 text-xs"
             >
               <option value="ALL">All Statuses</option>
@@ -175,6 +232,9 @@ export function UserManagementTable() {
               setSearchQuery("");
               setRoleFilter("ALL");
               setStatusFilter("ALL");
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("page", "1");
+              router.push(`${pathname}?${params.toString()}`);
             }}
             className="rounded-xl text-xs"
           >
@@ -182,129 +242,140 @@ export function UserManagementTable() {
           </Button>
         </div>
       ) : (
-        <div className="rounded-3xl border border-border/80 bg-card overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3.5 px-4 sm:px-6">User Account</th>
-                  <th className="py-3.5 px-4">Role</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4">Verification</th>
-                  <th className="py-3.5 px-4">Joined Date</th>
-                  <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/50 text-foreground">
-                {filteredUsers.map((u) => {
-                  const roleInfo = ROLE_BADGES[u.role] || {
-                    label: u.role,
-                    className: "bg-muted text-muted-foreground",
-                  };
-                  const statusInfo = STATUS_BADGES[u.status] || {
-                    label: u.status,
-                    className: "bg-muted text-muted-foreground",
-                  };
+        <div className="space-y-4">
+          <div className="rounded-3xl border border-border/80 bg-card overflow-hidden shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th className="py-3.5 px-4 sm:px-6">User Account</th>
+                    <th className="py-3.5 px-4">Role</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4">Verification</th>
+                    <th className="py-3.5 px-4">Joined Date</th>
+                    <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50 text-foreground">
+                  {paginatedUsers.map((u) => {
+                    const roleInfo = ROLE_BADGES[u.role] || {
+                      label: u.role,
+                      className: "bg-muted text-muted-foreground",
+                    };
+                    const statusInfo = STATUS_BADGES[u.status] || {
+                      label: u.status,
+                      className: "bg-muted text-muted-foreground",
+                    };
 
-                  return (
-                    <tr
-                      key={u.id}
-                      className="hover:bg-muted/30 transition-colors"
-                    >
-                      {/* Name & Avatar */}
-                      <td className="py-4 px-4 sm:px-6">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="size-9 rounded-xl border">
-                            <AvatarImage src={u.avatar || undefined} />
-                            <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                              {u.name?.charAt(0)?.toUpperCase() || "U"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 space-y-0.5">
-                            <p className="font-bold text-foreground text-sm truncate">
-                              {u.name}
-                            </p>
-                            <p className="text-[11px] text-muted-foreground truncate">
-                              {u.email}
-                            </p>
+                    return (
+                      <tr
+                        key={u.id}
+                        className="hover:bg-muted/30 transition-colors"
+                      >
+                        {/* Name & Avatar */}
+                        <td className="py-4 px-4 sm:px-6">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="size-9 rounded-xl border">
+                              <AvatarImage src={u.avatar || undefined} />
+                              <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+                                {u.name?.charAt(0)?.toUpperCase() || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 space-y-0.5">
+                              <p className="font-bold text-foreground text-sm truncate">
+                                {u.name}
+                              </p>
+                              <p className="text-[11px] text-muted-foreground truncate">
+                                {u.email}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Role Badge */}
-                      <td className="py-4 px-4">
-                        <Badge
-                          variant="outline"
-                          className={cn("text-[10px] font-bold py-0.5", roleInfo.className)}
-                        >
-                          {roleInfo.label}
-                        </Badge>
-                      </td>
-
-                      {/* Status Badge */}
-                      <td className="py-4 px-4">
-                        <div className="space-y-1">
+                        {/* Role Badge */}
+                        <td className="py-4 px-4">
                           <Badge
                             variant="outline"
-                            className={cn("text-[10px] font-bold py-0.5", statusInfo.className)}
+                            className={cn("text-[10px] font-bold py-0.5", roleInfo.className)}
                           >
-                            {statusInfo.label}
+                            {roleInfo.label}
                           </Badge>
-                          {u.status === "BANNED" && u.banReason && (
-                            <p className="text-[10px] text-destructive truncate max-w-xs">
-                              {u.banReason}
-                            </p>
+                        </td>
+
+                        {/* Status Badge */}
+                        <td className="py-4 px-4">
+                          <div className="space-y-1">
+                            <Badge
+                              variant="outline"
+                              className={cn("text-[10px] font-bold py-0.5", statusInfo.className)}
+                            >
+                              {statusInfo.label}
+                            </Badge>
+                            {u.status === "BANNED" && u.banReason && (
+                              <p className="text-[10px] text-destructive truncate max-w-xs">
+                                {u.banReason}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Email Verification */}
+                        <td className="py-4 px-4">
+                          {u.emailVerified ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              <CheckCircle2 className="size-3.5" />
+                              <span>Verified</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+                              <XCircle className="size-3.5" />
+                              <span>Unverified</span>
+                            </span>
                           )}
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Email Verification */}
-                      <td className="py-4 px-4">
-                        {u.emailVerified ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                            <CheckCircle2 className="size-3.5" />
-                            <span>Verified</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
-                            <XCircle className="size-3.5" />
-                            <span>Unverified</span>
-                          </span>
-                        )}
-                      </td>
+                        {/* Joined Date */}
+                        <td className="py-4 px-4 text-muted-foreground text-[11px] font-mono">
+                          {new Date(u.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </td>
 
-                      {/* Joined Date */}
-                      <td className="py-4 px-4 text-muted-foreground text-[11px] font-mono">
-                        {new Date(u.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </td>
-
-                      {/* Action Button */}
-                      <td className="py-4 px-4 sm:px-6 text-right">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedUser(u)}
-                          className="rounded-xl h-7 px-2.5 text-[11px] font-bold gap-1 cursor-pointer"
-                        >
-                          <ShieldAlert className="size-3" />
-                          <span>Manage</span>
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        {/* Action Button */}
+                        <td className="py-4 px-4 sm:px-6 text-right">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedUser(u)}
+                            className="rounded-xl h-7 px-2.5 text-[11px] font-bold gap-1 cursor-pointer"
+                          >
+                            <ShieldAlert className="size-3" />
+                            <span>Manage</span>
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
+
+          {/* Table Pagination (15 items per page) */}
+          <TablePagination
+            totalItems={totalItems}
+            itemsPerPage={ITEMS_PER_PAGE}
+            currentPage={safeCurrentPage}
+            onPageChange={handlePageChange}
+            entityLabel="user accounts"
+          />
         </div>
       )}
 
-      {/* Status / Ban Management Modal */}
+      {/* Status & Role Management Modal */}
       {selectedUser && (
         <UpdateUserStatusModal
           user={selectedUser}

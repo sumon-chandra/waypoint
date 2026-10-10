@@ -165,6 +165,14 @@ export const ADMIN_NAV_SECTIONS: DashboardNavSection[] = [
         icon: Boxes,
         description: "All nationwide shipments, courier assignments, and status overrides.",
       },
+      {
+        title: "Live Tracking",
+        href: "/admin/tracking",
+        icon: Truck,
+        badge: "Live",
+        badgeVariant: "success",
+        description: "Nationwide live consignment telemetry, waypoint steppers, and hub tracking logs.",
+      },
     ],
   },
   {

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ShieldAlert, UserCheck, Loader2 } from "lucide-react";
+import { ShieldAlert, UserCheck, Loader2, ShieldCheck, UserCog } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { useUpdateUserStatus } from "../../api/useUpdateUserStatus";
-import type { User, UserStatus } from "@/types";
+import { useUpdateUserRole } from "../../api/useUpdateUserRole";
+import type { User, UserStatus, Role } from "@/types";
 
 interface UpdateUserStatusModalProps {
   user: User | null;
@@ -29,13 +30,18 @@ export function UpdateUserStatusModal({
   onOpenChange,
   onSuccess,
 }: UpdateUserStatusModalProps) {
+  const [role, setRole] = React.useState<Role>("CUSTOMER");
   const [status, setStatus] = React.useState<UserStatus>("ACTIVE");
   const [banReason, setBanReason] = React.useState<string>("");
 
-  const updateMutation = useUpdateUserStatus();
+  const updateStatusMutation = useUpdateUserStatus();
+  const updateRoleMutation = useUpdateUserRole();
+
+  const isPending = updateStatusMutation.isPending || updateRoleMutation.isPending;
 
   React.useEffect(() => {
     if (open && user) {
+      setRole(user.role);
       setStatus(user.status);
       setBanReason(user.banReason || "");
     }
@@ -45,20 +51,42 @@ export function UpdateUserStatusModal({
     e.preventDefault();
     if (!user) return;
 
+    const roleChanged = user.role !== "ADMIN" && role !== user.role;
+    const statusChanged =
+      status !== user.status ||
+      (status === "BANNED" && banReason.trim() !== (user.banReason || "").trim());
+
+    if (!roleChanged && !statusChanged) {
+      onOpenChange(false);
+      return;
+    }
+
     try {
-      await updateMutation.mutateAsync({
-        userId: user.id,
-        userName: user.name,
-        payload: {
-          status,
-          banReason: status === "BANNED" ? banReason.trim() : undefined,
-        },
-      });
+      // 1. If role changed, execute role update first
+      if (roleChanged) {
+        await updateRoleMutation.mutateAsync({
+          userId: user.id,
+          role,
+          userName: user.name,
+        });
+      }
+
+      // 2. If status or ban reason changed, execute status update
+      if (statusChanged) {
+        await updateStatusMutation.mutateAsync({
+          userId: user.id,
+          userName: user.name,
+          payload: {
+            status,
+            banReason: status === "BANNED" ? banReason.trim() : undefined,
+          },
+        });
+      }
 
       onOpenChange(false);
       onSuccess?.();
     } catch {
-      // Error handled by mutation onError
+      // Errors handled by individual mutation onError toasts
     }
   };
 
@@ -70,11 +98,11 @@ export function UpdateUserStatusModal({
         <DialogHeader className="space-y-1.5 border-b border-border/60 pb-3">
           <div className="flex items-center gap-2">
             <div className="size-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-              <ShieldAlert className="size-5" />
+              <UserCog className="size-5" />
             </div>
             <div>
               <DialogTitle className="text-lg font-bold text-foreground">
-                Manage Account Status
+                Manage User Account & Permissions
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
                 {user.name} ({user.email})
@@ -84,7 +112,35 @@ export function UpdateUserStatusModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-          {/* Status Select */}
+          {/* 1. User Role (Positioned ABOVE Account Status as requested) */}
+          <div className="space-y-1.5">
+            <Label htmlFor="userRole" className="text-xs font-semibold">
+              User Role <span className="text-destructive">*</span>
+            </Label>
+            {user.role === "ADMIN" ? (
+              <div className="flex items-center gap-2 p-3 rounded-2xl border border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-semibold">
+                <ShieldCheck className="size-4 shrink-0" />
+                <span>ADMIN — System Administrator (Role is protected against accidental changes)</span>
+              </div>
+            ) : (
+              <Select
+                id="userRole"
+                value={role}
+                onChange={(e) => setRole(e.target.value as Role)}
+                className="text-xs rounded-xl"
+              >
+                <option value="CUSTOMER">CUSTOMER — Standard Merchant / Shipper</option>
+                <option value="COURIER">COURIER — Assigned Delivery Rider</option>
+              </Select>
+            )}
+            <p className="text-[11px] text-muted-foreground">
+              {user.role === "ADMIN"
+                ? "Administrator privileges can only be modified through the central server config."
+                : "Switch account between Customer merchant privileges and Courier rider delivery flow."}
+            </p>
+          </div>
+
+          {/* 2. Account Status */}
           <div className="space-y-1.5">
             <Label htmlFor="accountStatus" className="text-xs font-semibold">
               Account Status <span className="text-destructive">*</span>
@@ -124,7 +180,7 @@ export function UpdateUserStatusModal({
             <Button
               type="button"
               variant="outline"
-              disabled={updateMutation.isPending}
+              disabled={isPending}
               onClick={() => onOpenChange(false)}
               className="rounded-xl cursor-pointer"
             >
@@ -133,18 +189,18 @@ export function UpdateUserStatusModal({
 
             <Button
               type="submit"
-              disabled={updateMutation.isPending}
+              disabled={isPending}
               className="rounded-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer shadow-xs gap-1.5"
             >
-              {updateMutation.isPending ? (
+              {isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  <span>Updating...</span>
+                  <span>Saving Changes...</span>
                 </>
               ) : (
                 <>
                   <UserCheck className="size-4" />
-                  <span>Apply Status Change</span>
+                  <span>Save Account Changes</span>
                 </>
               )}
             </Button>

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   Boxes,
   Search,
@@ -16,11 +17,13 @@ import {
   ShieldCheck,
   Phone,
   Mail,
+  Truck,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
+import { TablePagination } from "@/components/common/TablePagination";
 import { useAdminShipments } from "../../api/useAdminShipments";
 import { useUsers } from "@/features/users/api/useUsers";
 import { AssignCourierModal } from "./AssignCourierModal";
@@ -70,7 +73,15 @@ const STATUS_CONFIG: Record<
   },
 };
 
+const ITEMS_PER_PAGE = 15;
+
 export function AdminShipmentTable() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+
   const [searchQuery, setSearchQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("ALL");
   const [deliveryTypeFilter, setDeliveryTypeFilter] = React.useState<string>("ALL");
@@ -123,6 +134,34 @@ export function AdminShipmentTable() {
     return list;
   }, [shipments, searchQuery]);
 
+  // Pagination calculation
+  const totalItems = filteredShipments.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+  const paginatedShipments = filteredShipments.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleStatusFilterChange = (newStatus: string) => {
+    setStatusFilter(newStatus);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleDeliveryTypeFilterChange = (newType: string) => {
+    setDeliveryTypeFilter(newType);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Search & Filter Toolbar */}
@@ -134,7 +173,14 @@ export function AdminShipmentTable() {
             type="text"
             placeholder="Search all shipments by tracking #, recipient, district..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (currentPage !== 1) {
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("page", "1");
+                router.push(`${pathname}?${params.toString()}`);
+              }
+            }}
             className="pl-9 rounded-2xl h-11 text-xs sm:text-sm"
           />
         </div>
@@ -144,7 +190,7 @@ export function AdminShipmentTable() {
           <div className="w-40">
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => handleStatusFilterChange(e.target.value)}
               className="rounded-2xl h-11 text-xs"
             >
               <option value="ALL">All Statuses</option>
@@ -163,7 +209,7 @@ export function AdminShipmentTable() {
           <div className="w-36">
             <Select
               value={deliveryTypeFilter}
-              onChange={(e) => setDeliveryTypeFilter(e.target.value)}
+              onChange={(e) => handleDeliveryTypeFilterChange(e.target.value)}
               className="rounded-2xl h-11 text-xs"
             >
               <option value="ALL">All Routes</option>
@@ -237,7 +283,7 @@ export function AdminShipmentTable() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50 text-foreground">
-                {filteredShipments.map((shipment) => {
+                {paginatedShipments.map((shipment) => {
                   const statusInfo = STATUS_CONFIG[shipment.status] || {
                     label: shipment.status,
                     badgeClass: "bg-muted text-muted-foreground",
@@ -381,12 +427,21 @@ export function AdminShipmentTable() {
                           />
 
                           <Link
+                            href={`/admin/tracking?id=${shipment.trackingNumber}`}
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/90 font-bold px-2 py-1 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+                            title="Admin Live Telemetry"
+                          >
+                            <Truck className="size-3" />
+                            <span>Live Track</span>
+                          </Link>
+
+                          <Link
                             href={`/track/${shipment.trackingNumber}`}
                             target="_blank"
                             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-semibold ml-1"
                             title="Public Tracking View"
                           >
-                            <span>Track</span>
+                            <span>Public</span>
                             <ExternalLink className="size-3" />
                           </Link>
                         </div>
@@ -398,7 +453,17 @@ export function AdminShipmentTable() {
             </table>
           </div>
         </div>
-      )}
+
+        {/* Table Pagination (15 items per page) */}
+        <TablePagination
+          totalItems={totalItems}
+          itemsPerPage={ITEMS_PER_PAGE}
+          currentPage={safeCurrentPage}
+          onPageChange={handlePageChange}
+          entityLabel="shipments"
+        />
+      </div>
+    )}
 
       {/* Courier Assignment Dialog */}
       {assignShipment && (

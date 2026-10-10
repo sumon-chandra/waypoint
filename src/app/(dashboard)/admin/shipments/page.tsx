@@ -47,8 +47,16 @@ export default function AdminShipmentsPage() {
         </div>
       </div>
 
-      {/* Admin Shipment Table */}
-      <AdminShipmentTable />
+      {/* Admin Shipment Table with Suspense */}
+      <React.Suspense
+        fallback={
+          <div className="rounded-3xl border border-border/80 bg-card p-12 text-center text-xs text-muted-foreground animate-pulse">
+            Loading nationwide shipments directory...
+          </div>
+        }
+      >
+        <AdminShipmentTable />
+      </React.Suspense>
     </div>
   );
 }

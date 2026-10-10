@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   Building2,
   PlusCircle,
@@ -17,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
+import { TablePagination } from "@/components/common/TablePagination";
 import { useHubs } from "../api/hubs.api";
 import { HubDialog } from "./HubDialog";
 import { DeleteHubDialog } from "./DeleteHubDialog";
@@ -39,7 +41,15 @@ const STATUS_BADGES: Record<HubStatus, { label: string; className: string }> = {
   },
 };
 
+const ITEMS_PER_PAGE = 15;
+
 export function HubManagementTable() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+
   const [searchQuery, setSearchQuery] = React.useState("");
   const [divisionFilter, setDivisionFilter] = React.useState<string>("ALL");
   const [statusFilter, setStatusFilter] = React.useState<string>("ALL");
@@ -54,9 +64,15 @@ export function HubManagementTable() {
     status: statusFilter === "ALL" ? undefined : statusFilter,
   });
 
-  // Client-side search filtering
+  // Client-side search and division/status filtering
   const filteredHubs = React.useMemo(() => {
     let result = hubs;
+    if (divisionFilter !== "ALL") {
+      result = result.filter((h) => h.division === divisionFilter);
+    }
+    if (statusFilter !== "ALL") {
+      result = result.filter((h) => h.status === statusFilter);
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -69,7 +85,35 @@ export function HubManagementTable() {
       );
     }
     return result;
-  }, [hubs, searchQuery]);
+  }, [hubs, divisionFilter, statusFilter, searchQuery]);
+
+  // Pagination calculation
+  const totalItems = filteredHubs.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+  const paginatedHubs = filteredHubs.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleDivisionFilterChange = (newDivision: string) => {
+    setDivisionFilter(newDivision);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleStatusFilterChange = (newStatus: string) => {
+    setStatusFilter(newStatus);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -82,7 +126,14 @@ export function HubManagementTable() {
             type="text"
             placeholder="Search hubs by code, name, district, address..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (currentPage !== 1) {
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("page", "1");
+                router.push(`${pathname}?${params.toString()}`);
+              }
+            }}
             className="pl-9 rounded-2xl h-11 text-xs sm:text-sm"
           />
         </div>
@@ -93,7 +144,7 @@ export function HubManagementTable() {
           <div className="w-36">
             <Select
               value={divisionFilter}
-              onChange={(e) => setDivisionFilter(e.target.value)}
+              onChange={(e) => handleDivisionFilterChange(e.target.value)}
               className="rounded-2xl h-11 text-xs"
             >
               <option value="ALL">All Divisions</option>
@@ -109,7 +160,7 @@ export function HubManagementTable() {
           <div className="w-36">
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => handleStatusFilterChange(e.target.value)}
               className="rounded-2xl h-11 text-xs"
             >
               <option value="ALL">All Statuses</option>
@@ -192,7 +243,7 @@ export function HubManagementTable() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50 text-foreground">
-                {filteredHubs.map((hub) => {
+                {paginatedHubs.map((hub) => {
                   const statusInfo = STATUS_BADGES[hub.status] || {
                     label: hub.status,
                     className: "bg-muted text-muted-foreground",
@@ -291,6 +342,15 @@ export function HubManagementTable() {
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination (15 items per page) */}
+          <TablePagination
+            totalItems={totalItems}
+            itemsPerPage={ITEMS_PER_PAGE}
+            currentPage={safeCurrentPage}
+            onPageChange={handlePageChange}
+            entityLabel="sorting hubs"
+          />
         </div>
       )}
 

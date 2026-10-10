@@ -1,16 +1,18 @@
+import * as React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Building2, ArrowLeft } from "lucide-react";
-import { HubManagementTable } from "@/features/hubs";
+import { Truck, ArrowLeft } from "lucide-react";
+import { AdminTrackingView } from "@/features/shipments/components/admin";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Hub Network Infrastructure",
-  description: "Manage sorting hubs, capacity thresholds, cutoff times, and divisional gateway facilities.",
+  title: "Admin Consignment Telemetry & Live Tracking",
+  description:
+    "Monitor nationwide live consignment telemetry, waypoint steppers, sorting hub scans, and courier delivery status across Bangladesh.",
 };
 
-export default function AdminHubsPage() {
+export default function AdminTrackingPage() {
   return (
     <div className="space-y-8 p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Top Banner */}
@@ -18,17 +20,17 @@ export default function AdminHubsPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              <Building2 className="size-3.5" />
-              <span>Logistics Infrastructure</span>
+              <Truck className="size-3.5" />
+              <span>Real-Time Logistics Operations</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-              Sorting Hub{" "}
+              Consignment{" "}
               <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
-                Network
+                Telemetry & Live Tracking
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Register sorting facilities across 64 districts, adjust daily dispatch cutoffs, and monitor package throughput limits.
+              Supervise parcel transit status, inspect line-haul milestone completions, audit sorting hub check-ins, and manage courier assignments nationwide.
             </p>
           </div>
 
@@ -47,15 +49,16 @@ export default function AdminHubsPage() {
         </div>
       </div>
 
-      {/* Hub Management Table with Suspense */}
+      {/* Admin Live Tracking View with Suspense */}
       <React.Suspense
         fallback={
-          <div className="rounded-3xl border border-border/80 bg-card p-12 text-center text-xs text-muted-foreground animate-pulse">
-            Loading sorting hubs directory...
+          <div className="rounded-3xl border border-border/80 bg-card p-16 text-center text-xs text-muted-foreground animate-pulse space-y-4">
+            <div className="size-10 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto" />
+            <p>Loading live consignment telemetry...</p>
           </div>
         }
       >
-        <HubManagementTable />
+        <AdminTrackingView />
       </React.Suspense>
     </div>
   );
