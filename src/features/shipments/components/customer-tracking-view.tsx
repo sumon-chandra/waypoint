@@ -16,9 +16,10 @@ import {
   Copy,
   Check,
   ChevronRight,
-  PackageCheck,
   AlertTriangle,
   ArrowRight,
+  CheckCircle2,
+  PackageCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -43,20 +44,44 @@ const LOCAL_STEPS: { status: ShipmentStatus; label: string; sub: string }[] = [
   { status: "PENDING", label: "Order Placed", sub: "Waybill Manifested" },
   { status: "ASSIGNED", label: "Courier Assigned", sub: "Rider Dispatched" },
   { status: "PICKED_UP", label: "Parcel Collected", sub: "In Courier Custody" },
-  { status: "RECEIVED_AT_ORIGIN_HUB", label: "In Origin Hub", sub: "Sorted & Scanned" },
-  { status: "OUT_FOR_DELIVERY", label: "Out for Delivery", sub: "Final Mile Delivery" },
+  {
+    status: "RECEIVED_AT_ORIGIN_HUB",
+    label: "In Origin Hub",
+    sub: "Sorted & Scanned",
+  },
+  {
+    status: "OUT_FOR_DELIVERY",
+    label: "Out for Delivery",
+    sub: "Final Mile Delivery",
+  },
   { status: "DELIVERED", label: "Delivered", sub: "Handover Verified" },
 ];
 
 /** FSM milestones for INTER_DISTRICT (nationwide line-haul) deliveries */
-const INTER_DISTRICT_STEPS: { status: ShipmentStatus; label: string; sub: string }[] = [
+const INTER_DISTRICT_STEPS: {
+  status: ShipmentStatus;
+  label: string;
+  sub: string;
+}[] = [
   { status: "PENDING", label: "Order Placed", sub: "Waybill Manifested" },
   { status: "ASSIGNED", label: "Courier Assigned", sub: "Rider Dispatched" },
   { status: "PICKED_UP", label: "Parcel Collected", sub: "In Courier Custody" },
-  { status: "RECEIVED_AT_ORIGIN_HUB", label: "In Origin Hub", sub: "Origin Sorting Hub" },
+  {
+    status: "RECEIVED_AT_ORIGIN_HUB",
+    label: "In Origin Hub",
+    sub: "Origin Sorting Hub",
+  },
   { status: "IN_TRANSIT", label: "In Transit", sub: "Highway Line-Haul" },
-  { status: "RECEIVED_AT_DEST_HUB", label: "At Dest Hub", sub: "Destination Sorting" },
-  { status: "OUT_FOR_DELIVERY", label: "Out for Delivery", sub: "Final Mile Delivery" },
+  {
+    status: "RECEIVED_AT_DEST_HUB",
+    label: "At Dest Hub",
+    sub: "Destination Sorting",
+  },
+  {
+    status: "OUT_FOR_DELIVERY",
+    label: "Out for Delivery",
+    sub: "Final Mile Delivery",
+  },
   { status: "DELIVERED", label: "Delivered", sub: "Handover Verified" },
 ];
 
@@ -72,10 +97,9 @@ export function CustomerTrackingView() {
   // Query individual shipment if direct ?id=... was supplied and not already in active list
   const shouldQuerySingle = Boolean(
     queryId &&
-      !shipments.some(
-        (s) =>
-          s.trackingNumber.toLowerCase() === queryId.trim().toLowerCase()
-      )
+    !shipments.some(
+      (s) => s.trackingNumber.toLowerCase() === queryId.trim().toLowerCase(),
+    ),
   );
   const { data: singleShipment, isLoading: isSingleLoading } =
     useShipmentByTrackingNumber(shouldQuerySingle ? queryId : null);
@@ -86,8 +110,7 @@ export function CustomerTrackingView() {
   const activeShipment = React.useMemo(() => {
     if (queryId) {
       const found = shipments.find(
-        (s) =>
-          s.trackingNumber.toLowerCase() === queryId.trim().toLowerCase()
+        (s) => s.trackingNumber.toLowerCase() === queryId.trim().toLowerCase(),
       );
       if (found) return found;
       if (singleShipment) return singleShipment;
@@ -96,18 +119,17 @@ export function CustomerTrackingView() {
   }, [shipments, queryId, singleShipment]);
 
   const handleSelectShipment = (trackingNumber: string) => {
-    router.push(
-      `/customer/tracking?id=${encodeURIComponent(trackingNumber)}`,
-      { scroll: false }
-    );
+    router.push(`/customer/tracking?id=${encodeURIComponent(trackingNumber)}`, {
+      scroll: false,
+    });
   };
 
   const handleCopyLink = () => {
     if (!activeShipment) return;
     navigator.clipboard.writeText(
       `${window.location.origin}/customer/tracking?id=${encodeURIComponent(
-        activeShipment.trackingNumber
-      )}`
+        activeShipment.trackingNumber,
+      )}`,
     );
     setCopied(true);
     toast.success("Tracking link copied to clipboard");
@@ -156,7 +178,7 @@ export function CustomerTrackingView() {
               href="/customer/book"
               className={cn(
                 buttonVariants({ variant: "default", size: "lg" }),
-                "rounded-xl gap-2 shadow-xs font-semibold"
+                "rounded-xl gap-2 shadow-xs font-semibold",
               )}
             >
               <Package className="size-4" />
@@ -166,7 +188,7 @@ export function CustomerTrackingView() {
               href="/customer/shipments"
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
-                "rounded-xl font-medium"
+                "rounded-xl font-medium",
               )}
             >
               <span>View My Shipments</span>
@@ -191,12 +213,12 @@ export function CustomerTrackingView() {
       : INTER_DISTRICT_STEPS;
 
   const currentStepIdx = steps.findIndex(
-    (s) => s.status === activeShipment.status
+    (s) => s.status === activeShipment.status,
   );
 
   // Cancellation reason if present
   const cancelLog = activeShipment.trackingLogs?.find(
-    (l) => l.toStatus === "CANCELLED"
+    (l) => l.toStatus === "CANCELLED",
   );
 
   return (
@@ -223,14 +245,12 @@ export function CustomerTrackingView() {
                 <button
                   key={shipment.id}
                   type="button"
-                  onClick={() =>
-                    handleSelectShipment(shipment.trackingNumber)
-                  }
+                  onClick={() => handleSelectShipment(shipment.trackingNumber)}
                   className={cn(
                     "shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border transition-all cursor-pointer text-left",
                     isSelected
                       ? "border-primary bg-primary/10 shadow-xs ring-2 ring-primary/20"
-                      : "border-border/80 bg-card hover:border-border hover:bg-muted/40"
+                      : "border-border/80 bg-card hover:border-border hover:bg-muted/40",
                   )}
                 >
                   <span className="relative flex size-2 shrink-0">
@@ -240,7 +260,7 @@ export function CustomerTrackingView() {
                     <span
                       className={cn(
                         "relative inline-flex size-2 rounded-full",
-                        isSelected ? "bg-primary" : "bg-muted-foreground/60"
+                        isSelected ? "bg-primary" : "bg-muted-foreground/60",
                       )}
                     />
                   </span>
@@ -251,13 +271,18 @@ export function CustomerTrackingView() {
                       </span>
                       <Badge
                         variant="outline"
-                        className={cn("text-[10px] px-1.5 py-0", badge.className)}
+                        className={cn(
+                          "text-[10px] px-1.5 py-0",
+                          badge.className,
+                        )}
                       >
                         {badge.label}
                       </Badge>
                     </div>
                     <p className="text-[11px] text-muted-foreground truncate max-w-[180px]">
-                      {shipment.receiverDistrict ?? shipment.receiverAddress ?? "Bangladesh"}
+                      {shipment.receiverDistrict ??
+                        shipment.receiverAddress ??
+                        "Bangladesh"}
                     </p>
                   </div>
                 </button>
@@ -277,7 +302,10 @@ export function CustomerTrackingView() {
               </span>
               <Badge
                 variant="outline"
-                className={cn("text-xs px-3 py-1 font-semibold", statusConfig.className)}
+                className={cn(
+                  "text-xs px-3 py-1 font-semibold",
+                  statusConfig.className,
+                )}
               >
                 {statusConfig.label}
               </Badge>
@@ -334,7 +362,8 @@ export function CustomerTrackingView() {
                 <span>Payment Awaiting Authorization</span>
               </span>
               <p className="text-xs text-muted-foreground">
-                This consignment is currently marked Unpaid. Complete Stripe card payment to ensure expedited line-haul dispatch.
+                This consignment is currently marked Unpaid. Complete Stripe
+                card payment to ensure expedited line-haul dispatch.
               </p>
             </div>
             <PayNowButton
@@ -343,6 +372,35 @@ export function CustomerTrackingView() {
               size="default"
               className="rounded-xl shrink-0"
             />
+          </div>
+        )}
+
+        {/* DELIVERED CONFIRMATION & E-RECEIPTS DISPATCHED BANNER */}
+        {activeShipment.status === "DELIVERED" && (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in-0">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
+                <span>Consignment Delivered & Electronic Receipts Emailed</span>
+              </span>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Handover was successfully verified with recipient OTP. Detailed
+                shipment summary and tax receipts have been emailed to both the
+                sender and recipient
+                {activeShipment.receiverEmail
+                  ? ` (${activeShipment.receiverEmail})`
+                  : ""}
+                .
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Badge
+                variant="outline"
+                className="border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs px-2.5 py-1"
+              >
+                E-Receipts Sent
+              </Badge>
+            </div>
           </div>
         )}
 
@@ -438,23 +496,24 @@ export function CustomerTrackingView() {
             {/* Desktop Horizontal Stepper */}
             <div className="hidden md:grid md:grid-flow-col md:auto-cols-fr gap-2 relative">
               {steps.map((step, idx) => {
-                const isCompleted =
-                  currentStepIdx >= 0 && idx < currentStepIdx;
+                const isCompleted = currentStepIdx >= 0 && idx < currentStepIdx;
                 const isCurrent = idx === currentStepIdx;
 
                 return (
-                  <div key={step.status} className="relative flex flex-col items-center text-center space-y-2 group">
+                  <div
+                    key={step.status}
+                    className="relative flex flex-col items-center text-center space-y-2 group"
+                  >
                     {/* Node Circle */}
                     <div
                       className={cn(
                         "size-9 rounded-full flex items-center justify-center font-bold text-xs transition-all relative z-10",
-                        isCompleted &&
-                          "bg-emerald-500 text-white shadow-xs",
+                        isCompleted && "bg-emerald-500 text-white shadow-xs",
                         isCurrent &&
                           "bg-primary text-primary-foreground ring-4 ring-primary/20 animate-pulse",
                         !isCompleted &&
                           !isCurrent &&
-                          "bg-muted text-muted-foreground border border-border"
+                          "bg-muted text-muted-foreground border border-border",
                       )}
                     >
                       {isCompleted ? <Check className="size-4" /> : idx + 1}
@@ -468,8 +527,8 @@ export function CustomerTrackingView() {
                           isCurrent
                             ? "text-primary"
                             : isCompleted
-                            ? "text-foreground"
-                            : "text-muted-foreground"
+                              ? "text-foreground"
+                              : "text-muted-foreground",
                         )}
                       >
                         {step.label}
@@ -486,12 +545,14 @@ export function CustomerTrackingView() {
             {/* Mobile Vertical Stepper */}
             <div className="md:hidden space-y-4 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
               {steps.map((step, idx) => {
-                const isCompleted =
-                  currentStepIdx >= 0 && idx < currentStepIdx;
+                const isCompleted = currentStepIdx >= 0 && idx < currentStepIdx;
                 const isCurrent = idx === currentStepIdx;
 
                 return (
-                  <div key={step.status} className="relative pl-10 flex items-start gap-3">
+                  <div
+                    key={step.status}
+                    className="relative pl-10 flex items-start gap-3"
+                  >
                     <div
                       className={cn(
                         "absolute left-2.5 top-0 size-7 -translate-x-1/2 rounded-full flex items-center justify-center font-bold text-xs transition-all",
@@ -500,7 +561,7 @@ export function CustomerTrackingView() {
                           "bg-primary text-primary-foreground ring-4 ring-primary/20",
                         !isCompleted &&
                           !isCurrent &&
-                          "bg-muted text-muted-foreground border border-border"
+                          "bg-muted text-muted-foreground border border-border",
                       )}
                     >
                       {isCompleted ? <Check className="size-3.5" /> : idx + 1}
@@ -512,8 +573,8 @@ export function CustomerTrackingView() {
                           isCurrent
                             ? "text-primary"
                             : isCompleted
-                            ? "text-foreground"
-                            : "text-muted-foreground"
+                              ? "text-foreground"
+                              : "text-muted-foreground",
                         )}
                       >
                         {step.label}
@@ -539,7 +600,8 @@ export function CustomerTrackingView() {
             <span>Milestone Activity Audit</span>
           </h3>
 
-          {activeShipment.trackingLogs && activeShipment.trackingLogs.length > 0 ? (
+          {activeShipment.trackingLogs &&
+          activeShipment.trackingLogs.length > 0 ? (
             <div className="space-y-6 relative before:absolute before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-border">
               {activeShipment.trackingLogs.map(
                 (log: ShipmentTrackingLog, idx: number) => {
@@ -551,7 +613,7 @@ export function CustomerTrackingView() {
                           "absolute left-1.5 top-1.5 size-4 -translate-x-1/2 rounded-full border-2 transition-all",
                           isLatest
                             ? "border-primary bg-primary ring-4 ring-primary/20 animate-pulse"
-                            : "border-emerald-500 bg-emerald-500 text-white"
+                            : "border-emerald-500 bg-emerald-500 text-white",
                         )}
                       />
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
@@ -585,7 +647,9 @@ export function CustomerTrackingView() {
                           {getStatusBadge(log.toStatus).label}
                         </Badge>
                         {log.fromStatus && (
-                          <span>from {getStatusBadge(log.fromStatus).label}</span>
+                          <span>
+                            from {getStatusBadge(log.fromStatus).label}
+                          </span>
                         )}
                       </div>
 
@@ -596,14 +660,15 @@ export function CustomerTrackingView() {
                       )}
                     </div>
                   );
-                }
+                },
               )}
             </div>
           ) : (
             <div className="text-center py-8 space-y-2">
               <AlertCircle className="size-8 text-muted-foreground mx-auto" />
               <p className="text-xs text-muted-foreground">
-                No tracking event records available yet. Scans will populate as the courier rider and sorting hubs check in your parcel.
+                No tracking event records available yet. Scans will populate as
+                the courier rider and sorting hubs check in your parcel.
               </p>
             </div>
           )}
@@ -631,7 +696,9 @@ export function CustomerTrackingView() {
               </div>
 
               <p className="text-[11px] text-muted-foreground/80 leading-relaxed border-t border-border/40 pt-3">
-                The courier will verify your 4-digit OTP sent to your email address prior to parcel handover. Please check your inbox or spam folder.
+                The courier will verify your 4-digit OTP sent to your email
+                address prior to parcel handover. Please check your inbox or
+                spam folder.
               </p>
             </div>
           ) : (
@@ -641,7 +708,8 @@ export function CustomerTrackingView() {
                 Awaiting Courier Rider
               </h4>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                A localized delivery rider will be assigned once your parcel reaches the target delivery hub.
+                A localized delivery rider will be assigned once your parcel
+                reaches the target delivery hub.
               </p>
             </div>
           )}
@@ -666,6 +734,17 @@ export function CustomerTrackingView() {
                   {activeShipment.receiverPhone}
                 </span>
               </div>
+              {activeShipment.receiverEmail && (
+                <div className="flex justify-between py-1 border-b border-border/40">
+                  <span className="text-muted-foreground">Email</span>
+                  <span
+                    className="font-semibold text-foreground truncate max-w-[170px]"
+                    title={activeShipment.receiverEmail}
+                  >
+                    {activeShipment.receiverEmail}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between py-1 border-b border-border/40">
                 <span className="text-muted-foreground">Weight</span>
                 <span className="font-semibold text-foreground">
@@ -675,13 +754,17 @@ export function CustomerTrackingView() {
               <div className="flex justify-between py-1 border-b border-border/40">
                 <span className="text-muted-foreground">Classification</span>
                 <span className="font-semibold text-foreground">
-                  {activeShipment.deliveryType === "LOCAL" ? "Intra-District" : "Inter-District"}
+                  {activeShipment.deliveryType === "LOCAL"
+                    ? "Intra-District"
+                    : "Inter-District"}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-border/40">
                 <span className="text-muted-foreground">Payment Method</span>
                 <span className="font-semibold text-foreground">
-                  {activeShipment.paymentType === "CARD" ? "Card (Stripe)" : "Cash on Delivery"}
+                  {activeShipment.paymentType === "CARD"
+                    ? "Card (Stripe)"
+                    : "Cash on Delivery"}
                 </span>
               </div>
               {activeShipment.paymentType === "CASH" && (
@@ -699,7 +782,7 @@ export function CustomerTrackingView() {
                 href="/customer/shipments"
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "sm" }),
-                  "w-full rounded-xl justify-between text-xs font-semibold"
+                  "w-full rounded-xl justify-between text-xs font-semibold",
                 )}
               >
                 <span>View in Consignments</span>

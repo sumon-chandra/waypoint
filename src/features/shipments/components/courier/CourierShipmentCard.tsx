@@ -11,8 +11,9 @@ import {
   ChevronRight,
   Copy,
   Check,
-  ArrowRight,
   Scale,
+  Mail,
+  ArrowRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CourierStatusActionButtons } from "./CourierStatusActionButtons";
@@ -31,35 +32,43 @@ const STATUS_CONFIG: Record<
 > = {
   PENDING: {
     label: "Order Placed",
-    badgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    badgeClass:
+      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
   },
   ASSIGNED: {
     label: "Courier Assigned",
-    badgeClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    badgeClass:
+      "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
   },
   PICKED_UP: {
     label: "Parcel Collected",
-    badgeClass: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+    badgeClass:
+      "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
   },
   RECEIVED_AT_ORIGIN_HUB: {
     label: "In Origin Hub",
-    badgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    badgeClass:
+      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
   },
   IN_TRANSIT: {
     label: "Line-Haul Transit",
-    badgeClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+    badgeClass:
+      "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
   },
   RECEIVED_AT_DEST_HUB: {
     label: "At Destination Hub",
-    badgeClass: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+    badgeClass:
+      "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
   },
   OUT_FOR_DELIVERY: {
     label: "Out for Delivery",
-    badgeClass: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+    badgeClass:
+      "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
   },
   DELIVERED: {
     label: "Delivered",
-    badgeClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    badgeClass:
+      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   },
   CANCELLED: {
     label: "Cancelled",
@@ -127,7 +136,10 @@ export function CourierShipmentCard({
         <div className="flex items-center gap-2">
           <Badge
             variant="outline"
-            className={cn("text-[10px] font-bold py-0.5", statusMeta.badgeClass)}
+            className={cn(
+              "text-[10px] font-bold py-0.5",
+              statusMeta.badgeClass,
+            )}
           >
             {statusMeta.label}
           </Badge>
@@ -155,6 +167,19 @@ export function CourierShipmentCard({
             <Phone className="size-3 shrink-0" />
             <span>{shipment.receiverPhone}</span>
           </a>
+          {shipment.receiverEmail && (
+            <div className="pt-0.5">
+              <a
+                href={`mailto:${shipment.receiverEmail}`}
+                className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground hover:underline text-[11px] truncate max-w-full"
+                onClick={(e) => e.stopPropagation()}
+                title={shipment.receiverEmail}
+              >
+                <Mail className="size-3 shrink-0" />
+                <span className="truncate">{shipment.receiverEmail}</span>
+              </a>
+            </div>
+          )}
           <p className="text-muted-foreground text-[11px] line-clamp-2 pt-0.5">
             <MapPin className="size-3 text-muted-foreground inline mr-1" />
             {shipment.receiverAddress || "—"} ({shipment.receiverUpazila},{" "}

@@ -13,7 +13,8 @@ export function proxy(request: NextRequest) {
   const isAuthRoute =
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/forgot-password");
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password");
 
   const isProtectedRoute =
     pathname.startsWith("/customer") ||
@@ -32,7 +33,8 @@ export function proxy(request: NextRequest) {
           refererUrl.origin === request.nextUrl.origin &&
           !refererUrl.pathname.startsWith("/login") &&
           !refererUrl.pathname.startsWith("/register") &&
-          !refererUrl.pathname.startsWith("/forgot-password")
+          !refererUrl.pathname.startsWith("/forgot-password") &&
+          !refererUrl.pathname.startsWith("/reset-password")
         ) {
           return NextResponse.redirect(refererUrl);
         }
@@ -85,6 +87,7 @@ export const config = {
     "/login",
     "/register",
     "/forgot-password",
+    "/reset-password",
     "/customer/:path*",
     "/courier/:path*",
     "/admin/:path*",

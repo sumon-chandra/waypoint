@@ -139,7 +139,10 @@ export function ShipmentTable() {
       if (searchQuery.trim()) {
         const query = searchQuery.trim().toLowerCase();
         const matchesTracking = item.trackingNumber.toLowerCase().includes(query);
-        const matchesReceiver = item.receiverName.toLowerCase().includes(query);
+        const matchesReceiver =
+          item.receiverName.toLowerCase().includes(query) ||
+          item.receiverPhone.includes(query) ||
+          (item.receiverEmail && item.receiverEmail.toLowerCase().includes(query));
         const matchesDistrict =
           item.receiverDistrict?.toLowerCase().includes(query) ||
           item.senderDistrict?.toLowerCase().includes(query);
@@ -317,11 +320,18 @@ export function ShipmentTable() {
 
                   {/* Route & Recipient */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="font-medium text-foreground">Recipient:</span>
-                      <span className="truncate">
-                        {shipment.receiverName} ({shipment.receiverPhone})
-                      </span>
+                    <div className="flex flex-col gap-0.5 truncate">
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span className="font-medium text-foreground">Recipient:</span>
+                        <span className="truncate">
+                          {shipment.receiverName} ({shipment.receiverPhone})
+                        </span>
+                      </div>
+                      {shipment.receiverEmail && (
+                        <p className="text-[11px] text-muted-foreground truncate pl-0 sm:pl-0">
+                          {shipment.receiverEmail}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-1.5">

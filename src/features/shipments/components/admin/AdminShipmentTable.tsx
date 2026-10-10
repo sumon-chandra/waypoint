@@ -14,15 +14,18 @@ import {
   Calendar,
   Banknote,
   ShieldCheck,
+  Phone,
+  Mail,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { useAdminShipments } from "../../api/useAdminShipments";
+import { useUsers } from "@/features/users/api/useUsers";
 import { AssignCourierModal } from "./AssignCourierModal";
 import { HubCheckinActions } from "./HubCheckinActions";
-import type { Shipment, ShipmentStatus } from "@/types";
+import type { Shipment, ShipmentStatus, User } from "@/types";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<
@@ -86,6 +89,20 @@ export function AdminShipmentTable() {
     limit: 100,
   });
 
+  // Fetch active couriers for name & phone resolution
+  const { data: couriersData } = useUsers({
+    role: "COURIER",
+    limit: 100,
+  });
+
+  const courierMap = React.useMemo(() => {
+    const map = new Map<string, User>();
+    couriersData?.users?.forEach((c) => {
+      map.set(c.id, c);
+    });
+    return map;
+  }, [couriersData]);
+
   const shipments = data?.shipments ?? [];
 
   // Client-side search
@@ -98,6 +115,7 @@ export function AdminShipmentTable() {
           s.trackingNumber.toLowerCase().includes(q) ||
           s.receiverName.toLowerCase().includes(q) ||
           s.receiverPhone.includes(q) ||
+          (s.receiverEmail && s.receiverEmail.toLowerCase().includes(q)) ||
           s.receiverDistrict?.toLowerCase().includes(q) ||
           s.senderDistrict?.toLowerCase().includes(q)
       );
@@ -265,6 +283,11 @@ export function AdminShipmentTable() {
                         <p className="text-[11px] text-muted-foreground">
                           {shipment.receiverPhone}
                         </p>
+                        {shipment.receiverEmail && (
+                          <p className="text-[11px] text-muted-foreground/80 truncate max-w-[170px]" title={shipment.receiverEmail}>
+                            {shipment.receiverEmail}
+                          </p>
+                        )}
                       </td>
 
                       {/* Status & Route */}
@@ -289,23 +312,37 @@ export function AdminShipmentTable() {
 
                       {/* Courier Rider */}
                       <td className="py-4 px-4">
-                        {shipment.courierId ? (
-                          <div className="space-y-1">
-                            <span className="inline-flex items-center gap-1 font-semibold text-foreground text-xs">
-                              <UserCheck className="size-3 text-emerald-500" />
-                              <span>Assigned</span>
-                            </span>
-                            <div>
-                              <button
-                                type="button"
-                                onClick={() => setAssignShipment(shipment)}
-                                className="text-[10px] text-primary hover:underline cursor-pointer font-medium block"
-                              >
-                                Re-assign Rider
-                              </button>
+                        {shipment.courierId ? (() => {
+                          const courier = (shipment as any).courier || courierMap.get(shipment.courierId);
+                          return (
+                            <div className="space-y-1 min-w-[130px]">
+                              <div className="flex items-center gap-1.5 font-bold text-foreground text-xs">
+                                <UserCheck className="size-3.5 text-emerald-500 shrink-0" />
+                                <span className="truncate">{courier?.name ?? "Assigned Rider"}</span>
+                              </div>
+                              {courier?.email && (
+                                <p className="text-[11px] text-muted-foreground truncate max-w-[160px]" title={courier.email}>
+                                  {courier.email}
+                                </p>
+                              )}
+                              {courier?.phone ? (
+                                <p className="text-[11px] text-muted-foreground/90 flex items-center gap-1 font-mono">
+                                  <Phone className="size-2.5 shrink-0" />
+                                  <span>{courier.phone}</span>
+                                </p>
+                              ) : null}
+                              <div>
+                                <button
+                                  type="button"
+                                  onClick={() => setAssignShipment(shipment)}
+                                  className="text-[10px] text-primary hover:underline cursor-pointer font-medium block pt-0.5"
+                                >
+                                  Re-assign Rider
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        ) : (
+                          );
+                        })() : (
                           <Button
                             type="button"
                             variant="outline"

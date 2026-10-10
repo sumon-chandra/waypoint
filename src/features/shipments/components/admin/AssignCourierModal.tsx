@@ -7,6 +7,7 @@ import {
   Search,
   Loader2,
   CheckCircle2,
+  Phone,
 } from "lucide-react";
 import {
   Dialog,
@@ -48,7 +49,11 @@ export function AssignCourierModal({
     limit: 100,
   });
 
-  const couriers = usersData?.users ?? [];
+  // Strictly filter only active courier accounts (client-side safeguard against backend omitting role filter)
+  const couriers = React.useMemo(() => {
+    const rawUsers = usersData?.users ?? [];
+    return rawUsers.filter((u) => u.role === "COURIER" && u.status === "ACTIVE");
+  }, [usersData]);
 
   // Reset selection when modal opens
   React.useEffect(() => {
@@ -58,7 +63,7 @@ export function AssignCourierModal({
     }
   }, [open, shipment?.courierId]);
 
-  // Filter couriers
+  // Filter couriers by search query
   const filteredCouriers = React.useMemo(() => {
     if (!courierSearch.trim()) return couriers;
     const q = courierSearch.toLowerCase().trim();
@@ -66,7 +71,8 @@ export function AssignCourierModal({
       (c) =>
         c.name.toLowerCase().includes(q) ||
         c.email.toLowerCase().includes(q) ||
-        (c.username && c.username.toLowerCase().includes(q))
+        (c.username && c.username.toLowerCase().includes(q)) ||
+        (c.phone && c.phone.toLowerCase().includes(q))
     );
   }, [couriers, courierSearch]);
 
@@ -152,9 +158,15 @@ export function AssignCourierModal({
                       <p className="font-bold text-foreground truncate">
                         {courier.name}
                       </p>
-                      <p className="text-[11px] text-muted-foreground truncate">
-                        {courier.email}
-                      </p>
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground truncate">
+                        <span className="truncate">{courier.email}</span>
+                        {courier.phone && (
+                          <span className="inline-flex items-center gap-1 shrink-0 text-foreground/80 font-medium">
+                            <Phone className="size-2.5" />
+                            <span>{courier.phone}</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">

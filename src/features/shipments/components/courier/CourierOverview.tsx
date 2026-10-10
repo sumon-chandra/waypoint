@@ -11,16 +11,22 @@ import {
   Navigation,
   MapPin,
   Banknote,
-  RotateCw,
   Phone,
+  Mail,
+  RotateCw,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCourierShipments } from "../../api/useCourierShipments";
 import { CourierStatusActionButtons } from "./CourierStatusActionButtons";
+import { RemitCodModal } from "./RemitCodModal";
+import { CourierKpiDashboard } from "./CourierKpiDashboard";
 import { cn } from "@/lib/utils";
+import { useCourierShipments } from "../../api";
 
 export function CourierOverview() {
+  const [remitModalOpen, setRemitModalOpen] = React.useState(false);
+  const [remittedToday, setRemittedToday] = React.useState(false);
+
   const { data, isLoading, isRefetching, refetch } = useCourierShipments({
     limit: 100,
   });
@@ -29,11 +35,15 @@ export function CourierOverview() {
 
   // Compute live metrics from courier consignments
   const metrics = React.useMemo(() => {
-    const assignedCount = shipments.filter((s) => s.status === "ASSIGNED").length;
-    const outForDeliveryCount = shipments.filter(
-      (s) => s.status === "OUT_FOR_DELIVERY"
+    const assignedCount = shipments.filter(
+      (s) => s.status === "ASSIGNED",
     ).length;
-    const deliveredCount = shipments.filter((s) => s.status === "DELIVERED").length;
+    const outForDeliveryCount = shipments.filter(
+      (s) => s.status === "OUT_FOR_DELIVERY",
+    ).length;
+    const deliveredCount = shipments.filter(
+      (s) => s.status === "DELIVERED",
+    ).length;
 
     // Total COD cash collected for delivered cash orders
     const codCollectedToday = shipments
@@ -42,7 +52,9 @@ export function CourierOverview() {
 
     // Pending COD cash for current runs
     const pendingCod = shipments
-      .filter((s) => s.status === "OUT_FOR_DELIVERY" && s.paymentType === "CASH")
+      .filter(
+        (s) => s.status === "OUT_FOR_DELIVERY" && s.paymentType === "CASH",
+      )
       .reduce((acc, s) => acc + (s.codAmount ?? 0), 0);
 
     return {
@@ -57,9 +69,7 @@ export function CourierOverview() {
   // Urgent active runs (OUT_FOR_DELIVERY or ASSIGNED)
   const activeRuns = React.useMemo(() => {
     return shipments
-      .filter(
-        (s) => s.status === "OUT_FOR_DELIVERY" || s.status === "ASSIGNED"
-      )
+      .filter((s) => s.status === "OUT_FOR_DELIVERY" || s.status === "ASSIGNED")
       .slice(0, 5);
   }, [shipments]);
 
@@ -80,7 +90,8 @@ export function CourierOverview() {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Real-time delivery route manifest, recipient drop-offs, OTP handovers, and COD cash management.
+              Real-time delivery route manifest, recipient drop-offs, OTP
+              handovers, and COD cash management.
             </p>
           </div>
 
@@ -94,7 +105,10 @@ export function CourierOverview() {
               className="rounded-xl gap-2 cursor-pointer font-medium"
             >
               <RotateCw
-                className={cn("size-3.5", isRefetching && "animate-spin text-primary")}
+                className={cn(
+                  "size-3.5",
+                  isRefetching && "animate-spin text-primary",
+                )}
               />
               <span>Sync Fleet</span>
             </Button>
@@ -103,7 +117,7 @@ export function CourierOverview() {
               href="/courier/shipments"
               className={cn(
                 buttonVariants({ variant: "default", size: "sm" }),
-                "rounded-xl gap-2 font-bold shadow-xs bg-amber-600 hover:bg-amber-700 text-white"
+                "rounded-xl gap-2 font-bold shadow-xs bg-amber-600 hover:bg-amber-700 text-white",
               )}
             >
               <PackageCheck className="size-4" />
@@ -176,25 +190,56 @@ export function CourierOverview() {
         </div>
 
         {/* COD Collected Cash */}
-        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs space-y-3 transition-all hover:border-border hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">
-              COD Remittance
-            </span>
-            <div className="size-9 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <Banknote className="size-4" />
+        <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs space-y-3 transition-all hover:border-border hover:shadow-md flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">
+                COD Remittance
+              </span>
+              <div className="size-9 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <Banknote className="size-4" />
+              </div>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-foreground tracking-tight font-mono">
+                {isLoading
+                  ? "—"
+                  : `৳${(remittedToday ? 0 : metrics.codCollectedToday).toLocaleString()}`}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {remittedToday
+                  ? "Cleared • All collected cash remitted"
+                  : "Cash collected in hand to remit"}
+              </p>
             </div>
           </div>
+
           <div>
-            <p className="text-2xl font-black text-foreground tracking-tight font-mono">
-              {isLoading ? "—" : `৳${metrics.codCollectedToday.toLocaleString()}`}
-            </p>
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              Cash collected in hand to remit
-            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={
+                isLoading || remittedToday || metrics.codCollectedToday <= 0
+              }
+              onClick={() => setRemitModalOpen(true)}
+              className="w-full rounded-xl text-xs font-bold gap-1.5 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 cursor-pointer"
+            >
+              <Banknote className="size-3.5" />
+              <span>
+                {remittedToday ? "Remittance Cleared" : "Remit Cash Balance"}
+              </span>
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Courier KPI Performance Telemetry Card */}
+      <CourierKpiDashboard
+        deliveredCount={metrics.deliveredCount}
+        assignedCount={metrics.assignedCount}
+        codCollected={remittedToday ? 0 : metrics.codCollectedToday}
+      />
 
       {/* Active Priority Runs Section */}
       <div className="space-y-4">
@@ -223,11 +268,10 @@ export function CourierOverview() {
           </div>
         ) : activeRuns.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-border/80 bg-card/60 p-8 text-center space-y-2">
-            <p className="text-sm font-bold text-foreground">
-              No Pending Runs
-            </p>
+            <p className="text-sm font-bold text-foreground">No Pending Runs</p>
             <p className="text-xs text-muted-foreground">
-              You currently have no pending pickups or out-for-delivery parcels assigned.
+              You currently have no pending pickups or out-for-delivery parcels
+              assigned.
             </p>
           </div>
         ) : (
@@ -248,7 +292,7 @@ export function CourierOverview() {
                         "text-[10px] font-bold py-0",
                         shipment.status === "OUT_FOR_DELIVERY"
                           ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20"
-                          : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                          : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
                       )}
                     >
                       {shipment.status === "OUT_FOR_DELIVERY"
@@ -278,6 +322,21 @@ export function CourierOverview() {
                       <Phone className="size-3" />
                       <span>{shipment.receiverPhone}</span>
                     </a>
+                    {shipment.receiverEmail && (
+                      <>
+                        <span>•</span>
+                        <a
+                          href={`mailto:${shipment.receiverEmail}`}
+                          className="text-muted-foreground hover:text-foreground hover:underline inline-flex items-center gap-1 truncate max-w-[170px]"
+                          title={shipment.receiverEmail}
+                        >
+                          <Mail className="size-3" />
+                          <span className="truncate">
+                            {shipment.receiverEmail}
+                          </span>
+                        </a>
+                      </>
+                    )}
                     <span>•</span>
                     <span className="truncate">
                       <MapPin className="size-3 inline mr-1" />
@@ -296,7 +355,7 @@ export function CourierOverview() {
                     href={`/courier/shipments/${shipment.id}`}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "sm" }),
-                      "rounded-xl text-xs"
+                      "rounded-xl text-xs",
                     )}
                   >
                     <span>Details</span>
@@ -320,7 +379,8 @@ export function CourierOverview() {
               Delivery Manifest
             </h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Access the complete list of assigned consignments, filter by status, and trigger state transitions.
+              Access the complete list of assigned consignments, filter by
+              status, and trigger state transitions.
             </p>
           </div>
 
@@ -329,7 +389,7 @@ export function CourierOverview() {
               href="/courier/shipments"
               className={cn(
                 buttonVariants({ variant: "default", size: "default" }),
-                "rounded-xl gap-2 w-full font-semibold"
+                "rounded-xl gap-2 w-full font-semibold",
               )}
             >
               <span>Open Delivery Manifest</span>
@@ -347,7 +407,8 @@ export function CourierOverview() {
               Completed Delivery History
             </h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Review completed consignments, confirmed OTP delivery records, and reconciled Cash on Delivery sums.
+              Review completed consignments, confirmed OTP delivery records, and
+              reconciled Cash on Delivery sums.
             </p>
           </div>
 
@@ -356,7 +417,7 @@ export function CourierOverview() {
               href="/courier/history"
               className={cn(
                 buttonVariants({ variant: "outline", size: "default" }),
-                "rounded-xl gap-2 w-full font-medium"
+                "rounded-xl gap-2 w-full font-medium",
               )}
             >
               <span>Review Completed Runs</span>
@@ -365,6 +426,15 @@ export function CourierOverview() {
           </div>
         </div>
       </div>
+      {/* COD Remittance Handover & Payment Modal */}
+      <RemitCodModal
+        open={remitModalOpen}
+        onOpenChange={setRemitModalOpen}
+        unremittedAmount={metrics.codCollectedToday}
+        onRemittedSuccess={() => {
+          setRemittedToday(true);
+        }}
+      />
     </div>
   );
 }

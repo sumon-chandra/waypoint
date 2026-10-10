@@ -24,6 +24,7 @@ export interface User {
   banExpires: string | null;
   stripeCustomerId: string | null;
   hubId: string | null;
+  phone?: string | null;
   createdAt: string;
   updatedAt: string;
 }

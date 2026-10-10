@@ -13,6 +13,7 @@ import {
   Building2,
   History,
   RotateCw,
+  Mail,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -179,7 +180,7 @@ export function CourierShipmentTerminal({
               <p className="text-lg font-bold text-foreground">
                 {shipment.receiverName}
               </p>
-              <div className="pt-1">
+              <div className="flex flex-wrap items-center gap-2 pt-1">
                 <a
                   href={`tel:${shipment.receiverPhone}`}
                   className="inline-flex items-center gap-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold px-3 py-1.5 text-xs transition-colors"
@@ -187,6 +188,15 @@ export function CourierShipmentTerminal({
                   <Phone className="size-3.5" />
                   <span>Call Recipient ({shipment.receiverPhone})</span>
                 </a>
+                {shipment.receiverEmail && (
+                  <a
+                    href={`mailto:${shipment.receiverEmail}`}
+                    className="inline-flex items-center gap-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-medium px-3 py-1.5 text-xs transition-colors"
+                  >
+                    <Mail className="size-3.5 text-muted-foreground" />
+                    <span>{shipment.receiverEmail}</span>
+                  </a>
+                )}
               </div>
             </div>
 

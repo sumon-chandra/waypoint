@@ -83,11 +83,16 @@ const BookingConfirmationModal = ({
 
             {/* Booking Summary Attributes */}
             <div className="rounded-2xl border border-border/80 bg-muted/20 p-4 space-y-2.5 text-xs">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-start">
                 <span className="text-muted-foreground">Recipient</span>
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground text-right">
                   {createdShipment.receiverName} (
                   {createdShipment.receiverPhone})
+                  {createdShipment.receiverEmail && (
+                    <span className="block text-[11px] text-muted-foreground font-normal">
+                      {createdShipment.receiverEmail}
+                    </span>
+                  )}
                 </span>
               </div>
               <div className="flex justify-between items-center">

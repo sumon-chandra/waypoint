@@ -20,7 +20,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useCompleteDelivery } from "../../api/useCompleteDelivery";
@@ -57,11 +56,6 @@ export function CompleteDeliveryModal({
   const [digits, setDigits] = React.useState<string[]>(["", "", "", ""]);
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
-  // COD Cash collected
-  const defaultCod = shipment.codAmount ?? 0;
-  const [cashCollected, setCashCollected] = React.useState<number>(defaultCod);
-  const [cashError, setCashError] = React.useState<string | null>(null);
-
   // Security lockdown & attempt tracking
   const [failedAttempts, setFailedAttempts] = React.useState<number>(0);
   const isLocked = failedAttempts >= MAX_FAILED_ATTEMPTS;
@@ -73,13 +67,11 @@ export function CompleteDeliveryModal({
   React.useEffect(() => {
     if (open) {
       setDigits(["", "", "", ""]);
-      setCashCollected(shipment.codAmount ?? 0);
-      setCashError(null);
       setTimeout(() => {
         inputRefs.current[0]?.focus();
       }, 100);
     }
-  }, [open, shipment.codAmount]);
+  }, [open]);
 
   // Cooldown interval timer
   React.useEffect(() => {
@@ -147,24 +139,12 @@ export function CompleteDeliveryModal({
     e.preventDefault();
     if (isLocked || !isOtpComplete) return;
 
-    // Validate cash collection if CASH
-    if (shipment.paymentType === "CASH") {
-      const requiredAmount = shipment.codAmount ?? 0;
-      if (cashCollected < requiredAmount) {
-        setCashError(
-          `Collected cash cannot be less than the COD amount of ৳${requiredAmount}`,
-        );
-        return;
-      }
-      setCashError(null);
-    }
-
     try {
       await completeMutation.mutateAsync({
         shipmentId: shipment.id,
         otp: otpCode,
         cashCollected:
-          shipment.paymentType === "CASH" ? Number(cashCollected) : undefined,
+          shipment.paymentType === "CASH" ? (shipment.codAmount ?? 0) : undefined,
       });
 
       onOpenChange(false);
@@ -223,60 +203,24 @@ export function CompleteDeliveryModal({
             </div>
           ) : null}
 
-          {/* PAYMENT TYPE DISPLAY & COD CASH INPUT (AGENTS.md Section 9) */}
+          {/* PAYMENT TYPE DISPLAY & COD CASH ADVISORY */}
           {shipment.paymentType === "CASH" ? (
-            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs uppercase tracking-wider">
                   <Banknote className="size-4" />
                   <span>Collect Cash on Delivery</span>
                 </div>
                 <Badge
                   variant="outline"
-                  className="border-amber-500/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold"
+                  className="border-amber-500/40 bg-amber-500/15 text-amber-700 dark:text-amber-400 text-xs font-mono font-bold px-2.5 py-0.5"
                 >
-                  Cash Due: ৳{shipment.codAmount ?? 0}
+                  Due: ৳{shipment.codAmount ?? 0}
                 </Badge>
               </div>
-
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="cashCollected"
-                  className="text-xs font-semibold"
-                >
-                  Cash Collected from Recipient (৳){" "}
-                  <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                    ৳
-                  </span>
-                  <Input
-                    id="cashCollected"
-                    type="number"
-                    min={shipment.codAmount ?? 0}
-                    step={1}
-                    value={cashCollected}
-                    onChange={(e) => {
-                      setCashCollected(Number(e.target.value));
-                      if (cashError) setCashError(null);
-                    }}
-                    disabled={isLocked || completeMutation.isPending}
-                    className="pl-8 font-mono font-bold"
-                    placeholder="Enter cash collected"
-                  />
-                </div>
-                {cashError ? (
-                  <p className="text-[11px] text-destructive font-medium">
-                    {cashError}
-                  </p>
-                ) : (
-                  <p className="text-[11px] text-muted-foreground">
-                    Must collect exactly or greater than ৳
-                    {shipment.codAmount ?? 0}.
-                  </p>
-                )}
-              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Collect exact cash amount of <strong className="text-foreground">৳{shipment.codAmount ?? 0}</strong> from the recipient before entering the 4-digit verification code.
+              </p>
             </div>
           ) : (
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex items-center justify-between">

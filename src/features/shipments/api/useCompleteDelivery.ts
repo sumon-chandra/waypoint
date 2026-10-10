@@ -34,7 +34,11 @@ export function useCompleteDelivery() {
     },
     onSuccess: (shipment) => {
       toast.success(
-        `Consignment #${shipment.trackingNumber} successfully delivered!`
+        `Consignment #${shipment.trackingNumber} successfully delivered!`,
+        {
+          description:
+            "Automated proof-of-delivery receipts dispatched to sender and recipient emails.",
+        }
       );
       queryClient.invalidateQueries({ queryKey: ["shipments"] });
     },

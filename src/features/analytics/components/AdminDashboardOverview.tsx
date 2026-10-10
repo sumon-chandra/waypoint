@@ -611,18 +611,42 @@ export function AdminDashboardOverview() {
                       {shipment.deliveryType}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span>
                       To:{" "}
                       <strong className="text-foreground">
                         {shipment.receiverName}
                       </strong>
+                      {shipment.receiverPhone ? ` (${shipment.receiverPhone})` : ""}
                     </span>
+                    {shipment.receiverEmail && (
+                      <>
+                        <span>•</span>
+                        <span className="truncate max-w-[180px]" title={shipment.receiverEmail}>
+                          {shipment.receiverEmail}
+                        </span>
+                      </>
+                    )}
                     <span>•</span>
                     <span>{shipment.receiverDistrict ?? "Bangladesh"}</span>
                     <span>•</span>
                     <span>{shipment.weightKg} kg</span>
                   </div>
+
+                  {shipment.courierId && (() => {
+                    const courier =
+                      (shipment as any).courier ||
+                      usersData?.users?.find((u) => u.id === shipment.courierId);
+                    return (
+                      <div className="flex flex-wrap items-center gap-x-2 text-[11px] text-muted-foreground pt-0.5">
+                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                          Rider: {courier?.name ?? "Assigned"}
+                        </span>
+                        {courier?.email && <span>• {courier.email}</span>}
+                        {courier?.phone && <span className="font-mono">• {courier.phone}</span>}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">

@@ -56,6 +56,33 @@ export const registerSchema = z
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string("Email address cannot be empty")
+    .trim()
+    .min(1, "Email address is required")
+    .email("Please enter a valid email address"),
+});
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().optional(),
+    newPassword: z
+      .string("Password cannot be empty")
+      .min(6, "Password must be at least 6 characters"),
+    confirmPassword: z
+      .string("Please confirm your password")
+      .min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
 /**
  * Backend API Payload and Response contracts
  */

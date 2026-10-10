@@ -166,3 +166,75 @@ export function useGoogleAuthMutation() {
     },
   });
 }
+
+/**
+ * Calls backend forgot-password endpoint: POST /auth/forgot-password
+ */
+export async function forgotPassword(payload: { email: string }): Promise<ApiResponse<null>> {
+  const response = await api.post<ApiResponse<null>>("/auth/forgot-password", payload);
+  return response.data;
+}
+
+/**
+ * TanStack Mutation Hook for requesting password reset instructions
+ */
+export function useForgotPasswordMutation() {
+  return useMutation({
+    mutationFn: forgotPassword,
+    onSuccess: () => {
+      toast.success("Reset link dispatched!", {
+        description: "Please check your email inbox for password reset instructions.",
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.message ||
+        error?.response?.data?.message ||
+        "Failed to request password reset. Please check your email and try again.";
+
+      toast.error("Request failed", {
+        description: message,
+      });
+    },
+  });
+}
+
+/**
+ * Calls backend reset-password endpoint: POST /auth/reset-password
+ */
+export async function resetPassword(payload: {
+  token?: string;
+  newPassword: string;
+}): Promise<ApiResponse<null>> {
+  const response = await api.post<ApiResponse<null>>("/auth/reset-password", {
+    token: payload.token,
+    newPassword: payload.newPassword,
+    password: payload.newPassword,
+  });
+  return response.data;
+}
+
+/**
+ * TanStack Mutation Hook for confirming new password
+ */
+export function useResetPasswordMutation() {
+  return useMutation({
+    mutationFn: resetPassword,
+    onSuccess: () => {
+      toast.success("Password reset successfully!", {
+        description: "You can now sign in using your new credentials.",
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.message ||
+        error?.response?.data?.message ||
+        "Failed to reset password. The link or token may have expired.";
+
+      toast.error("Password reset failed", {
+        description: message,
+      });
+    },
+  });
+}
+

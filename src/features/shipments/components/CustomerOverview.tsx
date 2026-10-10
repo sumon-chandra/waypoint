@@ -41,15 +41,15 @@ export function CustomerOverview() {
   // Compute live KPIs
   const kpis = React.useMemo(() => {
     const activeDeliveries = shipments.filter((s) =>
-      ACTIVE_STATUS_SET.has(s.status)
+      ACTIVE_STATUS_SET.has(s.status),
     ).length;
 
     const deliveredParcels = shipments.filter(
-      (s) => s.status === "DELIVERED"
+      (s) => s.status === "DELIVERED",
     ).length;
 
     const unpaidShipments = shipments.filter(
-      (s) => s.paymentType === "CARD" && s.paymentStatus === "UNPAID"
+      (s) => s.paymentType === "CARD" && s.paymentStatus === "UNPAID",
     );
 
     const unpaidCount = unpaidShipments.length;
@@ -67,7 +67,7 @@ export function CustomerOverview() {
     return [...shipments]
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
       .slice(0, 4);
   }, [shipments]);
@@ -89,7 +89,8 @@ export function CustomerOverview() {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Real-time consignment telemetry, instant parcel bookings, and verified milestone tracking across Bangladesh.
+              Real-time consignment telemetry, instant parcel bookings, and
+              verified milestone tracking across Bangladesh.
             </p>
           </div>
 
@@ -98,7 +99,7 @@ export function CustomerOverview() {
               href="/customer/book"
               className={cn(
                 buttonVariants({ variant: "default", size: "default" }),
-                "rounded-xl gap-2 font-semibold shadow-xs"
+                "rounded-xl gap-2 font-semibold shadow-xs",
               )}
             >
               <PlusCircle className="size-4" />
@@ -169,7 +170,7 @@ export function CustomerOverview() {
                 "size-9 rounded-xl border flex items-center justify-center",
                 kpis.unpaidCount > 0
                   ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                  : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20"
+                  : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
               )}
             >
               <CreditCard className="size-4" />
@@ -184,7 +185,10 @@ export function CustomerOverview() {
                   {kpis.unpaidCount}
                 </p>
                 {kpis.unpaidCount > 0 && (
-                  <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/30">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] text-amber-600 border-amber-500/30"
+                  >
                     Action required
                   </Badge>
                 )}
@@ -207,9 +211,12 @@ export function CustomerOverview() {
             <div className="size-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <Truck className="size-6" />
             </div>
-            <h2 className="text-lg font-bold text-foreground">Active Order Tracking</h2>
+            <h2 className="text-lg font-bold text-foreground">
+              Active Order Tracking
+            </h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Follow your packages in real time through sorting hubs, highway linehaul transports, and neighborhood courier riders.
+              Follow your packages in real time through sorting hubs, highway
+              linehaul transports, and neighborhood courier riders.
             </p>
           </div>
 
@@ -218,7 +225,7 @@ export function CustomerOverview() {
               href="/customer/tracking"
               className={cn(
                 buttonVariants({ variant: "default", size: "default" }),
-                "rounded-xl gap-2 w-full font-semibold"
+                "rounded-xl gap-2 w-full font-semibold",
               )}
             >
               <span>Open Live Tracking</span>
@@ -233,9 +240,12 @@ export function CustomerOverview() {
             <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
               <PlusCircle className="size-6" />
             </div>
-            <h2 className="text-lg font-bold text-foreground">Book a Consignment</h2>
+            <h2 className="text-lg font-bold text-foreground">
+              Book a Consignment
+            </h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Generate digital waypoint waybills with instant QR routing tags across all 64 districts in Bangladesh.
+              Generate digital waypoint waybills with instant QR routing tags
+              across all 64 districts in Bangladesh.
             </p>
           </div>
 
@@ -244,7 +254,7 @@ export function CustomerOverview() {
               href="/customer/book"
               className={cn(
                 buttonVariants({ variant: "outline", size: "default" }),
-                "rounded-xl gap-2 w-full font-medium"
+                "rounded-xl gap-2 w-full font-medium",
               )}
             >
               <Package className="size-4" />
@@ -271,7 +281,7 @@ export function CustomerOverview() {
             href="/customer/shipments"
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
-              "rounded-xl text-xs gap-1.5 font-semibold text-primary hover:text-primary"
+              "rounded-xl text-xs gap-1.5 font-semibold text-primary hover:text-primary",
             )}
           >
             <span>View All Shipments</span>
@@ -297,13 +307,14 @@ export function CustomerOverview() {
         ) : recentShipments.length === 0 ? (
           <div className="text-center py-8 space-y-3">
             <p className="text-xs text-muted-foreground">
-              No recent parcels found. Create your first shipment to view live updates here.
+              No recent parcels found. Create your first shipment to view live
+              updates here.
             </p>
             <Link
               href="/customer/book"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl gap-1.5 text-xs font-semibold"
+                "rounded-xl gap-1.5 text-xs font-semibold",
               )}
             >
               <PlusCircle className="size-3.5" />
@@ -330,41 +341,60 @@ export function CustomerOverview() {
                       </span>
                       <Badge
                         variant="outline"
-                        className={cn("text-[10px] py-0", statusBadge.className)}
+                        className={cn(
+                          "text-[10px] py-0",
+                          statusBadge.className,
+                        )}
                       >
                         {statusBadge.label}
                       </Badge>
                       <Badge variant="secondary" className="text-[10px] py-0">
-                        {shipment.deliveryType === "LOCAL" ? "Local" : "Inter-District"}
+                        {shipment.deliveryType === "LOCAL"
+                          ? "Local"
+                          : "Inter-District"}
                       </Badge>
                     </div>
 
-                    <p className="text-xs text-muted-foreground truncate">
-                      To: <span className="font-semibold text-foreground">{shipment.receiverName}</span> (
-                      {shipment.receiverDistrict || "Bangladesh"})
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    {isUnpaidCard && (
-                      <PayNowButton
-                        shipmentId={shipment.id}
-                        label="Pay Now"
-                        size="xs"
-                        className="rounded-lg text-xs"
-                      />
-                    )}
-
-                    <Link
-                      href={`/customer/tracking?id=${encodeURIComponent(shipment.trackingNumber)}`}
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "sm" }),
-                        "rounded-xl gap-1 text-xs font-semibold"
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs text-muted-foreground truncate">
+                        To:{" "}
+                        <span className="font-semibold text-foreground">
+                          {shipment.receiverName}
+                        </span>{" "}
+                        ({shipment.receiverPhone}) •{" "}
+                        {shipment.receiverDistrict || "Bangladesh"}
+                      </p>
+                      {shipment.receiverEmail && (
+                        <p
+                          className="text-[11px] text-muted-foreground truncate"
+                          title={shipment.receiverEmail}
+                        >
+                          {shipment.receiverEmail}
+                        </p>
                       )}
-                    >
-                      <Truck className="size-3.5" />
-                      <span>Track</span>
-                    </Link>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isUnpaidCard && (
+                        <PayNowButton
+                          shipmentId={shipment.id}
+                          label="Pay Now"
+                          size="xs"
+                          className="rounded-lg text-xs"
+                        />
+                      )}
+
+                      <Link
+                        href={`/customer/tracking?id=${encodeURIComponent(shipment.trackingNumber)}`}
+                        className={cn(
+                          buttonVariants({ variant: "outline", size: "sm" }),
+                          "rounded-xl gap-1 text-xs font-semibold",
+                        )}
+                      >
+                        <Truck className="size-3.5" />
+                        <span>Track</span>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               );

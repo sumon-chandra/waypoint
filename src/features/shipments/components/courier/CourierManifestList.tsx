@@ -47,6 +47,7 @@ export function CourierManifestList() {
         s.trackingNumber.toLowerCase().includes(q) ||
         s.receiverName.toLowerCase().includes(q) ||
         s.receiverPhone.includes(q) ||
+        (s.receiverEmail && s.receiverEmail.toLowerCase().includes(q)) ||
         s.receiverDistrict?.toLowerCase().includes(q) ||
         s.receiverAddress?.toLowerCase().includes(q)
     );

@@ -42,6 +42,7 @@ export function CourierDeliveryHistoryTable() {
         s.trackingNumber.toLowerCase().includes(q) ||
         s.receiverName.toLowerCase().includes(q) ||
         s.receiverPhone.includes(q) ||
+        (s.receiverEmail && s.receiverEmail.toLowerCase().includes(q)) ||
         s.receiverDistrict?.toLowerCase().includes(q)
     );
   }, [deliveredShipments, searchQuery]);
@@ -173,6 +174,11 @@ export function CourierDeliveryHistoryTable() {
                         <p className="text-[11px] text-muted-foreground">
                           {s.receiverPhone}
                         </p>
+                        {s.receiverEmail && (
+                          <p className="text-[11px] text-muted-foreground/80 truncate max-w-[160px]" title={s.receiverEmail}>
+                            {s.receiverEmail}
+                          </p>
+                        )}
                       </div>
                     </td>
                     <td className="py-4 px-4">
