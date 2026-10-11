@@ -86,12 +86,17 @@ export default function RegisterPage() {
 
         // Direct navigation to role-based dashboard (no /login redirect)
         const userRole = response?.data?.user?.role || value.role;
-        if (userRole === "ADMIN") {
-          router.push("/admin");
-        } else if (userRole === "COURIER") {
-          router.push("/courier");
+        const targetDashboard =
+          userRole === "ADMIN"
+            ? "/admin"
+            : userRole === "COURIER"
+            ? "/courier"
+            : "/customer";
+
+        if (typeof window !== "undefined") {
+          window.location.replace(targetDashboard);
         } else {
-          router.push("/customer");
+          router.push(targetDashboard);
         }
       } catch (err: any) {
         const message =

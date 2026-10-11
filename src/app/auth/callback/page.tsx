@@ -115,7 +115,11 @@ function CallbackContent() {
 
         // Brief delay for transition
         setTimeout(() => {
-          router.replace(dashboardPath);
+          if (typeof window !== "undefined") {
+            window.location.replace(dashboardPath);
+          } else {
+            router.replace(dashboardPath);
+          }
         }, 800);
       } catch (err: any) {
         setStatus("error");

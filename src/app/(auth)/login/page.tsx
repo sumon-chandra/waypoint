@@ -67,16 +67,17 @@ function LoginFormContent() {
 
         // Directly navigate to role-based dashboard for each logged user
         const userRole = response.data?.user?.role;
-        console.log({ userRole });
-        if (userRole === "ADMIN") {
-          console.log("admin");
-          router.push("/admin");
-        } else if (userRole === "COURIER") {
-          console.log("courier");
-          router.push("/courier");
+        const targetDashboard =
+          userRole === "ADMIN"
+            ? "/admin"
+            : userRole === "COURIER"
+            ? "/courier"
+            : "/customer";
+
+        if (typeof window !== "undefined") {
+          window.location.replace(targetDashboard);
         } else {
-          console.log("customer");
-          router.push("/customer");
+          router.push(targetDashboard);
         }
       } catch (err: any) {
         const message =
