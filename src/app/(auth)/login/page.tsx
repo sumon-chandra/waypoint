@@ -67,6 +67,7 @@ function LoginFormContent() {
 
         // Directly navigate to role-based dashboard for each logged user
         const userRole = response.data?.user?.role;
+        console.log({ userRole });
         if (userRole === "ADMIN") {
           console.log("admin");
           router.push("/admin");
