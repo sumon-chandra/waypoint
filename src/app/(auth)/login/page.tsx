@@ -68,10 +68,13 @@ function LoginFormContent() {
         // Directly navigate to role-based dashboard for each logged user
         const userRole = response.data?.user?.role;
         if (userRole === "ADMIN") {
+          console.log("admin");
           router.push("/admin");
         } else if (userRole === "COURIER") {
+          console.log("courier");
           router.push("/courier");
         } else {
+          console.log("customer");
           router.push("/customer");
         }
       } catch (err: any) {
@@ -109,7 +112,8 @@ function LoginFormContent() {
             <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium animate-in fade-in duration-200">
               <CheckCircle2 className="size-4 shrink-0 mt-0.5" />
               <span>
-                Account created successfully! Please sign in with your email and password.
+                Account created successfully! Please sign in with your email and
+                password.
               </span>
             </div>
           )}
@@ -190,9 +194,7 @@ function LoginFormContent() {
               validators={{
                 onChange: ({ value }) => {
                   const res = loginSchema.shape.email.safeParse(value);
-                  return res.success
-                    ? undefined
-                    : res.error.issues[0]?.message;
+                  return res.success ? undefined : res.error.issues[0]?.message;
                 },
               }}
             >
@@ -229,9 +231,7 @@ function LoginFormContent() {
               validators={{
                 onChange: ({ value }) => {
                   const res = loginSchema.shape.password.safeParse(value);
-                  return res.success
-                    ? undefined
-                    : res.error.issues[0]?.message;
+                  return res.success ? undefined : res.error.issues[0]?.message;
                 },
               }}
             >
@@ -353,7 +353,11 @@ export default function LoginPage() {
       {/* Background ambient lighting */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 size-96 rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10" />
 
-      <React.Suspense fallback={<div className="w-full max-w-md h-96 animate-pulse bg-card/50 rounded-2xl" />}>
+      <React.Suspense
+        fallback={
+          <div className="w-full max-w-md h-96 animate-pulse bg-card/50 rounded-2xl" />
+        }
+      >
         <LoginFormContent />
       </React.Suspense>
     </div>
