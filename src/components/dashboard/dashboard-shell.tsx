@@ -35,6 +35,13 @@ function DashboardLayoutContent({ children }: DashboardShellProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [sidebarOpen, closeSidebar]);
 
+  // Redirect unauthenticated users as a safeguard (in addition to edge middleware)
+  React.useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [isLoading, isAuthenticated, router, pathname]);
+
   // Loading skeleton while checking session
   if (isLoading) {
     return (
@@ -69,13 +76,6 @@ function DashboardLayoutContent({ children }: DashboardShellProps) {
       </div>
     );
   }
-
-  // Redirect unauthenticated users as a safeguard (in addition to edge middleware)
-  React.useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
-    }
-  }, [isLoading, isAuthenticated, router, pathname]);
 
   if (!isAuthenticated) {
     return null;
