@@ -65,14 +65,7 @@ function LoginFormContent() {
           });
         }
 
-        // Honor redirect URL if provided by middleware
-        const redirectParam = searchParams.get("redirect");
-        if (redirectParam && redirectParam.startsWith("/")) {
-          router.push(redirectParam);
-          return;
-        }
-
-        // Otherwise redirect to role-based dashboard
+        // Directly navigate to role-based dashboard for each logged user
         const userRole = response.data?.user?.role;
         if (userRole === "ADMIN") {
           router.push("/admin");

@@ -35,12 +35,12 @@ function DashboardLayoutContent({ children }: DashboardShellProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [sidebarOpen, closeSidebar]);
 
-  // Redirect unauthenticated users as a safeguard (in addition to edge middleware)
+  // Redirect unauthenticated users directly to login
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      router.push("/login");
     }
-  }, [isLoading, isAuthenticated, router, pathname]);
+  }, [isLoading, isAuthenticated, router]);
 
   // Loading skeleton while checking session
   if (isLoading) {

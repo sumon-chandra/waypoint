@@ -20,7 +20,7 @@ export default function DashboardGatewayPage() {
     if (isLoading) return;
 
     if (!isAuthenticated || !user) {
-      router.replace("/login?redirect=/dashboard");
+      router.replace("/login");
       return;
     }
 

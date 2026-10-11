@@ -43,7 +43,7 @@ export default function ProfilePage() {
   // Fallback client check:
   React.useEffect(() => {
     if (!isAuthLoading && !authUser) {
-      router.push("/login?redirect=/profile");
+      router.push("/login");
     }
   }, [isAuthLoading, authUser, router]);
 

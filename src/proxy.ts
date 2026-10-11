@@ -24,26 +24,6 @@ export function proxy(request: NextRequest) {
 
   // 1. Authenticated user trying to access /login, /register, etc.
   if (isAuthRoute && isAuthenticated) {
-    const referer = request.headers.get("referer");
-    if (referer) {
-      try {
-        const refererUrl = new URL(referer);
-        // Only redirect back if same origin and not another auth route
-        if (
-          refererUrl.origin === request.nextUrl.origin &&
-          !refererUrl.pathname.startsWith("/login") &&
-          !refererUrl.pathname.startsWith("/register") &&
-          !refererUrl.pathname.startsWith("/forgot-password") &&
-          !refererUrl.pathname.startsWith("/reset-password")
-        ) {
-          return NextResponse.redirect(refererUrl);
-        }
-      } catch {
-        // Fallback to role dashboard if referer parsing fails
-      }
-    }
-
-    // Default fallback to user's role-based dashboard
     const dashboardPath =
       userRole === "ADMIN"
         ? "/admin"
@@ -56,9 +36,7 @@ export function proxy(request: NextRequest) {
 
   // 2. Unauthenticated user trying to access protected routes
   if (isProtectedRoute && !isAuthenticated) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // 3. Role-based protection for protected routes

@@ -104,13 +104,18 @@ function CallbackContent() {
           description: `Welcome back, ${response.data?.user?.name || "Member"}.`,
         });
 
-        // Navigate to the home page after successful Google login
-        const targetPath =
-          savedRedirect && savedRedirect.startsWith("/") ? savedRedirect : "/";
+        // Directly route to role-based dashboard
+        const role = response.data?.user?.role;
+        const dashboardPath =
+          role === "ADMIN"
+            ? "/admin"
+            : role === "COURIER"
+            ? "/courier"
+            : "/customer";
 
         // Brief delay for transition
         setTimeout(() => {
-          router.replace(targetPath);
+          router.replace(dashboardPath);
         }, 800);
       } catch (err: any) {
         setStatus("error");
