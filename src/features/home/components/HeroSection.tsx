@@ -15,8 +15,6 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const SAMPLE_TRACKING_CODES = ["TRK-DHK-8821", "TRK-CTG-4482", "TRK-SYL-1029"];
-
 export function HeroSection() {
   const router = useRouter();
   const [trackingCode, setTrackingCode] = React.useState("");
@@ -31,11 +29,6 @@ export function HeroSection() {
     }
     setError(false);
     router.push(`/track/${encodeURIComponent(trimmed)}`);
-  };
-
-  const handleSampleClick = (code: string) => {
-    setTrackingCode(code);
-    router.push(`/track/${encodeURIComponent(code)}`);
   };
 
   return (
@@ -95,7 +88,7 @@ export function HeroSection() {
                   setTrackingCode(e.target.value);
                   if (error) setError(false);
                 }}
-                placeholder="Enter Consignment or Tracking # (e.g. TRK-DHK-8821)"
+                placeholder="Enter consignment or tracking number..."
                 aria-label="Track consignment code"
                 className="w-full bg-transparent px-2 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
@@ -107,21 +100,6 @@ export function HeroSection() {
                 <ArrowRight className="size-3.5" />
               </button>
             </form>
-
-            {/* Quick Sample Tracking Codes Chips */}
-            {/* <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2.5 text-[11px] text-muted-foreground">
-              <span className="font-medium">Live samples:</span>
-              {SAMPLE_TRACKING_CODES.map((code) => (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => handleSampleClick(code)}
-                  className="rounded-md border border-border/60 bg-muted/50 px-2 py-0.5 font-mono text-[10px] text-foreground hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
-                >
-                  {code}
-                </button>
-              ))}
-            </div> */}
           </div>
 
           {/* Dual Action Buttons with hover micro-animations */}

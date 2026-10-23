@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPinOff, LayoutDashboard, Truck, Package, ArrowLeft, Home } from "lucide-react";
+import {
+  MapPinOff,
+  LayoutDashboard,
+  Truck,
+  Package,
+  ArrowLeft,
+  Home,
+} from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Dashboard Resource Not Found | Waypoint",
-  description: "The requested operational resource or dashboard module could not be found.",
+  description:
+    "The requested operational resource or dashboard module could not be found.",
 };
 
 export default function DashboardNotFound() {
@@ -30,7 +38,8 @@ export default function DashboardNotFound() {
             Resource Not Found
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-            The consignment, hub telemetry, or operational sub-route you navigated to does not exist or may have been archived.
+            The consignment, hub telemetry, or operational sub-route you
+            navigated to does not exist or may have been archived.
           </p>
         </div>
 
@@ -40,7 +49,7 @@ export default function DashboardNotFound() {
             href="/dashboard"
             className={cn(
               buttonVariants({ variant: "default", size: "default" }),
-              "w-full sm:w-auto rounded-xl gap-2 font-semibold shadow-xs"
+              "w-full sm:w-auto rounded-xl gap-2 font-semibold shadow-xs",
             )}
           >
             <LayoutDashboard className="size-4" />
@@ -51,7 +60,7 @@ export default function DashboardNotFound() {
             href="/"
             className={cn(
               buttonVariants({ variant: "outline", size: "default" }),
-              "w-full sm:w-auto rounded-xl gap-2 font-medium"
+              "w-full sm:w-auto rounded-xl gap-2 font-medium",
             )}
           >
             <Home className="size-4" />
@@ -62,7 +71,7 @@ export default function DashboardNotFound() {
             href="/customer/tracking"
             className={cn(
               buttonVariants({ variant: "ghost", size: "default" }),
-              "w-full sm:w-auto rounded-xl gap-2 text-xs text-muted-foreground hover:text-foreground"
+              "w-full sm:w-auto rounded-xl gap-2 text-xs text-muted-foreground hover:text-foreground",
             )}
           >
             <Truck className="size-4" />

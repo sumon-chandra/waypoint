@@ -14,7 +14,7 @@ const DIVISIONAL_GATEWAYS = [
     address: "Plot 42, Tejgaon Industrial Area, Dhaka-1208",
     capacity: "45,000 / day",
     cutoff: "18:00 (6:00 PM)",
-    phone: "01711-001001",
+    phone: "09612-WAYPOINT",
     leadRole: "Automated Laser Sorting & National Airfreight Dispatch",
   },
   {
@@ -25,7 +25,7 @@ const DIVISIONAL_GATEWAYS = [
     address: "Agrabad Commercial Area, Strand Road, Chittagong",
     capacity: "38,000 / day",
     cutoff: "18:00 (6:00 PM)",
-    phone: "01711-002001",
+    phone: "09612-WAYPOINT",
     leadRole: "Maritime Freight Terminal & Southern Coastal Corridor",
   },
   {
@@ -36,7 +36,7 @@ const DIVISIONAL_GATEWAYS = [
     address: "Zindabazar Point, Amberkhana Road, Sylhet",
     capacity: "20,000 / day",
     cutoff: "18:00 (6:00 PM)",
-    phone: "01711-003001",
+    phone: "09612-WAYPOINT",
     leadRole: "Northeast Highway Line-Haul & Tea Valley Micro-Depots",
   },
   {
@@ -47,7 +47,7 @@ const DIVISIONAL_GATEWAYS = [
     address: "Banani Mor, Rangpur-Dhaka Highway, Bogra",
     capacity: "26,000 / day",
     cutoff: "18:00 (6:00 PM)",
-    phone: "01711-004001",
+    phone: "09612-WAYPOINT",
     leadRole: "Northern Highway Linehaul Hub & Agro Distribution Center",
   },
   {
@@ -58,7 +58,7 @@ const DIVISIONAL_GATEWAYS = [
     address: "Shibbari Mor, KDA Avenue, Khulna",
     capacity: "22,000 / day",
     cutoff: "18:00 (6:00 PM)",
-    phone: "01711-005001",
+    phone: "09612-WAYPOINT",
     leadRole: "Southwest Cross-Dock & Benapole Border Forwarding",
   },
 ];
@@ -162,7 +162,7 @@ export function HubsHighlightTabs() {
               href="/hubs"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
             >
-              <span>Explore 180+ Facilities</span>
+              <span>Explore All 64 Hub Facilities</span>
               <ArrowRight className="size-3.5" />
             </Link>
           </div>

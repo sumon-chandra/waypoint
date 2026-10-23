@@ -1,6 +1,5 @@
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowRight,
   ShieldCheck,
@@ -14,13 +13,8 @@ import {
   Bot,
   Zap,
   Building2,
-  Star,
-  Quote,
-  ArrowUpRight,
-  Calendar,
   Layers,
   PhoneCall,
-  Search,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -32,83 +26,6 @@ import {
 } from "@/features/home";
 import { getFeaturedServices } from "@/features/services/data/services-data";
 import { ServiceCard } from "@/features/services/components/ServiceCard";
-
-// 3 static logistics insights blog previews
-const BLOG_POSTS = [
-  {
-    id: "cod-playbook",
-    title: "Mastering E-Commerce COD in Bangladesh: How to Cut Return Rates Below 4%",
-    excerpt:
-      "A deep dive into automated phone confirmation, OTP handshakes, and same-day re-attempt protocols that protect merchant margins.",
-    category: "E-Commerce Fulfillment",
-    readTime: "5 min read",
-    date: "Oct 18, 2026",
-    image:
-      "https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=800&q=80",
-    href: "/blog",
-  },
-  {
-    id: "cold-chain-corridor",
-    title: "The Cold-Chain Advantage: Transporting Perishables Across the Padma Highway Corridor",
-    excerpt:
-      "How calibrated 2°C to 8°C thermal telemetry is unlocking next-day delivery for fresh seafood and dairy from the southern coast.",
-    category: "Supply Chain",
-    readTime: "6 min read",
-    date: "Oct 12, 2026",
-    image:
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
-    href: "/blog",
-  },
-  {
-    id: "otp-verification-standard",
-    title: "Eliminating False Claims: Why 4-Digit Handshakes are the Future of Courier Security",
-    excerpt:
-      "Analyzing how automated SMS codes prevent unauthorized drop-offs, courier misreporting, and payment reconciliation disputes.",
-    category: "Logistics Tech",
-    readTime: "4 min read",
-    date: "Oct 05, 2026",
-    image:
-      "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80",
-    href: "/blog",
-  },
-];
-
-// Verified merchant testimonials
-const TESTIMONIALS = [
-  {
-    id: "test-1",
-    author: "Sarah Ahmed",
-    title: "Founder & CEO",
-    company: "TechGear BD",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-    rating: 5,
-    quote:
-      "Waypoint completely transformed our nationwide fulfillment. 99% of our Dhaka-to-Chittagong consignments arrive within 18 hours, and automated COD remittance to our merchant account has eliminated weekly cash reconciliation headaches.",
-    metric: "99.4% On-Time SLA",
-  },
-  {
-    id: "test-2",
-    author: "Dr. Arman Chowdhury",
-    title: "Head of Supply Chain",
-    company: "MedSupply Direct",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-    rating: 5,
-    quote:
-      "Shipping temperature-sensitive diagnostic supplies across all 64 districts was nearly impossible before Waypoint. Their cold-chain telemetry and hub intake scans give our hospital clients full confidence.",
-    metric: "100% Zero-Loss Record",
-  },
-  {
-    id: "test-3",
-    author: "Tanzim Hasan",
-    title: "Operations Director",
-    company: "FashioNova Bangladesh",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-    rating: 5,
-    quote:
-      "During peak Eid season, we dispatched over 14,000 packages in 5 days. Waypoint's 18:00 daily cutoff and automated laser sorting handled our entire surge without a single bottleneck.",
-    metric: "14,000+ Eid Orders Shipped",
-  },
-];
 
 export default function Home() {
   const featuredServices = getFeaturedServices();
@@ -129,7 +46,9 @@ export default function Home() {
                   64
                 </span>
               </div>
-              <p className="text-xs font-bold text-foreground">Districts Connected</p>
+              <p className="text-xs font-bold text-foreground">
+                Districts Connected
+              </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 100% Nationwide Upazila Reach
               </p>
@@ -142,7 +61,9 @@ export default function Home() {
                   99.4%
                 </span>
               </div>
-              <p className="text-xs font-bold text-foreground">On-Time Delivery SLA</p>
+              <p className="text-xs font-bold text-foreground">
+                On-Time Delivery SLA
+              </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 Guaranteed Line-Haul Dispatch
               </p>
@@ -155,7 +76,9 @@ export default function Home() {
                   2.4M+
                 </span>
               </div>
-              <p className="text-xs font-bold text-foreground">Parcels Fulfilled</p>
+              <p className="text-xs font-bold text-foreground">
+                Parcels Fulfilled
+              </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 Zero Lost Consignments Guarantee
               </p>
@@ -168,7 +91,9 @@ export default function Home() {
                   18:00
                 </span>
               </div>
-              <p className="text-xs font-bold text-foreground">Daily Hub Cutoff</p>
+              <p className="text-xs font-bold text-foreground">
+                Daily Hub Cutoff
+              </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 Same-Day Highway Linehaul Departure
               </p>
@@ -200,7 +125,7 @@ export default function Home() {
               href="/services"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
+                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all",
               )}
             >
               <span>Explore All 8 Solutions</span>
@@ -458,7 +383,7 @@ export default function Home() {
               href="/hubs"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
+                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all",
               )}
             >
               <span>View All 64 Hub Details</span>
@@ -470,160 +395,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 8: Verified Merchant Testimonials with Star Ratings */}
-      <section className="w-full py-16 sm:py-24 bg-muted/20 border-y border-border/70">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
-              <Star className="size-3.5 fill-amber-400 text-amber-400" />
-              <span>Verified Merchant Endorsements</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-              Trusted by Bangladesh&apos;s Fastest Growing Brands
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-              Over 12,000+ businesses and enterprise partners rely on Waypoint
-              for transparent logistics.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t) => (
-              <div
-                key={t.id}
-                className="flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs relative hover:border-primary/40 transition-colors"
-              >
-                <div>
-                  {/* Top Star Rating & Metric Badge */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: t.rating }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className="size-4 fill-amber-400 text-amber-400"
-                        />
-                      ))}
-                    </div>
-                    <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                      {t.metric}
-                    </span>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-foreground leading-relaxed italic">
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-border/60 flex items-center gap-3">
-                  <div className="relative size-10 rounded-full overflow-hidden bg-muted shrink-0">
-                    <Image
-                      src={t.avatar}
-                      alt={t.author}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-foreground">
-                      {t.author}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {t.title}, <span className="font-medium text-foreground">{t.company}</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 9: Logistics Insights & Blog Preview (3 articles) */}
-      <section className="w-full py-16 sm:py-24 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
-                <Sparkles className="size-3.5" />
-                <span>Industry Insights & Guides</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Logistics Knowledge & Supply Chain Trends
-              </h2>
-              <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl">
-                Actionable playbooks, return-reduction strategies, and cold-chain
-                architecture written by our logistics operations team.
-              </p>
-            </div>
-
-            <Link
-              href="/blog"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
-              )}
-            >
-              <span>Read All Articles</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {BLOG_POSTS.map((post) => (
-              <Link
-                key={post.id}
-                href={post.href}
-                className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs hover:shadow-lg hover:border-primary/40 transition-all duration-300"
-              >
-                <div>
-                  <div className="relative aspect-16/9 w-full overflow-hidden bg-muted">
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className="rounded-full bg-background/90 px-2.5 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-md border border-border/60">
-                        {post.category}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-5 space-y-2">
-                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="size-3" />
-                        <span>{post.date}</span>
-                      </div>
-                      <span>&bull;</span>
-                      <span>{post.readTime}</span>
-                    </div>
-
-                    <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                      {post.title}
-                    </h3>
-
-                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                      {post.excerpt}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-5 pt-0">
-                  <div className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:underline">
-                    <span>Read Article</span>
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 10: Collapsible FAQ Accordion */}
+      {/* Frequently Asked Questions */}
       <section className="w-full py-16 sm:py-24 bg-muted/20 border-t border-border/70">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -644,7 +416,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 11: Enterprise Dispatch Partner Signup CTA Banner */}
+      {/* Enterprise Dispatch Partner Signup CTA Banner */}
       <section className="w-full py-20 bg-background relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="relative rounded-3xl border border-primary/30 bg-linear-to-br from-primary/15 via-card to-background p-8 sm:p-12 md:p-16 text-center space-y-6 shadow-xl overflow-hidden">
@@ -671,7 +443,7 @@ export default function Home() {
                 href="/register"
                 className={cn(
                   buttonVariants({ variant: "default", size: "lg" }),
-                  "rounded-xl font-bold shadow-lg gap-2 w-full sm:w-auto px-8"
+                  "rounded-xl font-bold shadow-lg gap-2 w-full sm:w-auto px-8",
                 )}
               >
                 <span>Create Merchant Account</span>
@@ -681,7 +453,7 @@ export default function Home() {
                 href="/contact"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
-                  "rounded-xl font-semibold w-full sm:w-auto px-8 bg-card/60 backdrop-blur-sm hover:bg-accent"
+                  "rounded-xl font-semibold w-full sm:w-auto px-8 bg-card/60 backdrop-blur-sm hover:bg-accent",
                 )}
               >
                 <PhoneCall className="size-4 text-primary" />

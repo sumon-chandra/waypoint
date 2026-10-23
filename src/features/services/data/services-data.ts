@@ -13,9 +13,19 @@ export interface ServiceItem {
   id: string;
   title: string;
   tagline: string;
-  category: "Express Courier" | "City Transit" | "Heavy Freight" | "Cold Chain" | "E-Commerce COD" | "Document Rush";
+  category:
+    | "Express Courier"
+    | "City Transit"
+    | "Heavy Freight"
+    | "Cold Chain"
+    | "E-Commerce COD"
+    | "Document Rush";
   coverage: string;
-  locationArea: "all-bangladesh" | "dhaka-metro" | "chittagong-corridor" | "divisional-gateways";
+  locationArea:
+    | "all-bangladesh"
+    | "dhaka-metro"
+    | "chittagong-corridor"
+    | "divisional-gateways";
   badge: string;
   price: number;
   priceDisplay: string;
@@ -59,9 +69,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 428,
     sla: "12 - 24 Hours",
     speedHours: 24,
-    description: "Guaranteed overnight parcel delivery across all 64 districts in Bangladesh with node-to-node barcode scanning and zero blind spots.",
-    longDescription: "Waypoint's flagship Express Parcel Delivery is engineered for high-velocity e-commerce merchants and corporate shippers demanding guaranteed next-day fulfillment. Every consignment is barcoded upon intake, sorted automatically at regional cross-dock terminals, and routed across dedicated line-haul highway lanes connecting all 8 divisions.",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Guaranteed overnight parcel delivery across all 64 districts in Bangladesh with node-to-node barcode scanning and zero blind spots.",
+    longDescription:
+      "Waypoint's flagship Express Parcel Delivery is engineered for high-velocity e-commerce merchants and corporate shippers demanding guaranteed next-day fulfillment. Every consignment is barcoded upon intake, sorted automatically at regional cross-dock terminals, and routed across dedicated line-haul highway lanes connecting all 8 divisions.",
+    image:
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=1200&q=80",
@@ -79,7 +92,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
       volumetricFormula: "L × W × H (cm) / 5000",
       pickupCutoff: "18:00 (6:00 PM) daily",
       transitWindow: "12 – 24 Hours",
-      insuranceCoverage: "Included up to ৳5,000 (Declared value options up to ৳200,000)",
+      insuranceCoverage:
+        "Included up to ৳5,000 (Declared value options up to ৳200,000)",
       trackingUpdateFreq: "Real-time at every physical scan point",
       securityVerification: "4-Digit Recipient OTP Required",
       handlingType: "Barcoded Standard Courier Conveyor",
@@ -92,7 +106,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "TechGear Bangladesh",
         rating: 5,
         date: "2 days ago",
-        comment: "Waypoint Express completely resolved our transit delays. Consignments from Dhaka to Bogra and Sylhet consistently arrive before 2:00 PM next day.",
+        comment:
+          "Waypoint Express completely resolved our transit delays. Consignments from Dhaka to Bogra and Sylhet consistently arrive before 2:00 PM next day.",
         verified: true,
       },
       {
@@ -101,7 +116,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "Aura Boutique BD",
         rating: 5,
         date: "1 week ago",
-        comment: "Node tracking is exceptionally clear. Customers love receiving SMS alerts with the exact hub location.",
+        comment:
+          "Node tracking is exceptionally clear. Customers love receiving SMS alerts with the exact hub location.",
         verified: true,
       },
     ],
@@ -121,9 +137,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 312,
     sla: "4 - 8 Hours",
     speedHours: 6,
-    description: "On-demand intra-city rush delivery dispatched within 45 minutes of booking for urgent documents, perishables, and flash retail.",
-    longDescription: "Our Same-Day City Transit service deploys dedicated motorcycle and micro-van couriers for rapid intra-city transport. Parcels bypass central cross-dock facilities, moving directly from sender pickup to recipient drop-off with live GPS telemetry and direct courier communication.",
-    image: "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=800&q=80",
+    description:
+      "On-demand intra-city rush delivery dispatched within 45 minutes of booking for urgent documents, perishables, and flash retail.",
+    longDescription:
+      "Our Same-Day City Transit service deploys dedicated motorcycle and micro-van couriers for rapid intra-city transport. Parcels bypass central cross-dock facilities, moving directly from sender pickup to recipient drop-off with live GPS telemetry and direct courier communication.",
+    image:
+      "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=80",
@@ -153,7 +172,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "Apex Legal Associates",
         rating: 5,
         date: "3 days ago",
-        comment: "Critical court documents delivered from Motijheel to Uttara in under 3 hours. The OTP signature handshake gives full legal confidence.",
+        comment:
+          "Critical court documents delivered from Motijheel to Uttara in under 3 hours. The OTP signature handshake gives full legal confidence.",
         verified: true,
       },
     ],
@@ -173,9 +193,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 198,
     sla: "24 - 48 Hours",
     speedHours: 36,
-    description: "Heavy freight logistics moving bulk consignments across Waypoint's inter-district highway fleet in weather-sealed container trucks.",
-    longDescription: "Engineered for industrial wholesalers, manufacturers, and volume distributors. Our Linehaul Freight service provides scheduled full-truckload (FTL) and less-than-truckload (LTL) departures connecting all 8 divisional gateways with hydraulic tail-lift loading, pallet wrapping, and weighbridge verification.",
-    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Heavy freight logistics moving bulk consignments across Waypoint's inter-district highway fleet in weather-sealed container trucks.",
+    longDescription:
+      "Engineered for industrial wholesalers, manufacturers, and volume distributors. Our Linehaul Freight service provides scheduled full-truckload (FTL) and less-than-truckload (LTL) departures connecting all 8 divisional gateways with hydraulic tail-lift loading, pallet wrapping, and weighbridge verification.",
+    image:
+      "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1200&q=80",
@@ -205,7 +228,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "Bengal Plastic Ltd",
         rating: 5,
         date: "2 weeks ago",
-        comment: "Moving 2 tons of packaged goods weekly from Gazipur to Chittagong Port terminal. Zero breakage in 8 months of consistent dispatch.",
+        comment:
+          "Moving 2 tons of packaged goods weekly from Gazipur to Chittagong Port terminal. Zero breakage in 8 months of consistent dispatch.",
         verified: true,
       },
     ],
@@ -225,9 +249,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 144,
     sla: "12 - 24 Hours",
     speedHours: 20,
-    description: "Refrigerated transport for temperature-sensitive pharmaceuticals, vaccines, fresh dairy, and frozen foods with continuous data logging.",
-    longDescription: "Waypoint Cold-Chain maintains strict thermal integrity using dual-compressor refrigerated vehicles and PCM thermal boxes. Continuous wireless temperature sensors record microclimate data every 60 seconds, ensuring verifiable cold-chain compliance upon arrival at hospitals, pharmacies, or distributors.",
-    image: "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Refrigerated transport for temperature-sensitive pharmaceuticals, vaccines, fresh dairy, and frozen foods with continuous data logging.",
+    longDescription:
+      "Waypoint Cold-Chain maintains strict thermal integrity using dual-compressor refrigerated vehicles and PCM thermal boxes. Continuous wireless temperature sensors record microclimate data every 60 seconds, ensuring verifiable cold-chain compliance upon arrival at hospitals, pharmacies, or distributors.",
+    image:
+      "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1200&q=80",
@@ -249,7 +276,7 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
       securityVerification: "Recipient Bio-Seal Inspection & OTP",
       handlingType: "Active Refrigerated & Passive PCM",
     },
-    popular: false,
+    popular: true,
     reviews: [
       {
         id: "rev-5",
@@ -257,7 +284,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "Beximco Pharma Distribution",
         rating: 5,
         date: "1 month ago",
-        comment: "The thermal telemetry logs are accepted directly by our quality assurance auditors. Outstanding cold-chain integrity across inter-district runs.",
+        comment:
+          "The thermal telemetry logs are accepted directly by our quality assurance auditors. Outstanding cold-chain integrity across inter-district runs.",
         verified: true,
       },
     ],
@@ -277,9 +305,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 562,
     sla: "24 - 48 Hours",
     speedHours: 30,
-    description: "Bangladesh's most dependable Cash on Delivery network with instant OTP cash handshake and automated daily BEFTN / MFS remittances.",
-    longDescription: "Built specifically for online social commerce (F-Commerce) and e-commerce platforms. Our COD solution combines guaranteed cash collection by trained couriers with next-business-day bank (BEFTN) or MFS (bKash/Nagad) automated payouts, eliminating cashflow choke points for growing businesses.",
-    image: "https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Bangladesh's most dependable Cash on Delivery network with instant OTP cash handshake and automated daily BEFTN / MFS remittances.",
+    longDescription:
+      "Built specifically for online social commerce (F-Commerce) and e-commerce platforms. Our COD solution combines guaranteed cash collection by trained couriers with next-business-day bank (BEFTN) or MFS (bKash/Nagad) automated payouts, eliminating cashflow choke points for growing businesses.",
+    image:
+      "https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1556740758-90de374c12ad?auto=format&fit=crop&w=1200&q=80",
@@ -309,7 +340,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "Khadim Shoes & Leather",
         rating: 5,
         date: "4 days ago",
-        comment: "COD settlements arrive in our City Bank account by 11:00 AM every business day like clockwork. Cash flow anxiety is completely gone.",
+        comment:
+          "COD settlements arrive in our City Bank account by 11:00 AM every business day like clockwork. Cash flow anxiety is completely gone.",
         verified: true,
       },
     ],
@@ -329,9 +361,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 224,
     sla: "12 - 24 Hours",
     speedHours: 18,
-    description: "Confidential document delivery in heavy-duty tamper-evident envelopes with end-to-end chain of custody audit trails for banks and legal firms.",
-    longDescription: "Waypoint Document Express guarantees strict privacy and chain-of-custody verification. Envelopes feature unique serialized barcodes, tamper-indicating adhesive seals, and digital recipient signature capture with OTP verification for passports, deeds, banking instruments, and tender submissions.",
-    image: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Confidential document delivery in heavy-duty tamper-evident envelopes with end-to-end chain of custody audit trails for banks and legal firms.",
+    longDescription:
+      "Waypoint Document Express guarantees strict privacy and chain-of-custody verification. Envelopes feature unique serialized barcodes, tamper-indicating adhesive seals, and digital recipient signature capture with OTP verification for passports, deeds, banking instruments, and tender submissions.",
+    image:
+      "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80",
@@ -361,7 +396,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "Supreme Court Chamber",
         rating: 5,
         date: "3 weeks ago",
-        comment: "The serialized security pouch and mandatory OTP delivery guarantee that legal briefs reach respondents securely and on time.",
+        comment:
+          "The serialized security pouch and mandatory OTP delivery guarantee that legal briefs reach respondents securely and on time.",
         verified: true,
       },
     ],
@@ -381,9 +417,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 168,
     sla: "6 - 12 Hours",
     speedHours: 10,
-    description: "Domestic scheduled air freight for ultra-critical consignments connecting Hazrat Shahjalal International with regional airports.",
-    longDescription: "When highway transit is not fast enough, Waypoint Air Express books scheduled cargo space on domestic daily passenger and freighter flights. Parcels receive expedited security screening at terminal airside checkpoints and rapid last-mile courier transfer upon landing.",
-    image: "https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Domestic scheduled air freight for ultra-critical consignments connecting Hazrat Shahjalal International with regional airports.",
+    longDescription:
+      "When highway transit is not fast enough, Waypoint Air Express books scheduled cargo space on domestic daily passenger and freighter flights. Parcels receive expedited security screening at terminal airside checkpoints and rapid last-mile courier transfer upon landing.",
+    image:
+      "https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?auto=format&fit=crop&w=1200&q=80",
@@ -412,7 +451,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "Chittagong Marine Spares",
         rating: 5,
         date: "2 months ago",
-        comment: "Critical engine parts from Dhaka to Chittagong port in 7 hours saved a cargo vessel thousands in demurrage fees. Incredible reliability.",
+        comment:
+          "Critical engine parts from Dhaka to Chittagong port in 7 hours saved a cargo vessel thousands in demurrage fees. Incredible reliability.",
         verified: true,
       },
     ],
@@ -432,9 +472,12 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
     reviewCount: 289,
     sla: "24 - 48 Hours",
     speedHours: 36,
-    description: "Seamless customer return management with doorstep quality inspection, reverse barcode labels, and automated warehouse return dispatch.",
-    longDescription: "Convert return headaches into customer loyalty. Waypoint Reverse Logistics empowers couriers to conduct doorstep quality checks (size check, intact tags) while simultaneously delivering replacement items, cutting return cycle times in half for fashion and footwear brands.",
-    image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Seamless customer return management with doorstep quality inspection, reverse barcode labels, and automated warehouse return dispatch.",
+    longDescription:
+      "Convert return headaches into customer loyalty. Waypoint Reverse Logistics empowers couriers to conduct doorstep quality checks (size check, intact tags) while simultaneously delivering replacement items, cutting return cycle times in half for fashion and footwear brands.",
+    image:
+      "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80",
     gallery: [
       "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80",
@@ -463,7 +506,8 @@ export const LOGISTICS_SERVICES: ServiceItem[] = [
         company: "StyleHub BD",
         rating: 5,
         date: "3 weeks ago",
-        comment: "Our return processing time dropped from 7 days to 48 hours. The courier checking size tags at the door prevented fraudulent returns completely.",
+        comment:
+          "Our return processing time dropped from 7 days to 48 hours. The courier checking size tags at the door prevented fraudulent returns completely.",
         verified: true,
       },
     ],

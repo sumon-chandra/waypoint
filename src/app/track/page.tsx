@@ -30,7 +30,8 @@ const SAMPLE_CODES = [
 export default function TrackingPortalPage() {
   const router = useRouter();
   const [trackingInput, setTrackingInput] = React.useState("");
-  const [isAiSuggestionsVisible, setIsAiSuggestionsVisible] = React.useState(false);
+  const [isAiSuggestionsVisible, setIsAiSuggestionsVisible] =
+    React.useState(false);
 
   const handleTrackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,20 +61,28 @@ export default function TrackingPortalPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Enter your Waypoint consignment tracking number (e.g. <code className="font-mono text-primary font-bold">WP-849201</code>) to view the single active delivery stage, physical scan checkpoints, and courier details.
+            Enter your Waypoint consignment tracking number (e.g.{" "}
+            <code className="font-mono text-primary font-bold">WP-849201</code>)
+            to view the single active delivery stage, physical scan checkpoints,
+            and courier details.
           </p>
 
           {/* Interactive Tracking Search Bar */}
           <div className="max-w-xl mx-auto pt-2">
-            <form onSubmit={handleTrackSubmit} className="relative flex items-center">
+            <form
+              onSubmit={handleTrackSubmit}
+              className="relative flex items-center"
+            >
               <div className="relative flex-1">
-                <Package className="pointer-events-none absolute left-4 size-5 text-muted-foreground" />
+                <Package className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
                 <Input
                   type="text"
                   value={trackingInput}
                   onChange={(e) => setTrackingInput(e.target.value)}
                   onFocus={() => setIsAiSuggestionsVisible(true)}
-                  onBlur={() => setTimeout(() => setIsAiSuggestionsVisible(false), 250)}
+                  onBlur={() =>
+                    setTimeout(() => setIsAiSuggestionsVisible(false), 250)
+                  }
                   placeholder="Enter tracking number (e.g. WP-849201)..."
                   className="pl-12 pr-4 h-14 text-sm sm:text-base font-mono uppercase rounded-2xl bg-card border-border/80 shadow-lg focus:ring-2 focus:ring-primary"
                 />
@@ -103,7 +112,7 @@ export default function TrackingPortalPage() {
             )}
 
             {/* Sample Tracking Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
+            {/* <div className="flex flex-wrap items-center justify-center gap-2 pt-4 text-xs text-muted-foreground">
               <span className="font-medium">Try quick sample:</span>
               {SAMPLE_CODES.map((s) => (
                 <button
@@ -115,7 +124,7 @@ export default function TrackingPortalPage() {
                   {s.code}
                 </button>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -128,7 +137,8 @@ export default function TrackingPortalPage() {
               Node-to-Node Real-Time Telemetry
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Every parcel moves through certified scan checkpoints with zero blind spots.
+              Every parcel moves through certified scan checkpoints with zero
+              blind spots.
             </p>
           </div>
 
@@ -137,9 +147,12 @@ export default function TrackingPortalPage() {
               <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold font-mono">
                 01
               </div>
-              <h3 className="text-base font-bold text-foreground">Intake Scan</h3>
+              <h3 className="text-base font-bold text-foreground">
+                Intake Scan
+              </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Parcels are barcoded and cubed at regional cross-dock terminals within 60 minutes of courier collection.
+                Parcels are barcoded and cubed at regional cross-dock terminals
+                within 60 minutes of courier collection.
               </p>
             </div>
 
@@ -147,9 +160,12 @@ export default function TrackingPortalPage() {
               <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold font-mono">
                 02
               </div>
-              <h3 className="text-base font-bold text-foreground">Linehaul Telemetry</h3>
+              <h3 className="text-base font-bold text-foreground">
+                Linehaul Telemetry
+              </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                High-capacity highway vehicles move scheduled runs between the 8 central divisional gateways.
+                High-capacity highway vehicles move scheduled runs between the 8
+                central divisional gateways.
               </p>
             </div>
 
@@ -157,9 +173,12 @@ export default function TrackingPortalPage() {
               <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold font-mono">
                 03
               </div>
-              <h3 className="text-base font-bold text-foreground">Out for Delivery</h3>
+              <h3 className="text-base font-bold text-foreground">
+                Out for Delivery
+              </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Final-mile riders receive optimized delivery manifests and live phone notifications are dispatched.
+                Final-mile riders receive optimized delivery manifests and live
+                phone notifications are dispatched.
               </p>
             </div>
 
@@ -167,9 +186,12 @@ export default function TrackingPortalPage() {
               <div className="size-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold font-mono">
                 04
               </div>
-              <h3 className="text-base font-bold text-foreground">OTP Handshake</h3>
+              <h3 className="text-base font-bold text-foreground">
+                OTP Handshake
+              </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                The parcel is only completed when the recipient provides the unique 4-digit SMS OTP, guaranteeing verified delivery.
+                The parcel is only completed when the recipient provides the
+                unique 4-digit SMS OTP, guaranteeing verified delivery.
               </p>
             </div>
           </div>
@@ -184,23 +206,32 @@ export default function TrackingPortalPage() {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">Have Questions About Your Parcel?</h2>
+            <h2 className="text-2xl font-bold text-foreground">
+              Have Questions About Your Parcel?
+            </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-              Our 24/7 central dispatch desk in Tejgaon is on standby to assist recipients and senders nationwide.
+              Our 24/7 central dispatch desk in Tejgaon is on standby to assist
+              recipients and senders nationwide.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
               href="tel:0961292976468"
-              className={cn(buttonVariants({ variant: "default", size: "default" }), "rounded-xl font-semibold gap-1.5")}
+              className={cn(
+                buttonVariants({ variant: "default", size: "default" }),
+                "rounded-xl font-semibold gap-1.5",
+              )}
             >
               <Phone className="size-4" />
               <span>Call 09612-WAYPOINT</span>
             </a>
             <Link
               href="/faq"
-              className={cn(buttonVariants({ variant: "outline", size: "default" }), "rounded-xl font-medium")}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "default" }),
+                "rounded-xl font-medium",
+              )}
             >
               Tracking FAQs
             </Link>

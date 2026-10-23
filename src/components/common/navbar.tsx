@@ -37,7 +37,7 @@ export function Navbar() {
     if (isAuthenticated) {
       return [
         { label: "Services", href: "/services" },
-        { label: "Hub Network", href: "/hubs", badge: "64" },
+        { label: "Hub Network", href: "/hubs" },
         { label: "Track", href: "/track" },
         { label: "Pricing", href: "/pricing" },
         { label: "Book Parcel", href: "/customer/book" },
@@ -48,7 +48,7 @@ export function Navbar() {
 
     return [
       { label: "Services", href: "/services" },
-      { label: "Hub Network", href: "/hubs", badge: "64" },
+      { label: "Hub Network", href: "/hubs" },
       { label: "Pricing", href: "/pricing" },
       { label: "Blog", href: "/blog" },
       { label: "About", href: "/about" },

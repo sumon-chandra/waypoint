@@ -185,7 +185,7 @@ export function FAQClient() {
       </div>
 
       {/* Category Pills */}
-      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center justify-center gap-2 flex-wrap pb-2">
         {categories.map((cat) => {
           const Icon = cat.icon;
           const isSelected = selectedCategory === cat.id;
