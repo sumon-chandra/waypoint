@@ -63,7 +63,7 @@ const tiers = [
       "Complimentary transit insurance up to ৳10,000",
     ],
     ctaText: "Create Merchant Account",
-    ctaHref: "/register?role=MERCHANT",
+    ctaHref: "/register?role=CUSTOMER",
     featured: true,
   },
   {
