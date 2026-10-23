@@ -186,21 +186,6 @@ flowchart TD
 
 ---
 
-## 📸 Screenshots & Visual Tour
-
-| Screen                                   | Description                                                                                                                | Preview                                  |
-| :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------- |
-| **Public Landing & Live Tracker**        | High-conversion landing page featuring instant consignment lookup, nationwide delivery statistics, and service highlights. | `public/screenshots/landing-page.png`    |
-| **Merchant Consignment Booking**         | Intuitive booking wizard with real-time fee calculation, pickup scheduling, and payment mode toggle (Stripe vs. COD).      | `public/screenshots/booking-wizard.png`  |
-| **Courier Run-Sheet & Handshake**        | Mobile-first rider manifest with one-click status transitions and the 4-digit OTP + Cash collected verification modal.     | `public/screenshots/courier-console.png` |
-| **Admin Logistics Command Center**       | Operational analytics radar displaying transit volume charts, hub saturation monitors, and courier dispatch controls.      | `public/screenshots/admin-dashboard.png` |
-| **Nationwide 64-District Hub Directory** | Interactive divisional directory displaying gateway terminals, cutoff schedules, and active capacities.                    | `public/screenshots/hub-directory.png`   |
-| **Adaptive Theme Modes**                 | Seamless dark and light mode UI powered by Tailwind CSS tokens and zero-flicker CSS variables.                             | `public/screenshots/theme-modes.png`     |
-
-> _Tip: Screenshots are located in `/public/screenshots/` and can be customized with your live deployment assets._
-
----
-
 ## 🛠️ Technology Stack
 
 | Layer               | Technology                         | Rationale                                                                                                    |
