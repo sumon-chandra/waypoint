@@ -10,6 +10,7 @@ import {
   Truck,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
+import { ThemeToggle } from "@/components/common/theme-toggle";
 
 interface FooterLink {
   label: string;
@@ -26,42 +27,42 @@ const footerSections: FooterSection[] = [
   {
     title: "Services & Solutions",
     links: [
-      { label: "Express Parcel Delivery", href: "/services#express" },
-      { label: "Same-Day City Transit", href: "/services#same-day" },
-      { label: "Hub-to-Hub Freight", href: "/services#freight" },
-      { label: "Cash on Delivery (COD)", href: "/services#cod" },
-      { label: "E-Commerce Fulfillment", href: "/services#ecommerce" },
+      { label: "Express Parcel Delivery", href: "/services/express" },
+      { label: "Same-Day City Transit", href: "/services/same-day" },
+      { label: "Hub-to-Hub Freight", href: "/services/freight" },
+      { label: "Cold-Chain Perishables", href: "/services/cold-chain" },
+      { label: "All Logistics Services", href: "/services" },
     ],
   },
   {
-    title: "Platform & Portals",
+    title: "Live Tracking & Portals",
     links: [
+      { label: "Track Consignment", href: "/track" },
       { label: "Customer Portal", href: "/customer" },
-      { label: "Courier App", href: "/courier" },
+      { label: "Courier Partner App", href: "/courier" },
       { label: "Admin Operations", href: "/admin" },
-      { label: "Shipping Rate Calculator", href: "/pricing" },
-      { label: "Platform Settings", href: "/settings" },
+      { label: "Rate Calculator", href: "/pricing" },
     ],
   },
   {
-    title: "Network & Coverage",
+    title: "Network & Hubs",
     links: [
       { label: "Dhaka Central Gateway", href: "/hubs" },
       { label: "Chittagong Port Terminal", href: "/hubs" },
       { label: "Sylhet Express Hub", href: "/hubs" },
-      { label: "Rajshahi Logistics Base", href: "/hubs" },
-      { label: "64-District Directory", href: "/hubs" },
+      { label: "Bogra Highway Depot", href: "/hubs" },
+      { label: "64-District Network", href: "/hubs" },
     ],
   },
   {
-    title: "Company & Trust",
+    title: "Company & Resources",
     links: [
       { label: "About Waypoint", href: "/about" },
-      { label: "FAQ & Help Center", href: "/faq" },
+      { label: "Logistics Blog", href: "/blog" },
+      { label: "Help & Support", href: "/help" },
       { label: "Security & Privacy", href: "/privacy" },
       { label: "Terms of Service", href: "/terms" },
-      { label: "Careers", href: "/careers" },
-      { label: "Contact Support", href: "/contact" },
+      { label: "Contact Hotline", href: "/contact" },
     ],
   },
 ];
@@ -159,8 +160,9 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-8 sm:flex-row text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center gap-2 text-center sm:text-left">
+        <div className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-border/60 pt-8 lg:flex-row text-xs text-muted-foreground">
+          {/* Left: Copyright */}
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-center lg:text-left">
             <span>
               &copy; {new Date().getFullYear()} Waypoint Technologies Ltd.
             </span>
@@ -168,6 +170,13 @@ export function Footer() {
             <span>All rights reserved.</span>
           </div>
 
+          {/* Center: Theme Switch Tabs */}
+          <div className="flex items-center gap-2.5">
+            <span className="text-[11px] font-medium text-muted-foreground">Appearance:</span>
+            <ThemeToggle variant="pills" />
+          </div>
+
+          {/* Right: Security & Region */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <ShieldCheck className="size-3.5 text-emerald-500" />

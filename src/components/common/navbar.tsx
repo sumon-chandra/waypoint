@@ -94,7 +94,6 @@ export function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
-
   return (
     <header
       ref={headerRef}
@@ -207,7 +206,7 @@ export function Navbar() {
       </div>
 
       {/* Mobile Navigation Strip - Visible directly on mobile devices */}
-      <nav
+      {/* <nav
         className="flex md:hidden items-center gap-1.5 overflow-x-auto px-4 py-2 border-t border-border/40 bg-background/95 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         aria-label="Mobile Quick Navigation"
       >
@@ -240,7 +239,7 @@ export function Navbar() {
             </Link>
           );
         })}
-      </nav>
+      </nav> */}
 
       {/* Mobile Drawer / Overlay Navigation (Portaled to document.body) */}
       {mounted &&

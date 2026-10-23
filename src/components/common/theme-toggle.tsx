@@ -19,6 +19,16 @@ export function ThemeToggle({ className, variant = "icon" }: ThemeToggleProps) {
   }, []);
 
   if (!mounted) {
+    if (variant === "pills") {
+      return (
+        <div
+          className={cn(
+            "h-8 w-52 rounded-xl border border-border/60 bg-muted/20 animate-pulse",
+            className
+          )}
+        />
+      );
+    }
     return (
       <div
         className={cn(
@@ -32,19 +42,23 @@ export function ThemeToggle({ className, variant = "icon" }: ThemeToggleProps) {
   if (variant === "pills") {
     return (
       <div
+        role="tablist"
+        aria-label="Theme selector"
         className={cn(
-          "inline-flex items-center rounded-2xl border border-border/80 bg-muted/30 p-1 backdrop-blur-xs",
+          "inline-flex items-center rounded-xl border border-border/80 bg-muted/40 p-1 backdrop-blur-xs",
           className
         )}
       >
         <button
+          role="tab"
+          aria-selected={theme === "light"}
           type="button"
           onClick={() => setTheme("light")}
           className={cn(
-            "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+            "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer",
             theme === "light"
-              ? "bg-card text-foreground shadow-xs ring-1 ring-border"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-card text-foreground shadow-2xs font-semibold ring-1 ring-border/80"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
           )}
         >
           <Sun className="size-3.5 text-amber-500" />
@@ -52,13 +66,15 @@ export function ThemeToggle({ className, variant = "icon" }: ThemeToggleProps) {
         </button>
 
         <button
+          role="tab"
+          aria-selected={theme === "dark"}
           type="button"
           onClick={() => setTheme("dark")}
           className={cn(
-            "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+            "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer",
             theme === "dark"
-              ? "bg-card text-foreground shadow-xs ring-1 ring-border"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-card text-foreground shadow-2xs font-semibold ring-1 ring-border/80"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
           )}
         >
           <Moon className="size-3.5 text-indigo-400" />
@@ -66,13 +82,15 @@ export function ThemeToggle({ className, variant = "icon" }: ThemeToggleProps) {
         </button>
 
         <button
+          role="tab"
+          aria-selected={theme === "system"}
           type="button"
           onClick={() => setTheme("system")}
           className={cn(
-            "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+            "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all cursor-pointer",
             theme === "system"
-              ? "bg-card text-foreground shadow-xs ring-1 ring-border"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-card text-foreground shadow-2xs font-semibold ring-1 ring-border/80"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
           )}
         >
           <Laptop className="size-3.5 text-primary" />

@@ -293,7 +293,7 @@ export function WaypointAiCopilot() {
             <p className="text-xs font-bold tracking-tight leading-tight flex items-center gap-1.5">
               <span>Waypoint AI</span>
             </p>
-            <p className="text-[10px] text-white/80 leading-tight">
+            <p className="text-[10px] text-muted-foreground leading-tight">
               Logistics Copilot
             </p>
           </div>

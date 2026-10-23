@@ -1,213 +1,412 @@
+import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, MapPin, Truck, Sparkles } from "lucide-react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  ShieldCheck,
+  MapPin,
+  Truck,
+  Sparkles,
+  Clock,
+  Boxes,
+  CheckCircle2,
+  Snowflake,
+  Bot,
+  Zap,
+  Building2,
+  Star,
+  Quote,
+  ArrowUpRight,
+  Calendar,
+  Layers,
+  PhoneCall,
+  Search,
+} from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  HeroSection,
+  FareEstimatorWidget,
+  FaqAccordion,
+  HubsHighlightTabs,
+} from "@/features/home";
+import { getFeaturedServices } from "@/features/services/data/services-data";
+import { ServiceCard } from "@/features/services/components/ServiceCard";
+
+// 3 static logistics insights blog previews
+const BLOG_POSTS = [
+  {
+    id: "cod-playbook",
+    title: "Mastering E-Commerce COD in Bangladesh: How to Cut Return Rates Below 4%",
+    excerpt:
+      "A deep dive into automated phone confirmation, OTP handshakes, and same-day re-attempt protocols that protect merchant margins.",
+    category: "E-Commerce Fulfillment",
+    readTime: "5 min read",
+    date: "Oct 18, 2026",
+    image:
+      "https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=800&q=80",
+    href: "/blog",
+  },
+  {
+    id: "cold-chain-corridor",
+    title: "The Cold-Chain Advantage: Transporting Perishables Across the Padma Highway Corridor",
+    excerpt:
+      "How calibrated 2°C to 8°C thermal telemetry is unlocking next-day delivery for fresh seafood and dairy from the southern coast.",
+    category: "Supply Chain",
+    readTime: "6 min read",
+    date: "Oct 12, 2026",
+    image:
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
+    href: "/blog",
+  },
+  {
+    id: "otp-verification-standard",
+    title: "Eliminating False Claims: Why 4-Digit Handshakes are the Future of Courier Security",
+    excerpt:
+      "Analyzing how automated SMS codes prevent unauthorized drop-offs, courier misreporting, and payment reconciliation disputes.",
+    category: "Logistics Tech",
+    readTime: "4 min read",
+    date: "Oct 05, 2026",
+    image:
+      "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80",
+    href: "/blog",
+  },
+];
+
+// Verified merchant testimonials
+const TESTIMONIALS = [
+  {
+    id: "test-1",
+    author: "Sarah Ahmed",
+    title: "Founder & CEO",
+    company: "TechGear BD",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+    rating: 5,
+    quote:
+      "Waypoint completely transformed our nationwide fulfillment. 99% of our Dhaka-to-Chittagong consignments arrive within 18 hours, and automated COD remittance to our merchant account has eliminated weekly cash reconciliation headaches.",
+    metric: "99.4% On-Time SLA",
+  },
+  {
+    id: "test-2",
+    author: "Dr. Arman Chowdhury",
+    title: "Head of Supply Chain",
+    company: "MedSupply Direct",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+    rating: 5,
+    quote:
+      "Shipping temperature-sensitive diagnostic supplies across all 64 districts was nearly impossible before Waypoint. Their cold-chain telemetry and hub intake scans give our hospital clients full confidence.",
+    metric: "100% Zero-Loss Record",
+  },
+  {
+    id: "test-3",
+    author: "Tanzim Hasan",
+    title: "Operations Director",
+    company: "FashioNova Bangladesh",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+    rating: 5,
+    quote:
+      "During peak Eid season, we dispatched over 14,000 packages in 5 days. Waypoint's 18:00 daily cutoff and automated laser sorting handled our entire surge without a single bottleneck.",
+    metric: "14,000+ Eid Orders Shipped",
+  },
+];
 
 export default function Home() {
+  const featuredServices = getFeaturedServices();
+
   return (
-    <div className="flex flex-col items-center justify-center">
-      {/* Hero Section */}
-      <section className="relative w-full overflow-hidden bg-linear-to-b from-primary/5 via-background to-background py-20 md:py-28 lg:py-32">
-        {/* Background decorative grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,oklch(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,oklch(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+    <div className="flex flex-col items-center justify-center w-full">
+      {/* SECTION 1: Hero Section (with constrained height, interactive tracking input, CTAs) */}
+      <HeroSection />
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center space-y-8 max-w-3xl mx-auto">
-            {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary backdrop-blur-md">
-              <Sparkles className="size-3.5" />
-              <span>Waypoint Logistics Operating in all 64 Districts</span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
-              Intelligent Logistics.{" "}
-              <span className="bg-linear-to-r from-primary via-indigo-500 to-cyan-500 bg-clip-text text-transparent">
-                Every Waypoint
-              </span>{" "}
-              Accounted For.
-            </h1>
-
-            {/* Subheading */}
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
-              End-to-end consignment tracking, automated hub routing, and rapid
-              courier dispatch built specifically for the high-velocity demands
-              of Bangladesh&apos;s digital economy.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Link
-                href="/customer"
-                className={cn(
-                  buttonVariants({ variant: "default", size: "lg" }),
-                  "rounded-xl font-semibold shadow-md gap-1.5",
-                )}
-              >
-                <span>Open Customer Portal</span>
-                <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                href="/courier"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" }),
-                  "rounded-xl font-medium",
-                )}
-              >
-                Courier Partner Portal
-              </Link>
-            </div>
-          </div>
-
-          {/* Quick Metrics Banner */}
-          <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:mt-20">
-            <div className="rounded-2xl border border-border/70 bg-card/60 p-5 text-center shadow-xs backdrop-blur-xs">
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                64
-              </p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">
-                Districts Connected
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border/70 bg-card/60 p-5 text-center shadow-xs backdrop-blur-xs">
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">
-                99.4%
-              </p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">
-                On-Time Delivery SLA
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border/70 bg-card/60 p-5 text-center shadow-xs backdrop-blur-xs">
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                2.4M+
-              </p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">
-                Consignments Fulfilled
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border/70 bg-card/60 p-5 text-center shadow-xs backdrop-blur-xs">
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                24/7
-              </p>
-              <p className="mt-1 text-xs font-medium text-muted-foreground">
-                Live Support & Dispatch
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Grid Section */}
-      <section className="w-full border-t border-border/60 py-16 sm:py-24 bg-muted/10">
+      {/* SECTION 2: Live Telemetry Metrics Banner */}
+      <section className="w-full border-y border-border/70 bg-card/60 backdrop-blur-md py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Engineered for Speed, Precision, and Scale
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Waypoint provides merchants and couriers with tools to automate
-              fulfillment, eliminate transit blind spots, and guarantee
-              reliability.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-3">
-              <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <MapPin className="size-5" />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-8">
+            <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-background/50 border border-border/50 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-primary mb-1">
+                <MapPin className="size-4" />
+                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-mono">
+                  64
+                </span>
               </div>
-              <h3 className="text-base font-semibold text-foreground">
-                Waypoint Node Tracking
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Detailed scan-point updates at every dispatch hub, transit
-                sorting facility, and rider delivery checkpoint.
+              <p className="text-xs font-bold text-foreground">Districts Connected</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                100% Nationwide Upazila Reach
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-3">
-              <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Truck className="size-5" />
+            <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-background/50 border border-border/50 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 mb-1">
+                <ShieldCheck className="size-4" />
+                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-mono">
+                  99.4%
+                </span>
               </div>
-              <h3 className="text-base font-semibold text-foreground">
-                Smart Fleet Routing
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Dynamic route allocation ensuring couriers receive optimized
-                parcel batches for fast city and interstate drop-offs.
+              <p className="text-xs font-bold text-foreground">On-Time Delivery SLA</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Guaranteed Line-Haul Dispatch
               </p>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-3">
-              <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <ShieldCheck className="size-5" />
+            <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-background/50 border border-border/50 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-primary mb-1">
+                <Boxes className="size-4" />
+                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-mono">
+                  2.4M+
+                </span>
               </div>
-              <h3 className="text-base font-semibold text-foreground">
-                Guaranteed COD & Invoicing
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Secure Cash on Delivery collection, instant settlement
-                notifications, and transparent payment reconciliation.
+              <p className="text-xs font-bold text-foreground">Parcels Fulfilled</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Zero Lost Consignments Guarantee
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-background/50 border border-border/50 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-amber-500 mb-1">
+                <Clock className="size-4" />
+                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-mono">
+                  18:00
+                </span>
+              </div>
+              <p className="text-xs font-bold text-foreground">Daily Hub Cutoff</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Same-Day Highway Linehaul Departure
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How it Works Section */}
-      <section className="w-full py-16 sm:py-24 bg-background relative overflow-hidden">
-        {/* Ambient background blob */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/3 size-96 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+      {/* SECTION 3: Featured Logistics Solutions (Strict 4-card grid conforming to Req 3) */}
+      <section className="w-full py-16 sm:py-24 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+                <Sparkles className="size-3.5" />
+                <span>Featured Logistics Solutions</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
+                Engineered for Bangladesh&apos;s Digital Economy
+              </h2>
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl">
+                Curated parcel dispatch, temperature-sensitive cold chain, and
+                heavy linehaul freight with guaranteed arrival windows and
+                transparent pricing.
+              </p>
+            </div>
 
+            <Link
+              href="/services"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
+              )}
+            >
+              <span>Explore All 8 Solutions</span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+
+          {/* Strict 4-card grid matching Req 3: grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredServices.map((service, index) => (
+              <ServiceCard
+                key={service.id}
+                service={service}
+                priority={index < 2}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: Platform Core Capabilities & Technology Features */}
+      <section className="w-full py-16 sm:py-24 bg-muted/20 border-y border-border/70 relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Seamless Delivery Workflow
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+              <Zap className="size-3.5" />
+              <span>Technology & Operational Edge</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+              Built to Eliminate Logistics Blind Spots
             </h2>
-            <p className="mt-4 text-sm sm:text-base text-muted-foreground">
-              From order creation to final drop-off, our platform ensures
-              complete transparency and efficiency every step of the way.
+            <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              From laser automated hub sorting to 4-digit recipient OTP codes,
+              Waypoint sets a new standard for transport reliability in
+              Bangladesh.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4 hover:border-primary/40 transition-colors">
+              <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                <Boxes className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                Automated Laser Sorting
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Our central Tejgaon gateway sorts up to 45,000 packages per hour
+                using omnidirectional barcode scanners, reducing sorting error
+                rates to zero.
+              </p>
+              <div className="pt-2 text-xs font-semibold text-primary flex items-center gap-1">
+                <span>45,000 parcels/hour intake</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4 hover:border-primary/40 transition-colors">
+              <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                <Truck className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                Highway Line-Haul Corridors
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Dedicated GPS-monitored fleet departures linking Dhaka,
+                Chittagong, Sylhet, Bogra, and Khulna cross-dock terminals every
+                evening.
+              </p>
+              <div className="pt-2 text-xs font-semibold text-primary flex items-center gap-1">
+                <span>Nightly line-haul schedules</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4 hover:border-primary/40 transition-colors">
+              <div className="size-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <ShieldCheck className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                1% COD & Next-Day BEFTN
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Transparent 1% Cash on Delivery collection fee. Remittances are
+                settled the following business day via bank BEFTN or merchant
+                mobile wallets.
+              </p>
+              <div className="pt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <span>Automated 24h bank settlement</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4 hover:border-primary/40 transition-colors">
+              <div className="size-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                <CheckCircle2 className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                4-Digit Delivery OTP Handshake
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Parcels are only marked delivered when the courier inputs the
+                recipient&apos;s unique 4-digit SMS code, eliminating false
+                claims and misdeliveries.
+              </p>
+              <div className="pt-2 text-xs font-semibold text-amber-500 flex items-center gap-1">
+                <span>Zero false-drop guarantees</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4 hover:border-primary/40 transition-colors">
+              <div className="size-12 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                <Snowflake className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                Calibrated Cold-Chain Vaults
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Precision active thermal containers maintaining 2°C to 8°C for
+                biomedical and perishable freight across all division cross-dock
+                hubs.
+              </p>
+              <div className="pt-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 flex items-center gap-1">
+                <span>Continuous thermal telemetry</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4 hover:border-primary/40 transition-colors">
+              <div className="size-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                <Bot className="size-6" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                Waypoint AI Logistics Copilot
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Instant natural-language routing guidance, rate calculations,
+                and consignment status inquiries powered by our specialized
+                domain model.
+              </p>
+              <div className="pt-2 text-xs font-semibold text-indigo-500 flex items-center gap-1">
+                <span>Available 24/7 across the site</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5: Interactive 4-Step Consignment Workflow Stepper */}
+      <section className="w-full py-16 sm:py-24 bg-background relative overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+              <Layers className="size-3.5" />
+              <span>Full Custody Lifecycle</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+              How Consignments Move Through Waypoint
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+              Every parcel moves through a rigid 9-stage finite state machine
+              logged across physical scan points.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
             {[
               {
                 step: "01",
-                title: "Book Parcel",
-                desc: "Merchants create a shipment request via the intuitive dashboard.",
+                title: "Consignment Booking",
+                badge: "Merchant Portal",
+                desc: "Create shipping manifests, generate compliant barcode thermal labels, and declare COD amounts.",
               },
               {
                 step: "02",
-                title: "Hub Processing",
-                desc: "Parcels are collected, scanned, and routed through our smart hubs.",
+                title: "Hub Intake & Sorting",
+                badge: "Origin Node Scan",
+                desc: "Parcels are collected by dispatch riders, weighed, scanned, and routed into destination highway cages.",
               },
               {
                 step: "03",
-                title: "Live Transit",
-                desc: "Real-time GPS tracking keeps both sender and receiver informed.",
+                title: "Highway Line-Haul",
+                badge: "Inter-District",
+                desc: "GPS-monitored linehaul fleet departures travel overnight connecting divisional cross-docks by morning.",
               },
               {
                 step: "04",
-                title: "Secure Delivery",
-                desc: "OTP-verified handoffs and instant COD settlement.",
+                title: "OTP Delivery & Settlement",
+                badge: "Secure Handshake",
+                desc: "Courier collects cash, verifies recipient 4-digit SMS OTP code, and triggers instant payout credit.",
               },
             ].map((item, i) => (
               <div
                 key={i}
-                className="relative flex flex-col items-center text-center space-y-4"
+                className="relative flex flex-col items-center text-center space-y-3"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-xl font-bold text-primary shadow-sm border border-primary/20 relative z-10">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-xl font-black text-primary shadow-xs border border-primary/20 relative z-10 font-mono">
                   {item.step}
                 </div>
-                {/* Connecting Line (hidden on mobile) */}
+                {/* Connecting Line (desktop only) */}
                 {i < 3 && (
-                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] border-t-2 border-dashed border-border/70 -z-10" />
+                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] border-t-2 border-dashed border-border/80 -z-0" />
                 )}
-                <h3 className="text-lg font-bold text-foreground">
+                <span className="inline-flex rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+                  {item.badge}
+                </span>
+                <h3 className="text-base font-bold text-foreground">
                   {item.title}
                 </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed px-4">
+                <p className="text-xs text-muted-foreground leading-relaxed px-2">
                   {item.desc}
                 </p>
               </div>
@@ -216,56 +415,122 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="w-full py-16 sm:py-24 bg-muted/30 border-y border-border/60">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Trusted by Top Merchants
+      {/* SECTION 6: AI Smart Route & Fare Estimator Widget */}
+      <section className="w-full py-16 sm:py-24 bg-muted/30 border-y border-border/70 relative">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+              <Sparkles className="size-3.5" />
+              <span>Transparent Shipping Calculator</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+              Calculate Shipping Rates & SLAs Instantly
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground">
-              See what our partners are saying about the Waypoint experience.
+            <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+              Adjust package weight and select origin/destination districts for
+              real-time fare quotes.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {[
-              {
-                quote:
-                  "Waypoint completely transformed our e-commerce fulfillment. The live tracking gives our customers peace of mind, and the COD settlements are lightning fast.",
-                name: "Sarah Ahmed",
-                role: "Founder, TechGear BD",
-              },
-              {
-                quote:
-                  "As a courier, the app makes my day so much easier. The routed lists and easy OTP verification mean I spend less time waiting and more time delivering.",
-                name: "Rafiqul Islam",
-                role: "Top Tier Rider",
-              },
-              {
-                quote:
-                  "The hub infrastructure is incredibly robust. Even during peak Eid seasons, we rarely see any bottlenecks or lost parcels. A true game changer.",
-                name: "Tanzim Hasan",
-                role: "Operations Manager, FashioNova",
-              },
-            ].map((testimonial, i) => (
+          <FareEstimatorWidget />
+        </div>
+      </section>
+
+      {/* SECTION 7: Nationwide 64-District Hub Network Highlights */}
+      <section className="w-full py-16 sm:py-24 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+                <Building2 className="size-3.5" />
+                <span>64-District Hub Network</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+                Nationwide Gateway Infrastructure
+              </h2>
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl">
+                Strategically positioned divisional cross-docks and district
+                intake centers guaranteeing standard 18:00 daily cutoff times.
+              </p>
+            </div>
+
+            <Link
+              href="/hubs"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
+              )}
+            >
+              <span>View All 64 Hub Details</span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+
+          <HubsHighlightTabs />
+        </div>
+      </section>
+
+      {/* SECTION 8: Verified Merchant Testimonials with Star Ratings */}
+      <section className="w-full py-16 sm:py-24 bg-muted/20 border-y border-border/70">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+              <Star className="size-3.5 fill-amber-400 text-amber-400" />
+              <span>Verified Merchant Endorsements</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+              Trusted by Bangladesh&apos;s Fastest Growing Brands
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+              Over 12,000+ businesses and enterprise partners rely on Waypoint
+              for transparent logistics.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t) => (
               <div
-                key={i}
-                className="flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-xs relative"
+                key={t.id}
+                className="flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs relative hover:border-primary/40 transition-colors"
               >
-                <div className="text-4xl text-primary/20 font-serif absolute top-4 left-4">
-                  "
+                <div>
+                  {/* Top Star Rating & Metric Badge */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: t.rating }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className="size-4 fill-amber-400 text-amber-400"
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                      {t.metric}
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-foreground leading-relaxed italic">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
                 </div>
-                <p className="text-sm text-foreground leading-relaxed relative z-10 mt-4 italic">
-                  {testimonial.quote}
-                </p>
-                <div className="mt-6 pt-4 border-t border-border/50">
-                  <p className="text-sm font-bold text-foreground">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {testimonial.role}
-                  </p>
+
+                <div className="mt-6 pt-4 border-t border-border/60 flex items-center gap-3">
+                  <div className="relative size-10 rounded-full overflow-hidden bg-muted shrink-0">
+                    <Image
+                      src={t.avatar}
+                      alt={t.author}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-foreground">
+                      {t.author}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {t.title}, <span className="font-medium text-foreground">{t.company}</span>
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -273,40 +538,156 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Call to Action Section */}
-      <section className="w-full py-20 relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-background to-primary/5 -z-10" />
+      {/* SECTION 9: Logistics Insights & Blog Preview (3 articles) */}
+      <section className="w-full py-16 sm:py-24 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+                <Sparkles className="size-3.5" />
+                <span>Industry Insights & Guides</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+                Logistics Knowledge & Supply Chain Trends
+              </h2>
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl">
+                Actionable playbooks, return-reduction strategies, and cold-chain
+                architecture written by our logistics operations team.
+              </p>
+            </div>
 
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-            Ready to upgrade your logistics?
-          </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of businesses and independent riders who rely on
-            Waypoint for seamless, secure, and rapid deliveries every single
-            day.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
-              href="/register"
+              href="/blog"
               className={cn(
-                buttonVariants({ variant: "default", size: "lg" }),
-                "rounded-xl font-bold shadow-lg gap-2 w-full sm:w-auto px-8",
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "rounded-xl font-semibold gap-1.5 self-start md:self-auto shrink-0 hover:bg-primary hover:text-primary-foreground transition-all"
               )}
             >
-              <span>Create an Account</span>
+              <span>Read All Articles</span>
               <ArrowRight className="size-4" />
             </Link>
-            <Link
-              href="/contact"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "rounded-xl font-semibold w-full sm:w-auto px-8 bg-background/50 backdrop-blur-sm",
-              )}
-            >
-              Contact Sales
-            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {BLOG_POSTS.map((post) => (
+              <Link
+                key={post.id}
+                href={post.href}
+                className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs hover:shadow-lg hover:border-primary/40 transition-all duration-300"
+              >
+                <div>
+                  <div className="relative aspect-16/9 w-full overflow-hidden bg-muted">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="rounded-full bg-background/90 px-2.5 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-md border border-border/60">
+                        {post.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-5 space-y-2">
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="size-3" />
+                        <span>{post.date}</span>
+                      </div>
+                      <span>&bull;</span>
+                      <span>{post.readTime}</span>
+                    </div>
+
+                    <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                      {post.title}
+                    </h3>
+
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5 pt-0">
+                  <div className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:underline">
+                    <span>Read Article</span>
+                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 10: Collapsible FAQ Accordion */}
+      <section className="w-full py-16 sm:py-24 bg-muted/20 border-t border-border/70">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+              <Sparkles className="size-3.5" />
+              <span>Got Questions?</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+              Frequently Asked Questions
+            </h2>
+            <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+              Everything you need to know about delivery OTP verification, COD
+              settlement schedules, and 64-district pickup cutoffs.
+            </p>
+          </div>
+
+          <FaqAccordion />
+        </div>
+      </section>
+
+      {/* SECTION 11: Enterprise Dispatch Partner Signup CTA Banner */}
+      <section className="w-full py-20 bg-background relative overflow-hidden">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="relative rounded-3xl border border-primary/30 bg-linear-to-br from-primary/15 via-card to-background p-8 sm:p-12 md:p-16 text-center space-y-6 shadow-xl overflow-hidden">
+            {/* Background decorative glow */}
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 size-96 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1 text-xs font-bold text-primary backdrop-blur-md">
+              <Sparkles className="size-3.5" />
+              <span>Waypoint Enterprise & Commercial Fleet</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground max-w-3xl mx-auto">
+              Ready to Upgrade Your Delivery Velocity?
+            </h2>
+
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Join thousands of retailers, corporate suppliers, and independent
+              dispatch riders operating on Bangladesh&apos;s most reliable
+              waypoint logistics network.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+              <Link
+                href="/register"
+                className={cn(
+                  buttonVariants({ variant: "default", size: "lg" }),
+                  "rounded-xl font-bold shadow-lg gap-2 w-full sm:w-auto px-8"
+                )}
+              >
+                <span>Create Merchant Account</span>
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/contact"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "rounded-xl font-semibold w-full sm:w-auto px-8 bg-card/60 backdrop-blur-sm hover:bg-accent"
+                )}
+              >
+                <PhoneCall className="size-4 text-primary" />
+                <span>Contact Enterprise Sales</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
