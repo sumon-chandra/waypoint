@@ -7,6 +7,7 @@ import { getQueryClient } from "@/lib/query-client";
 
 import { AuthProvider } from "@/features/auth/context/auth-context";
 import { ThemeProvider } from "@/features/theme/theme-provider";
+import { WaypointAiCopilot } from "@/features/ai";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
@@ -16,6 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider>
         <AuthProvider>
           {children}
+          <WaypointAiCopilot />
           <Toaster
             position="top-right"
             richColors
