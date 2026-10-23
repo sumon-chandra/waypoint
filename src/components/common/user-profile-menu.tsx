@@ -11,6 +11,7 @@ import {
   Shield,
   Truck,
   UserCheck,
+  Boxes,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
@@ -199,8 +200,78 @@ export function UserProfileMenu({
               role="menuitem"
             >
               <LayoutDashboard className="size-4 text-primary" />
-              <span>Dashboard</span>
+              <span>{user.role === "ADMIN" ? "Command Center" : "Dashboard Overview"}</span>
             </Link>
+
+            {/* Role-Specific Quick Actions */}
+            {user.role === "CUSTOMER" && (
+              <>
+                <Link
+                  href="/customer/book"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-accent/60 hover:text-accent-foreground transition-colors"
+                  role="menuitem"
+                >
+                  <Truck className="size-4 text-primary" />
+                  <span>Book Consignment</span>
+                </Link>
+                <Link
+                  href="/customer/shipments"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-accent/60 hover:text-accent-foreground transition-colors"
+                  role="menuitem"
+                >
+                  <Boxes className="size-4 text-primary" />
+                  <span>My Shipments</span>
+                </Link>
+              </>
+            )}
+
+            {user.role === "COURIER" && (
+              <>
+                <Link
+                  href="/courier/manifest"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-accent/60 hover:text-accent-foreground transition-colors"
+                  role="menuitem"
+                >
+                  <Truck className="size-4 text-amber-500" />
+                  <span>Active Manifest</span>
+                </Link>
+                <Link
+                  href="/courier/shipments"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-accent/60 hover:text-accent-foreground transition-colors"
+                  role="menuitem"
+                >
+                  <Boxes className="size-4 text-amber-500" />
+                  <span>Assigned Parcels</span>
+                </Link>
+              </>
+            )}
+
+            {user.role === "ADMIN" && (
+              <>
+                <Link
+                  href="/admin/shipments"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-accent/60 hover:text-accent-foreground transition-colors"
+                  role="menuitem"
+                >
+                  <Boxes className="size-4 text-purple-500" />
+                  <span>Global Shipments</span>
+                </Link>
+                <Link
+                  href="/admin/hubs"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-accent/60 hover:text-accent-foreground transition-colors"
+                  role="menuitem"
+                >
+                  <Shield className="size-4 text-purple-500" />
+                  <span>Hub Infrastructure</span>
+                </Link>
+              </>
+            )}
 
             {/* View Profile Link */}
             <Link
@@ -221,7 +292,7 @@ export function UserProfileMenu({
               role="menuitem"
             >
               <Settings className="size-4 text-primary" />
-              <span>Settings</span>
+              <span>Account Settings</span>
             </Link>
           </div>
 

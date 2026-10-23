@@ -15,18 +15,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TablePagination } from "@/components/common/TablePagination";
 import { useCourierShipments } from "../../api/useCourierShipments";
 import { cn } from "@/lib/utils";
 
+const ITEMS_PER_PAGE = 10;
+
 export function CourierDeliveryHistoryTable() {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [currentPage, setCurrentPage] = React.useState(1);
 
-  const {
-    data,
-    isLoading,
-    isRefetching,
-    refetch,
-  } = useCourierShipments({
+  const { data, isLoading, isRefetching, refetch } = useCourierShipments({
     status: "DELIVERED",
     limit: 100,
   });
@@ -43,9 +42,20 @@ export function CourierDeliveryHistoryTable() {
         s.receiverName.toLowerCase().includes(q) ||
         s.receiverPhone.includes(q) ||
         (s.receiverEmail && s.receiverEmail.toLowerCase().includes(q)) ||
-        s.receiverDistrict?.toLowerCase().includes(q)
+        s.receiverDistrict?.toLowerCase().includes(q),
     );
   }, [deliveredShipments, searchQuery]);
+
+  // Paginated subset
+  const paginatedShipments = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredShipments.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredShipments, currentPage]);
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    setCurrentPage(1);
+  };
 
   // Aggregate completed summary
   const summary = React.useMemo(() => {
@@ -54,7 +64,7 @@ export function CourierDeliveryHistoryTable() {
       .filter((s) => s.paymentType === "CASH")
       .reduce((sum, s) => sum + (s.codAmount ?? 0), 0);
     const totalPrepaid = deliveredShipments.filter(
-      (s) => s.paymentType === "CARD"
+      (s) => s.paymentType === "CARD",
     ).length;
 
     return { totalCount, totalCod, totalPrepaid };
@@ -100,7 +110,7 @@ export function CourierDeliveryHistoryTable() {
             type="text"
             placeholder="Search completed deliveries by tracking #, recipient..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-9 rounded-2xl h-11 text-xs sm:text-sm"
           />
         </div>
@@ -113,7 +123,10 @@ export function CourierDeliveryHistoryTable() {
           className="rounded-2xl gap-2 font-medium cursor-pointer"
         >
           <RotateCw
-            className={cn("size-3.5", isRefetching && "animate-spin text-primary")}
+            className={cn(
+              "size-3.5",
+              isRefetching && "animate-spin text-primary",
+            )}
           />
           <span>Refresh History</span>
         </Button>
@@ -155,7 +168,7 @@ export function CourierDeliveryHistoryTable() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50 text-foreground">
-                {filteredShipments.map((s) => (
+                {paginatedShipments.map((s) => (
                   <tr
                     key={s.id}
                     className="hover:bg-muted/30 transition-colors"
@@ -175,7 +188,10 @@ export function CourierDeliveryHistoryTable() {
                           {s.receiverPhone}
                         </p>
                         {s.receiverEmail && (
-                          <p className="text-[11px] text-muted-foreground/80 truncate max-w-[160px]" title={s.receiverEmail}>
+                          <p
+                            className="text-[11px] text-muted-foreground/80 truncate max-w-[160px]"
+                            title={s.receiverEmail}
+                          >
                             {s.receiverEmail}
                           </p>
                         )}
@@ -184,7 +200,9 @@ export function CourierDeliveryHistoryTable() {
                     <td className="py-4 px-4">
                       <div className="space-y-1">
                         <Badge variant="outline" className="text-[10px] py-0">
-                          {s.deliveryType === "LOCAL" ? "Local" : "Inter-District"}
+                          {s.deliveryType === "LOCAL"
+                            ? "Local"
+                            : "Inter-District"}
                         </Badge>
                         <p className="text-[11px] text-muted-foreground truncate max-w-[140px]">
                           {s.receiverDistrict}
@@ -230,6 +248,14 @@ export function CourierDeliveryHistoryTable() {
               </tbody>
             </table>
           </div>
+          {/* Table Pagination */}
+          <TablePagination
+            totalItems={filteredShipments.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            entityLabel="deliveries"
+          />
         </div>
       )}
     </div>

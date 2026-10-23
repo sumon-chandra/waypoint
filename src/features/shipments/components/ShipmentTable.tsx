@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TablePagination } from "@/components/common/TablePagination";
 import { PayNowButton } from "@/features/payments/components/PayNowButton";
 import { CancelDialog } from "./CancelDialog";
 import { useShipments } from "../api/useShipments";
@@ -105,6 +106,8 @@ const ACTIVE_STATUS_SET = new Set<ShipmentStatus>([
   "OUT_FOR_DELIVERY",
 ]);
 
+const ITEMS_PER_PAGE = 8;
+
 export function ShipmentTable() {
   const { data, isLoading, isError, error, refetch } = useShipments({ limit: 100 });
   const shipments = data?.shipments ?? [];
@@ -112,6 +115,7 @@ export function ShipmentTable() {
   // Filter and Search states
   const [activeTab, setActiveTab] = React.useState<"all" | "active" | "delivered" | "cancelled">("all");
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [currentPage, setCurrentPage] = React.useState(1);
 
   // Cancel dialog state
   const [selectedForCancel, setSelectedForCancel] = React.useState<Shipment | null>(null);
@@ -153,6 +157,22 @@ export function ShipmentTable() {
     });
   }, [shipments, activeTab, searchQuery]);
 
+  // Paginated subset
+  const paginatedShipments = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredShipments.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredShipments, currentPage]);
+
+  const handleTabChange = (val: typeof activeTab) => {
+    setActiveTab(val);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    setCurrentPage(1);
+  };
+
   // Counts for tabs
   const counts = React.useMemo(() => {
     const total = shipments.length;
@@ -167,7 +187,7 @@ export function ShipmentTable() {
       {/* Top Controls: Tabs and Search */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         {/* Filter Tabs */}
-        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as typeof activeTab)}>
+        <Tabs value={activeTab} onValueChange={(val) => handleTabChange(val as typeof activeTab)}>
           <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="all">
               All ({counts.total})
@@ -189,7 +209,7 @@ export function ShipmentTable() {
           <Input
             placeholder="Search tracking #, recipient..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-9"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
@@ -273,152 +293,163 @@ export function ShipmentTable() {
 
       {/* SHIPMENTS LIST / CARDS */}
       {!isLoading && !isError && filteredShipments.length > 0 && (
-        <div className="space-y-3">
-          {filteredShipments.map((shipment) => {
-            const statusConfig = getStatusBadge(shipment.status);
-            const isUnpaidCard =
-              shipment.paymentType === "CARD" && shipment.paymentStatus === "UNPAID";
-            const canCancel = shipment.status === "PENDING";
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {paginatedShipments.map((shipment) => {
+              const statusConfig = getStatusBadge(shipment.status);
+              const isUnpaidCard =
+                shipment.paymentType === "CARD" && shipment.paymentStatus === "UNPAID";
+              const canCancel = shipment.status === "PENDING";
 
-            return (
-              <div
-                key={shipment.id}
-                className="group rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs hover:border-border transition-all flex flex-col md:flex-row md:items-center justify-between gap-5"
-              >
-                {/* Consignment Overview */}
-                <div className="space-y-3 flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-sm sm:text-base font-bold text-foreground tracking-wide">
-                      #{shipment.trackingNumber}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(shipment.trackingNumber)}
-                      className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                      title="Copy Tracking #"
-                    >
-                      {copiedId === shipment.trackingNumber ? (
-                        <Check className="size-3.5 text-emerald-500" />
-                      ) : (
-                        <Copy className="size-3.5" />
-                      )}
-                    </button>
+              return (
+                <div
+                  key={shipment.id}
+                  className="group rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs hover:border-border transition-all flex flex-col md:flex-row md:items-center justify-between gap-5"
+                >
+                  {/* Consignment Overview */}
+                  <div className="space-y-3 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-sm sm:text-base font-bold text-foreground tracking-wide">
+                        #{shipment.trackingNumber}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(shipment.trackingNumber)}
+                        className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        title="Copy Tracking #"
+                      >
+                        {copiedId === shipment.trackingNumber ? (
+                          <Check className="size-3.5 text-emerald-500" />
+                        ) : (
+                          <Copy className="size-3.5" />
+                        )}
+                      </button>
 
-                    {/* Status Badge */}
-                    <Badge
-                      variant="outline"
-                      className={cn("text-[11px] font-semibold border px-2.5 py-0.5", statusConfig.className)}
-                    >
-                      {statusConfig.label}
-                    </Badge>
+                      {/* Status Badge */}
+                      <Badge
+                        variant="outline"
+                        className={cn("text-[11px] font-semibold border px-2.5 py-0.5", statusConfig.className)}
+                      >
+                        {statusConfig.label}
+                      </Badge>
 
-                    {/* Classification */}
-                    <Badge variant="secondary" className="text-[10px] py-0">
-                      {shipment.deliveryType === "LOCAL" ? "Local" : "Inter-District"}
-                    </Badge>
-                  </div>
+                      {/* Classification */}
+                      <Badge variant="secondary" className="text-[10px] py-0">
+                        {shipment.deliveryType === "LOCAL" ? "Local" : "Inter-District"}
+                      </Badge>
+                    </div>
 
-                  {/* Route & Recipient */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
-                    <div className="flex flex-col gap-0.5 truncate">
-                      <div className="flex items-center gap-1.5 truncate">
-                        <span className="font-medium text-foreground">Recipient:</span>
-                        <span className="truncate">
-                          {shipment.receiverName} ({shipment.receiverPhone})
+                    {/* Route & Recipient */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
+                      <div className="flex flex-col gap-0.5 truncate">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="font-medium text-foreground">Recipient:</span>
+                          <span className="truncate">
+                            {shipment.receiverName} ({shipment.receiverPhone})
+                          </span>
+                        </div>
+                        {shipment.receiverEmail && (
+                          <p className="text-[11px] text-muted-foreground truncate pl-0 sm:pl-0">
+                            {shipment.receiverEmail}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium text-foreground">Route:</span>
+                        <span>
+                          {shipment.senderDistrict || "Hub"} → {shipment.receiverDistrict || "Hub"}
                         </span>
                       </div>
-                      {shipment.receiverEmail && (
-                        <p className="text-[11px] text-muted-foreground truncate pl-0 sm:pl-0">
-                          {shipment.receiverEmail}
-                        </p>
+                    </div>
+
+                    {/* Weight & Payment Pill */}
+                    <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 font-medium text-foreground">
+                        Weight: {shipment.weightKg} kg
+                      </span>
+
+                      {shipment.paymentType === "CARD" ? (
+                        <span
+                          className={cn(
+                            "rounded-lg px-2 py-0.5 font-semibold border",
+                            shipment.paymentStatus === "PAID"
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+                              : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                          )}
+                        >
+                          Card: {shipment.paymentStatus}
+                        </span>
+                      ) : (
+                        <span className="rounded-lg bg-muted/60 px-2 py-0.5 font-semibold text-foreground border border-border/60">
+                          COD: ৳{shipment.codAmount?.toLocaleString() ?? 0}
+                        </span>
                       )}
-                    </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-medium text-foreground">Route:</span>
-                      <span>
-                        {shipment.senderDistrict || "Hub"} → {shipment.receiverDistrict || "Hub"}
+                      <span className="text-muted-foreground">
+                        {new Date(shipment.createdAt).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </span>
                     </div>
                   </div>
 
-                  {/* Weight & Payment Pill */}
-                  <div className="flex flex-wrap items-center gap-2 text-[11px]">
-                    <span className="rounded-lg bg-muted/60 px-2 py-0.5 font-medium text-foreground">
-                      Weight: {shipment.weightKg} kg
-                    </span>
-
-                    {shipment.paymentType === "CARD" ? (
-                      <span
-                        className={cn(
-                          "rounded-lg px-2 py-0.5 font-semibold border",
-                          shipment.paymentStatus === "PAID"
-                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
-                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
-                        )}
-                      >
-                        Card: {shipment.paymentStatus}
-                      </span>
-                    ) : (
-                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 font-semibold text-foreground border border-border/60">
-                        COD: ৳{shipment.codAmount?.toLocaleString() ?? 0}
-                      </span>
+                  {/* Actions Row */}
+                  <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-border/60">
+                    {/* PAY NOW BUTTON FOR UNPAID CARDS */}
+                    {isUnpaidCard && (
+                      <PayNowButton
+                        shipmentId={shipment.id}
+                        label="Pay Now"
+                        size="sm"
+                        className="rounded-xl"
+                      />
                     )}
 
-                    <span className="text-muted-foreground">
-                      {new Date(shipment.createdAt).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Actions Row */}
-                <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-border/60">
-                  {/* PAY NOW BUTTON FOR UNPAID CARDS */}
-                  {isUnpaidCard && (
-                    <PayNowButton
-                      shipmentId={shipment.id}
-                      label="Pay Now"
-                      size="sm"
-                      className="rounded-xl"
-                    />
-                  )}
-
-                  {/* LIVE TRACK BUTTON */}
-                  <Link
-                    href={`/customer/tracking?id=${encodeURIComponent(shipment.trackingNumber)}`}
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "sm" }),
-                      "rounded-xl gap-1.5 font-semibold"
-                    )}
-                  >
-                    <Truck className="size-3.5" />
-                    <span>Track</span>
-                  </Link>
-
-                  {/* CANCEL BUTTON FOR PENDING SHIPMENTS */}
-                  {canCancel && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedForCancel(shipment);
-                        setCancelModalOpen(true);
-                      }}
-                      className="rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive text-xs gap-1 font-medium cursor-pointer"
+                    {/* LIVE TRACK BUTTON */}
+                    <Link
+                      href={`/customer/tracking?id=${encodeURIComponent(shipment.trackingNumber)}`}
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "sm" }),
+                        "rounded-xl gap-1.5 font-semibold"
+                      )}
                     >
-                      <Ban className="size-3.5" />
-                      <span>Cancel</span>
-                    </Button>
-                  )}
+                      <Truck className="size-3.5" />
+                      <span>Track</span>
+                    </Link>
+
+                    {/* CANCEL BUTTON FOR PENDING SHIPMENTS */}
+                    {canCancel && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedForCancel(shipment);
+                          setCancelModalOpen(true);
+                        }}
+                        className="rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive text-xs gap-1 font-medium cursor-pointer"
+                      >
+                        <Ban className="size-3.5" />
+                        <span>Cancel</span>
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
+          {/* Table Pagination */}
+          <TablePagination
+            totalItems={filteredShipments.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            entityLabel="consignments"
+          />
         </div>
       )}
 

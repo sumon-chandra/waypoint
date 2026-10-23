@@ -90,8 +90,8 @@ export default function RegisterPage() {
           userRole === "ADMIN"
             ? "/admin"
             : userRole === "COURIER"
-            ? "/courier"
-            : "/customer";
+              ? "/courier"
+              : "/customer";
 
         if (typeof window !== "undefined") {
           window.location.replace(targetDashboard);
@@ -147,6 +147,66 @@ export default function RegisterPage() {
                 <span>{authError}</span>
               </div>
             )}
+
+            {/* Google Sign In / Registration Option */}
+            <div>
+              <GoogleButton
+                label="Sign up with Google"
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Visual Divider */}
+            <div className="relative flex items-center justify-center py-1">
+              <div className="w-full border-t border-border/70" />
+              <span className="absolute bg-card px-3 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                or register with email
+              </span>
+            </div>
+
+            {/* 1-Click Demo Auto-Fill Options */}
+            <div className="grid grid-cols-2 gap-2 pb-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 cursor-pointer"
+                onClick={() => {
+                  form.setFieldValue("fullName", "Tanvir Ahmed");
+                  form.setFieldValue(
+                    "email",
+                    `demo.customer.${Date.now().toString().slice(-4)}@waypoint.com`,
+                  );
+                  form.setFieldValue("phone", "01712345678");
+                  form.setFieldValue("role", "CUSTOMER");
+                  form.setFieldValue("password", "Waypoint123");
+                  form.setFieldValue("confirmPassword", "Waypoint123");
+                  form.setFieldValue("terms", true);
+                }}
+              >
+                Auto-fill Customer
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 hover:bg-sky-500/20 cursor-pointer"
+                onClick={() => {
+                  form.setFieldValue("fullName", "Rashedul Karim");
+                  form.setFieldValue(
+                    "email",
+                    `demo.courier.${Date.now().toString().slice(-4)}@waypoint.com`,
+                  );
+                  form.setFieldValue("phone", "01812345678");
+                  form.setFieldValue("role", "COURIER");
+                  form.setFieldValue("password", "Waypoint123");
+                  form.setFieldValue("confirmPassword", "Waypoint123");
+                  form.setFieldValue("terms", true);
+                }}
+              >
+                Auto-fill Courier
+              </Button>
+            </div>
 
             {/* TanStack Form */}
             <form

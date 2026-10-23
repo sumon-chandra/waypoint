@@ -15,12 +15,25 @@ import {
   LayoutDashboard,
   User as UserIcon,
   LogOut,
+  Zap,
+  Clock,
+  Snowflake,
+  Boxes,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserProfileMenu } from "@/components/common/user-profile-menu";
 import { ActiveShipmentsBadge } from "@/components/common/active-shipments-badge";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuContent,
+  NavigationMenuTrigger,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -105,34 +118,164 @@ export function Navbar() {
         <div className="flex items-center gap-6">
           <Logo variant="responsive" size="md" showBadge />
 
-          {/* Desktop Navigation Links */}
-          <nav
-            className="hidden md:flex items-center gap-1 lg:gap-2"
-            aria-label="Desktop Navigation"
-          >
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "relative px-3 py-1.5 text-sm font-medium transition-colors rounded-md hover:text-foreground",
-                    isActive
-                      ? "text-foreground font-semibold bg-accent/60"
-                      : "text-muted-foreground hover:bg-accent/40",
-                  )}
-                >
-                  {item.label}
-                  {item.badge && (
-                    <span className="ml-1.5 inline-flex items-center rounded-full bg-primary/10 px-1.5 py-0.2 text-[10px] font-semibold text-primary">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Desktop Navigation Links with ShadCN NavigationMenu */}
+          <div className="hidden md:flex items-center">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {/* 1. Advanced Services Mega-Menu Dropdown */}
+                <NavigationMenuItem value="services">
+                  <NavigationMenuTrigger
+                    className={cn(
+                      pathname.startsWith("/services")
+                        ? "text-foreground font-semibold bg-accent/60"
+                        : "text-muted-foreground hover:bg-accent/40"
+                    )}
+                  >
+                    Services
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent className="w-[580px] lg:w-[680px]">
+                    <div className="grid grid-cols-12 gap-3.5">
+                      {/* Left: Featured Solutions Hub (5 cols) */}
+                      <div className="col-span-5 rounded-xl bg-linear-to-b from-primary/15 via-primary/5 to-muted/20 p-4 border border-primary/20 flex flex-col justify-between">
+                        <div>
+                          <div className="size-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center mb-2.5 shadow-xs">
+                            <Truck className="size-4.5" />
+                          </div>
+                          <h4 className="text-sm font-bold text-foreground">
+                            Logistics Portfolio
+                          </h4>
+                          <p className="text-[11px] text-muted-foreground leading-relaxed mt-1">
+                            Nationwide courier, heavy freight, and cold-chain infrastructure across all 64 districts.
+                          </p>
+                        </div>
+
+                        <div className="pt-3 border-t border-border/50">
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="/services"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                            >
+                              <span>Browse All 8 Services</span>
+                              <ArrowRight className="size-3" />
+                            </Link>
+                          </NavigationMenuLink>
+                        </div>
+                      </div>
+
+                      {/* Right: Curated Quick Service Links (7 cols) */}
+                      <div className="col-span-7 flex flex-col gap-1">
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href="/services/express"
+                            className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-muted/60 transition-colors group"
+                          >
+                            <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                              <Zap className="size-3.5" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                                Express Parcel Delivery
+                              </p>
+                              <p className="text-[10px] text-muted-foreground line-clamp-1">
+                                Guaranteed 12-24h nationwide courier & 18:00 cutoff
+                              </p>
+                            </div>
+                          </Link>
+                        </NavigationMenuLink>
+
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href="/services/same-day"
+                            className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-muted/60 transition-colors group"
+                          >
+                            <div className="size-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0 mt-0.5">
+                              <Clock className="size-3.5" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                                Same-Day City Transit
+                              </p>
+                              <p className="text-[10px] text-muted-foreground line-clamp-1">
+                                4-8h rush intra-city courier for Dhaka and Chittagong
+                              </p>
+                            </div>
+                          </Link>
+                        </NavigationMenuLink>
+
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href="/services/cold-chain"
+                            className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-muted/60 transition-colors group"
+                          >
+                            <div className="size-7 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
+                              <Snowflake className="size-3.5" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                                Cold-Chain Logistics
+                              </p>
+                              <p className="text-[10px] text-muted-foreground line-clamp-1">
+                                Calibrated +2°C to +8°C refrigerated telemetry
+                              </p>
+                            </div>
+                          </Link>
+                        </NavigationMenuLink>
+
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href="/services/freight"
+                            className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-muted/60 transition-colors group"
+                          >
+                            <div className="size-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                              <Boxes className="size-3.5" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                                Heavy Linehaul Freight
+                              </p>
+                              <p className="text-[10px] text-muted-foreground line-clamp-1">
+                                Scheduled FTL linehauls connecting all 8 divisions
+                              </p>
+                            </div>
+                          </Link>
+                        </NavigationMenuLink>
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                {/* 2. Remaining Navigation Links */}
+                {navItems
+                  .filter((item) => item.label !== "Services")
+                  .map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <NavigationMenuItem key={item.href}>
+                        <NavigationMenuLink asChild active={isActive}>
+                          <Link
+                            href={item.href}
+                            className={cn(
+                              navigationMenuTriggerStyle(),
+                              "h-9 px-3 py-1.5 text-sm font-medium",
+                              isActive
+                                ? "text-foreground font-semibold bg-accent/60"
+                                : "text-muted-foreground hover:bg-accent/40"
+                            )}
+                          >
+                            <span>{item.label}</span>
+                            {item.badge && (
+                              <span className="ml-1.5 inline-flex items-center rounded-full bg-primary/10 px-1.5 py-0.2 text-[10px] font-semibold text-primary">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    );
+                  })}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
         </div>
 
         {/* Desktop Actions */}
@@ -270,38 +413,77 @@ export function Navbar() {
                   {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={cn(
-                          "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px]",
-                          isActive
-                            ? "bg-primary/10 text-primary font-semibold"
-                            : "text-foreground hover:bg-muted",
-                        )}
-                      >
-                        <span className="flex items-center gap-2.5">
-                          {item.label === "Services" && (
-                            <Truck className="size-4 text-primary" />
+                      <div key={item.href} className="space-y-1">
+                        <Link
+                          href={item.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px]",
+                            isActive
+                              ? "bg-primary/10 text-primary font-semibold"
+                              : "text-foreground hover:bg-muted",
                           )}
-                          {item.label === "Hub Network" && (
-                            <MapPin className="size-4 text-primary" />
-                          )}
-                          {item.label === "Pricing" && (
-                            <ShieldCheck className="size-4 text-primary" />
-                          )}
-                          {item.label === "About" && (
-                            <Phone className="size-4 text-primary" />
-                          )}
-                          {item.label}
-                        </span>
-                        {item.badge && (
-                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                            {item.badge}
+                        >
+                          <span className="flex items-center gap-2.5">
+                            {item.label === "Services" && (
+                              <Truck className="size-4 text-primary" />
+                            )}
+                            {item.label === "Hub Network" && (
+                              <MapPin className="size-4 text-primary" />
+                            )}
+                            {item.label === "Pricing" && (
+                              <ShieldCheck className="size-4 text-primary" />
+                            )}
+                            {item.label === "About" && (
+                              <Phone className="size-4 text-primary" />
+                            )}
+                            {item.label}
                           </span>
+                          {item.badge && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+
+                        {/* Services Nested Sub-Menu in Drawer */}
+                        {item.label === "Services" && (
+                          <div className="ml-6 pl-3 border-l border-border/60 space-y-1 py-1">
+                            <Link
+                              href="/services/express"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="flex items-center gap-2 py-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Zap className="size-3 text-primary" />
+                              <span>Express Delivery (12-24h)</span>
+                            </Link>
+                            <Link
+                              href="/services/same-day"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="flex items-center gap-2 py-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Clock className="size-3 text-indigo-500" />
+                              <span>Same-Day Transit (4-8h)</span>
+                            </Link>
+                            <Link
+                              href="/services/cold-chain"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="flex items-center gap-2 py-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Snowflake className="size-3 text-cyan-500" />
+                              <span>Cold-Chain Logistics</span>
+                            </Link>
+                            <Link
+                              href="/services/freight"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="flex items-center gap-2 py-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Boxes className="size-3 text-amber-500" />
+                              <span>Heavy Freight (FTL/LTL)</span>
+                            </Link>
+                          </div>
                         )}
-                      </Link>
+                      </div>
                     );
                   })}
                 </div>
